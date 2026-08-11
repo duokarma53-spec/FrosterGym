@@ -129,9 +129,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* User Info */}
       <div className="p-4 border-b border-[rgba(255,255,255,0.08)]">
         <div className="flex items-center gap-3">
-          <Avatar src={profile?.avatar_url} name={profile?.full_name || 'User'} size="md" />
+          <Avatar
+            src={profile?.avatar_url}
+            name={profile?.full_name && profile.full_name.trim() !== '' ? profile.full_name : 'Froaster Gym Owner'}
+            size="md"
+          />
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-[#F4F1E8] truncate">{profile?.full_name}</p>
+            <p className="text-sm font-semibold text-[#F4F1E8] truncate">
+              {profile?.full_name && profile.full_name.trim() !== '' ? profile.full_name : 'Froaster Gym Owner'}
+            </p>
             <Badge variant={isOwner ? 'info' : 'default'}>{isOwner ? 'Owner' : 'Staff'}</Badge>
           </div>
         </div>

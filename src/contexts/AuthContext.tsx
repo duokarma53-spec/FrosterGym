@@ -86,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         typedProfile = {
           ...rawProf,
           gym_id: rawProf.gym_id || gymId,
-          full_name: rawProf.full_name || user?.user_metadata?.full_name || 'Froaster Gym Owner',
+          full_name: (rawProf.full_name && String(rawProf.full_name).trim() !== '') ? rawProf.full_name : (user?.user_metadata?.full_name || 'Froaster Gym Owner'),
           email: rawProf.email || user?.email || 'froastergym@gmail.com',
           role: isPrimaryAccount ? 'owner' : (rawProf.role || 'owner'),
         } as unknown as Profile;

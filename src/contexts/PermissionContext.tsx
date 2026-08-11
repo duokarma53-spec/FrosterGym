@@ -26,7 +26,7 @@ export function PermissionProvider({ children }: { children: React.ReactNode }) 
   const [permissions, setPermissions] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
-  const isOwner = profile?.role === 'owner' || profile?.email === 'froastergym@gmail.com' || profile?.user_id === '1313d7df-d15d-449e-b198-7e8da8c1cc2f' || !profile?.role;
+  const isOwner = profile?.role !== 'staff' || profile?.email === 'froastergym@gmail.com' || profile?.user_id === '1313d7df-d15d-449e-b198-7e8da8c1cc2f';
 
   const fetchPermissions = async () => {
     if (!profile) {
