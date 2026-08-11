@@ -258,27 +258,27 @@ export function PublicWebsite() {
           {/* Desktop Layout (Hidden on Mobile) */}
           <div className="hidden lg:flex justify-center items-center w-full max-w-6xl mx-auto gap-8 px-4 py-10">
             <div className="w-full max-w-[350px] transition-all duration-500 hover:scale-105">
-              <img src="/FrosterGym/plan-basic.jpg" alt="Basic Plan" className="w-full rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-slate-500/20" />
+              <img src="/FrosterGym/basic-plan.jpeg" alt="Basic Plan" className="w-full rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-slate-500/20" />
             </div>
             <div className="w-full max-w-[350px] transition-all duration-500 hover:scale-105 relative -mt-12 z-10">
-              <img src="/FrosterGym/plan-premium.jpg" alt="Premium Plan" className="w-full rounded-2xl shadow-[0_20px_50px_rgba(212,175,55,0.15)] border-2 border-[#d4af37]" />
+              <img src="/FrosterGym/premium-plan.jpeg" alt="Premium Plan" className="w-full rounded-2xl shadow-[0_20px_50px_rgba(212,175,55,0.15)] border-2 border-[#d4af37]" />
             </div>
             <div className="w-full max-w-[350px] transition-all duration-500 hover:scale-105">
-              <img src="/FrosterGym/plan-standard.jpg" alt="Standard Plan" className="w-full rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-[#689f38]/30" />
+              <img src="/FrosterGym/stnd-plan.jpeg" alt="Standard Plan" className="w-full rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-[#689f38]/30" />
             </div>
           </div>
 
           {/* Mobile 3D Stacked Layout */}
           <div className="lg:hidden relative w-full flex justify-center mt-10 perspective-[1000px]">
              {/* Placeholder to give container height */}
-             <div className="w-[75%] max-w-[320px] opacity-0 pointer-events-none">
-                <img src="/FrosterGym/plan-premium.jpg" className="w-full" alt="Placeholder" />
+             <div className="absolute inset-0 bg-[#0d0d0d] flex items-center justify-center opacity-0 pointer-events-none">
+                <img src="/FrosterGym/premium-plan.jpeg" className="w-full" alt="Placeholder" />
              </div>
              
              {[
-               { id: 0, src: "/FrosterGym/plan-basic.jpg", alt: "Basic Plan", border: "border-slate-500/20" },
-               { id: 1, src: "/FrosterGym/plan-premium.jpg", alt: "Premium Plan", border: "border-[#d4af37] border-2" },
-               { id: 2, src: "/FrosterGym/plan-standard.jpg", alt: "Standard Plan", border: "border-[#689f38]/30" }
+               { id: 0, src: "/FrosterGym/basic-plan.jpeg", alt: "Basic Plan", border: "border-slate-500/20" },
+               { id: 1, src: "/FrosterGym/premium-plan.jpeg", alt: "Premium Plan", border: "border-[#d4af37] border-2" },
+               { id: 2, src: "/FrosterGym/stnd-plan.jpeg", alt: "Standard Plan", border: "border-[#689f38]/30" }
              ].map((plan, index) => {
                 const isActive = activePlan === index;
                 const isPrev = activePlan === (index + 1) % 3;
