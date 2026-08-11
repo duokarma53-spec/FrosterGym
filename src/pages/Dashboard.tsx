@@ -44,7 +44,7 @@ export function Dashboard() {
           setStats(s || {
             totalMembers: 0, activeMembers: 0, inactiveMembers: 0, expiredMembers: 0, blockedMembers: 0, frozenMembers: 0,
             todaysAttendance: 0, todaysCollection: 0, monthlyCollection: 0, monthlyExpenses: 0,
-            pendingDues: 0, revenueAtRisk: 0, birthdaysToday: 0, expiringSoon: 0, activePT: 0, ptDue: 0, lifetimeRevenue: 0,
+            pendingDues: 0, revenueAtRisk: 0, expiringSoon: 0, activePT: 0, ptDue: 0, lifetimeRevenue: 0,
           });
           setExpiryAlerts(e || []);
           setPaymentsDue(p || []);
@@ -55,7 +55,7 @@ export function Dashboard() {
           setStats({
             totalMembers: 0, activeMembers: 0, inactiveMembers: 0, expiredMembers: 0, blockedMembers: 0, frozenMembers: 0,
             todaysAttendance: 0, todaysCollection: 0, monthlyCollection: 0, monthlyExpenses: 0,
-            pendingDues: 0, revenueAtRisk: 0, birthdaysToday: 0, expiringSoon: 0, activePT: 0, ptDue: 0, lifetimeRevenue: 0,
+            pendingDues: 0, revenueAtRisk: 0, expiringSoon: 0, activePT: 0, ptDue: 0, lifetimeRevenue: 0,
           });
         }
       } finally {

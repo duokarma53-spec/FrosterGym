@@ -168,7 +168,7 @@ CREATE POLICY "Owner can update own gym"
 CREATE POLICY "Users can view gym profiles"
   ON public.profiles FOR SELECT
   USING (
-    gym_id IN (SELECT gym_id FROM public.profiles WHERE user_id = auth.uid())
+    gym_id = public.get_gym_id()
   );
 
 CREATE POLICY "Users can update own profile"
@@ -180,9 +180,7 @@ CREATE POLICY "Users can update own profile"
 CREATE POLICY "Owner can manage gym profiles"
   ON public.profiles FOR ALL
   USING (
-    gym_id IN (
-      SELECT id FROM public.gyms WHERE owner_id = auth.uid()
-    )
+    gym_id = public.get_gym_id()
   );
 
 -- Staff permissions: viewable by gym members, manageable by owner
@@ -983,10 +981,16 @@ ALTER TABLE public.memberships ENABLE ROW LEVEL SECURITY;
 -- 3. RLS Policies ensuring that every major table requires gym_id to match user's gym_id
 -- We assume the user's gym_id can be looked up via public.profiles
 
--- Function to get current user's gym_id
-CREATE OR REPLACE FUNCTION public.get_gym_id() RETURNS UUID AS $$
+-- Function to get current user's gym_id safely
+CREATE OR REPLACE FUNCTION public.get_gym_id() RETURNS UUID 
+LANGUAGE sql 
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
   SELECT gym_id FROM public.profiles WHERE user_id = auth.uid() LIMIT 1;
-$$ LANGUAGE sql STABLE;
+$$;
+
 
 -- Staff permissions policies
 CREATE POLICY "Staff permissions are viewable by users in the same gym" 

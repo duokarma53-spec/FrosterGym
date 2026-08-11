@@ -1,5 +1,5 @@
 import { BarChart3, TrendingUp, Users, AlertCircle } from 'lucide-react';
-import { Card } from '../../components/ui/Card';
+
 
 export function ReportsDashboard() {
   return (

@@ -16,7 +16,6 @@ export interface DashboardStats {
   monthlyExpenses: number;
   pendingDues: number;
   revenueAtRisk: number;
-  birthdaysToday: number;
   expiringSoon: number;
   activePT: number;
   ptDue: number;
@@ -75,7 +74,6 @@ export async function fetchDashboardStats(gymId: string): Promise<DashboardStats
       monthlyExpenses: 0,
       pendingDues: 0,
       revenueAtRisk: 0,
-      birthdaysToday: 0,
       expiringSoon: 0,
       activePT: 0,
       ptDue: 0,
@@ -88,7 +86,7 @@ export async function fetchDashboardStats(gymId: string): Promise<DashboardStats
     const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
 
     // Members by status
-    const membersRes: any = await db.from('members').select('status', { count: 'exact' }).eq('gym_id', gymId).is('deleted_at', null);
+    const membersRes: any = await db.from('members').select('status', { count: 'exact' }).eq('gym_id', gymId);
     const allMembers = membersRes.data || [];
     const totalMembers = allMembers.length;
     const activeMembers = allMembers.filter((m: any) => m.status === 'active').length;
@@ -130,7 +128,7 @@ export async function fetchDashboardStats(gymId: string): Promise<DashboardStats
     return {
       totalMembers, activeMembers, inactiveMembers, expiredMembers, blockedMembers, frozenMembers,
       todaysAttendance, todaysCollection, monthlyCollection, monthlyExpenses,
-      pendingDues, revenueAtRisk, birthdaysToday: 0, expiringSoon, activePT: 0, ptDue: 0,
+      pendingDues, revenueAtRisk, expiringSoon, activePT: 0, ptDue: 0,
       lifetimeRevenue,
     };
   } catch (err) {
@@ -138,7 +136,7 @@ export async function fetchDashboardStats(gymId: string): Promise<DashboardStats
     return {
       totalMembers: 0, activeMembers: 0, inactiveMembers: 0, expiredMembers: 0, blockedMembers: 0, frozenMembers: 0,
       todaysAttendance: 0, todaysCollection: 0, monthlyCollection: 0, monthlyExpenses: 0,
-      pendingDues: 0, revenueAtRisk: 0, birthdaysToday: 0, expiringSoon: 0, activePT: 0, ptDue: 0,
+      pendingDues: 0, revenueAtRisk: 0, expiringSoon: 0, activePT: 0, ptDue: 0,
       lifetimeRevenue: 0,
     };
   }
@@ -167,26 +165,6 @@ export async function fetchExpiryAlerts(gymId: string): Promise<ExpiryAlert[]> {
   }
 }
 
-// ─── Birthdays ──────────────────────────
-export async function fetchBirthdaysToday(gymId: string): Promise<BirthdayMember[]> {
-  if (isDemo()) {
-    return [];
-  }
-
-  try {
-    const today = new Date();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    // PostgreSQL: extract month/day from date_of_birth
-    const res: any = await db.rpc('get_birthdays_today', { p_gym_id: gymId, p_month: parseInt(mm), p_day: parseInt(dd) });
-    return (res.data || []).map((m: any) => ({
-      ...m,
-      age: today.getFullYear() - new Date(m.date_of_birth).getFullYear(),
-    }));
-  } catch {
-    return [];
-  }
-}
 
 // ─── Recent Activity ──────────────────────────
 export async function fetchRecentActivity(gymId: string, limit = 10): Promise<ActivityItem[]> {
