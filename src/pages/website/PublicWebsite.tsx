@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, ArrowRight, MapPin, Phone, MessageCircle } from 'lucide-react';
+import { Menu, X, ArrowRight, MapPin, Phone, MessageCircle, ChevronRight } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
 export function PublicWebsite() {
@@ -395,14 +395,28 @@ export function PublicWebsite() {
                 Your transformation starts with the first step. Visit us or reach out today.
               </p>
               
-               <div className="flex flex-col sm:flex-row gap-6 mb-12 max-w-xl">
-                 <a href="tel:+918866445862" className="group flex items-center justify-center gap-3 flex-1 bg-[#111111] border border-[#d4af37]/30 text-[#f0f0f0] hover:text-[#d4af37] hover:border-[#d4af37]/80 text-[14px] font-oswald font-medium tracking-[0.15em] uppercase h-[56px] px-8 transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.99] rounded-sm">
-                   <Phone className="w-4 h-4 text-white/70 group-hover:text-[#d4af37] transition-all duration-200" />
-                   <span>Call Now</span>
+               <div className="flex flex-col sm:flex-row gap-5 mb-12 max-w-xl">
+                 <a href="tel:+918866445862" className="group relative flex items-center justify-between flex-1 bg-[#0B0B0A] border border-[#d4af37]/20 hover:border-[#d4af37]/50 h-[56px] px-6 sm:px-8 rounded-md transition-all duration-200 hover:-translate-y-[2px] active:translate-y-0 hover:shadow-[0_4px_20px_rgba(212,175,55,0.08)] overflow-hidden">
+                   <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+                   
+                   <Phone className="w-4 h-4 text-[#d4af37] relative z-10" />
+                   
+                   <span className="text-[13px] font-oswald text-[#F4F1E8] tracking-[0.15em] font-medium uppercase absolute left-1/2 -translate-x-1/2 z-10 whitespace-nowrap">
+                     Call Now
+                   </span>
+                   
+                   <ChevronRight className="w-4 h-4 text-[#d4af37]/50 group-hover:text-[#d4af37] transition-all duration-200 group-hover:translate-x-1 relative z-10" />
                  </a>
-                 <a href="https://wa.me/918866445862" target="_blank" rel="noreferrer" className="group flex items-center justify-center gap-3 flex-1 bg-[#09160f] border border-[#1a3826] text-[#f0f0f0] hover:text-white hover:border-[#d4af37]/60 text-[14px] font-oswald font-medium tracking-[0.15em] uppercase h-[56px] px-8 transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.99] rounded-sm">
-                   <MessageCircle className="w-4 h-4 text-[#25d366]/70 group-hover:text-[#d4af37] transition-all duration-200" />
-                   <span>WhatsApp Us</span>
+                 <a href="https://wa.me/918866445862" target="_blank" rel="noreferrer" className="group relative flex items-center justify-between flex-1 bg-[#0B0B0A] border border-[#d4af37]/20 hover:border-[#d4af37]/40 h-[56px] px-6 sm:px-8 rounded-md transition-all duration-200 hover:-translate-y-[2px] active:translate-y-0 hover:shadow-[0_4px_20px_rgba(47,99,75,0.12)] overflow-hidden">
+                   <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+                   
+                   <MessageCircle className="w-4 h-4 text-[#3a7c5c] group-hover:text-[#4c956c] transition-colors duration-200 relative z-10" />
+                   
+                   <span className="text-[13px] font-oswald text-[#F4F1E8] tracking-[0.15em] font-medium uppercase absolute left-1/2 -translate-x-1/2 z-10 whitespace-nowrap">
+                     WhatsApp Us
+                   </span>
+                   
+                   <ChevronRight className="w-4 h-4 text-[#d4af37]/50 group-hover:text-[#d4af37] transition-all duration-200 group-hover:translate-x-1 relative z-10" />
                  </a>
                </div>
 
