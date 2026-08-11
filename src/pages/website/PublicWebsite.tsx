@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, ArrowRight, MapPin, Phone } from 'lucide-react';
+import { Menu, X, ArrowRight, MapPin, Phone, MessageCircle } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
 export function PublicWebsite() {
@@ -395,15 +395,17 @@ export function PublicWebsite() {
                 Your transformation starts with the first step. Visit us or reach out today.
               </p>
               
-              <div className="flex flex-col sm:flex-row gap-4 mb-12">
-                 <a href="tel:+918866445862" className="flex-1 bg-gradient-to-r from-[#1a1a1a] to-[#2a2a2a] border border-[#d4af37]/30 text-white hover:border-[#d4af37] text-xs font-bold uppercase tracking-widest py-3 px-6 text-center rounded-lg shadow-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-300">
-                   Call Now
+               <div className="flex flex-col sm:flex-row gap-5 mb-12 max-w-xl">
+                 <a href="tel:+918866445862" className="group relative flex items-center justify-center gap-3 flex-1 bg-gradient-to-r from-[#111] to-[#1a1a1a] border border-[#d4af37]/30 text-white hover:border-[#d4af37] hover:text-[#d4af37] text-sm font-semibold uppercase tracking-widest py-4 px-8 rounded-xl shadow-lg hover:shadow-[0_0_30px_rgba(212,175,55,0.2)] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+                   <div className="absolute inset-0 bg-gradient-to-r from-[#d4af37]/0 via-[#d4af37]/10 to-[#d4af37]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-md"></div>
+                   <Phone className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+                   <span className="relative z-10">Call Now</span>
                  </a>
-                 <a href="https://wa.me/918866445862" target="_blank" rel="noreferrer" className="flex-1 bg-gradient-to-r from-[#d4af37] to-[#b38b22] text-black hover:from-[#e3c153] hover:to-[#c49b33] text-xs font-bold uppercase tracking-widest py-3 px-6 text-center rounded-lg shadow-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] transition-all duration-300">
-                   WhatsApp Us
+                 <a href="https://wa.me/918866445862" target="_blank" rel="noreferrer" className="group relative flex items-center justify-center gap-3 flex-1 bg-gradient-to-r from-[#d4af37] via-[#e8cd71] to-[#d4af37] bg-[length:200%_auto] text-black hover:bg-[center_right_1rem] text-sm font-bold uppercase tracking-widest py-4 px-8 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] hover:-translate-y-1 transition-all duration-500">
+                   <MessageCircle className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+                   <span>WhatsApp Us</span>
                  </a>
-              </div>
-
+               </div>
 
            </div>
 
