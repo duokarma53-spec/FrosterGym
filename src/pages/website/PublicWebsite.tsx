@@ -6,7 +6,6 @@ export function PublicWebsite() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activePlan, setActivePlan] = useState(1);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -268,61 +267,29 @@ export function PublicWebsite() {
             </div>
           </div>
 
-          {/* Mobile 3D Stacked Layout */}
-          <div className="lg:hidden relative w-full flex justify-center mt-10 mb-24 perspective-[1000px]">
-             {/* Placeholder to give container height */}
-             <div className="relative w-[75%] max-w-[320px] opacity-0 pointer-events-none">
-                <img src="/FrosterGym/premium-plan.jpeg" className="w-full h-auto block" alt="Placeholder" />
+          {/* Mobile Layout (Stacked Vertically in Normal Flow) */}
+          <div className="lg:hidden flex flex-col items-center gap-12 mt-10 mb-20 px-4 w-full">
+             <div className="w-full max-w-[320px] transition-all duration-500 hover:scale-[1.02]">
+               <img 
+                 src="/FrosterGym/basic-plan.jpeg" 
+                 alt="Basic Plan" 
+                 className="w-full h-auto block rounded-2xl shadow-2xl border border-slate-500/20 object-contain" 
+               />
              </div>
-             
-             {[
-               { id: 0, src: "/FrosterGym/basic-plan.jpeg", alt: "Basic Plan", border: "border-slate-500/20" },
-               { id: 1, src: "/FrosterGym/premium-plan.jpeg", alt: "Premium Plan", border: "border-[#d4af37] border-2" },
-               { id: 2, src: "/FrosterGym/stnd-plan.jpeg", alt: "Standard Plan", border: "border-[#689f38]/30" }
-             ].map((plan, index) => {
-                const isActive = activePlan === index;
-                const isPrev = activePlan === (index + 1) % 3;
-                const isNext = activePlan === (index + 2) % 3;
-                
-                let transform = '';
-                let zIndex = 10;
-                let opacity = 1;
-                
-                if (isActive) {
-                  transform = 'scale(1) translateZ(0px) translateX(0%)';
-                  zIndex = 30;
-                  opacity = 1;
-                } else if (isPrev) {
-                  transform = 'scale(0.85) translateZ(-100px) translateX(-40%) rotateY(15deg)';
-                  zIndex = 20;
-                  opacity = 0.5;
-                } else if (isNext) {
-                  transform = 'scale(0.85) translateZ(-100px) translateX(40%) rotateY(-15deg)';
-                  zIndex = 20;
-                  opacity = 0.5;
-                }
-
-                return (
-                  <div 
-                    key={plan.id}
-                    onClick={() => setActivePlan(index)}
-                    className="absolute top-0 transition-all duration-700 ease-[cubic-bezier(0.25,0.8,0.25,1)] cursor-pointer"
-                    style={{ 
-                      transform,
-                      zIndex,
-                      opacity,
-                      width: '75%',
-                      maxWidth: '320px',
-                    }}
-                  >
-                    <img 
-                      src={plan.src} 
-                      alt={plan.alt} 
-                      className={`w-full rounded-2xl shadow-2xl border ${plan.border} transition-all duration-700 ${!isActive ? 'blur-[3px] grayscale-[30%]' : 'grayscale-0 blur-0'}`}
-                    />
-                  </div>
-                )
-             })}
+             <div className="w-full max-w-[320px] transition-all duration-500 hover:scale-[1.02]">
+               <img 
+                 src="/FrosterGym/premium-plan.jpeg" 
+                 alt="Premium Plan" 
+                 className="w-full h-auto block rounded-2xl shadow-[0_20px_50px_rgba(212,175,55,0.15)] border-2 border-[#d4af37] object-contain" 
+               />
+             </div>
+             <div className="w-full max-w-[320px] transition-all duration-500 hover:scale-[1.02]">
+               <img 
+                 src="/FrosterGym/stnd-plan.jpeg" 
+                 alt="Standard Plan" 
+                 className="w-full h-auto block rounded-2xl shadow-2xl border border-[#689f38]/30 object-contain" 
+               />
+             </div>
           </div>
         </div>
       </section>
