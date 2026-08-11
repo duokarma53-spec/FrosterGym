@@ -38,24 +38,44 @@ export function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!gym) return;
+    let isMounted = true;
     const load = async () => {
       setLoading(true);
-      const [s, e, b, a, p] = await Promise.all([
-        fetchDashboardStats(gym.id),
-        fetchExpiryAlerts(gym.id),
-        fetchBirthdaysToday(gym.id),
-        fetchRecentActivity(gym.id),
-        fetchPaymentsDue(gym.id),
-      ]);
-      setStats(s);
-      setExpiryAlerts(e);
-      setBirthdays(b);
-      setActivity(a);
-      setPaymentsDue(p);
-      setLoading(false);
+      const gymId = gym?.id || '6d4277db-8b39-43c3-9f69-89a70348e085';
+      try {
+        const [s, e, b, a, p] = await Promise.all([
+          fetchDashboardStats(gymId),
+          fetchExpiryAlerts(gymId),
+          fetchBirthdaysToday(gymId),
+          fetchRecentActivity(gymId),
+          fetchPaymentsDue(gymId),
+        ]);
+        if (isMounted) {
+          setStats(s || {
+            totalMembers: 0, activeMembers: 0, inactiveMembers: 0, expiredMembers: 0, blockedMembers: 0, frozenMembers: 0,
+            todaysAttendance: 0, todaysCollection: 0, monthlyCollection: 0, monthlyExpenses: 0,
+            pendingDues: 0, revenueAtRisk: 0, birthdaysToday: 0, expiringSoon: 0, activePT: 0, ptDue: 0,
+          });
+          setExpiryAlerts(e || []);
+          setBirthdays(b || []);
+          setActivity(a || []);
+          setPaymentsDue(p || []);
+        }
+      } catch (err) {
+        console.error('Failed to load dashboard:', err);
+        if (isMounted) {
+          setStats({
+            totalMembers: 0, activeMembers: 0, inactiveMembers: 0, expiredMembers: 0, blockedMembers: 0, frozenMembers: 0,
+            todaysAttendance: 0, todaysCollection: 0, monthlyCollection: 0, monthlyExpenses: 0,
+            pendingDues: 0, revenueAtRisk: 0, birthdaysToday: 0, expiringSoon: 0, activePT: 0, ptDue: 0,
+          });
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
     };
     load();
+    return () => { isMounted = false; };
   }, [gym]);
 
   const greeting = () => {

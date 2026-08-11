@@ -49,7 +49,7 @@ const analyticsNav: NavItem[] = [
 ];
 
 const systemNav: NavItem[] = [
-  { label: 'Digital Cards', icon: <CardIcon className="w-5 h-5" />, path: '/digital-cards' },
+  { label: 'Digital Cards', icon: <CardIcon className="w-5 h-5" />, path: '/digital-cards', permission: PERMISSIONS.DIGITAL_CARDS_VIEW },
   { label: 'Branches', icon: <Building2 className="w-5 h-5" />, path: '/branches', permission: PERMISSIONS.BRANCHES_VIEW },
   { label: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/settings', permission: PERMISSIONS.SETTINGS_VIEW },
   { label: 'Trash', icon: <Trash2 className="w-5 h-5" />, path: '/trash', permission: PERMISSIONS.MEMBERS_DELETE },

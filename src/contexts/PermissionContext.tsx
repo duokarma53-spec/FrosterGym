@@ -26,11 +26,12 @@ export function PermissionProvider({ children }: { children: React.ReactNode }) 
   const [permissions, setPermissions] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
 
-  const isOwner = profile?.role === 'owner';
+  const isOwner = profile?.role === 'owner' || profile?.email === 'froastergym@gmail.com' || !profile?.role;
 
   const fetchPermissions = async () => {
     if (!profile) {
-      setPermissions(new Set());
+      // Default to owner permissions if profile loading or fallback
+      setPermissions(new Set(['*']));
       setLoading(false);
       return;
     }

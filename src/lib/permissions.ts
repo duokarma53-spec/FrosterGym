@@ -65,6 +65,9 @@ export const PERMISSIONS = {
   BRANCHES_VIEW: 'branches.view',
   BRANCHES_MANAGE: 'branches.manage',
 
+  // Digital Cards
+  DIGITAL_CARDS_VIEW: 'digital_cards.view',
+
   // Settings
   SETTINGS_VIEW: 'settings.view',
 } as const;

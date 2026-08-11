@@ -138,21 +138,25 @@ export async function fetchDashboardStats(gymId: string): Promise<DashboardStats
 
 // ─── Expiry Alerts ──────────────────────────
 export async function fetchExpiryAlerts(gymId: string): Promise<ExpiryAlert[]> {
-  const result = await fetchMembers(gymId, { filter: 'all', pageSize: 100 });
-  const now = new Date();
-  const alerts: ExpiryAlert[] = [];
+  try {
+    const result = await fetchMembers(gymId, { filter: 'all', pageSize: 100 });
+    const now = new Date();
+    const alerts: ExpiryAlert[] = [];
 
-  for (const member of result.data) {
-    if (!member.current_membership || member.status !== 'active') continue;
-    const end = new Date(member.current_membership.end_date);
-    const days = Math.ceil((end.getTime() - now.getTime()) / 86400000);
+    for (const member of (result?.data || [])) {
+      if (!member.current_membership || member.status !== 'active') continue;
+      const end = new Date(member.current_membership.end_date);
+      const days = Math.ceil((end.getTime() - now.getTime()) / 86400000);
 
-    if (days >= 1 && days <= 3) alerts.push({ member, daysUntilExpiry: days, bucket: '1-3' });
-    else if (days >= 4 && days <= 7) alerts.push({ member, daysUntilExpiry: days, bucket: '4-7' });
-    else if (days >= 8 && days <= 15) alerts.push({ member, daysUntilExpiry: days, bucket: '8-15' });
+      if (days >= 1 && days <= 3) alerts.push({ member, daysUntilExpiry: days, bucket: '1-3' });
+      else if (days >= 4 && days <= 7) alerts.push({ member, daysUntilExpiry: days, bucket: '4-7' });
+      else if (days >= 8 && days <= 15) alerts.push({ member, daysUntilExpiry: days, bucket: '8-15' });
+    }
+
+    return alerts.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
+  } catch {
+    return [];
   }
-
-  return alerts.sort((a, b) => a.daysUntilExpiry - b.daysUntilExpiry);
 }
 
 // ─── Birthdays ──────────────────────────
