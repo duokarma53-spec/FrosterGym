@@ -269,10 +269,10 @@ export function PublicWebsite() {
           </div>
 
           {/* Mobile 3D Stacked Layout */}
-          <div className="lg:hidden relative w-full flex justify-center mt-10 perspective-[1000px]">
+          <div className="lg:hidden relative w-full flex justify-center mt-10 mb-24 perspective-[1000px]">
              {/* Placeholder to give container height */}
-             <div className="absolute inset-0 bg-[#0d0d0d] flex items-center justify-center opacity-0 pointer-events-none">
-                <img src="/FrosterGym/premium-plan.jpeg" className="w-full" alt="Placeholder" />
+             <div className="relative w-[75%] max-w-[320px] opacity-0 pointer-events-none">
+                <img src="/FrosterGym/premium-plan.jpeg" className="w-full h-auto block" alt="Placeholder" />
              </div>
              
              {[
