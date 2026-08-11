@@ -395,14 +395,13 @@ export function PublicWebsite() {
                 Your transformation starts with the first step. Visit us or reach out today.
               </p>
               
-               <div className="flex flex-col sm:flex-row gap-5 mb-12 max-w-xl">
-                 <a href="tel:+918866445862" className="group relative flex items-center justify-center gap-3 flex-1 bg-gradient-to-r from-[#111] to-[#1a1a1a] border border-[#d4af37]/30 text-white hover:border-[#d4af37] hover:text-[#d4af37] text-sm font-semibold uppercase tracking-widest py-4 px-8 rounded-xl shadow-lg hover:shadow-[0_0_30px_rgba(212,175,55,0.2)] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
-                   <div className="absolute inset-0 bg-gradient-to-r from-[#d4af37]/0 via-[#d4af37]/10 to-[#d4af37]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-md"></div>
-                   <Phone className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
-                   <span className="relative z-10">Call Now</span>
+               <div className="flex flex-col sm:flex-row gap-6 mb-12 max-w-xl">
+                 <a href="tel:+918866445862" className="group flex items-center justify-center gap-3 flex-1 bg-[#111111] border border-[#d4af37]/30 text-[#f0f0f0] hover:text-[#d4af37] hover:border-[#d4af37]/80 text-[14px] font-oswald font-medium tracking-[0.15em] uppercase h-[56px] px-8 transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.99] rounded-sm">
+                   <Phone className="w-4 h-4 text-white/70 group-hover:text-[#d4af37] transition-all duration-200" />
+                   <span>Call Now</span>
                  </a>
-                 <a href="https://wa.me/918866445862" target="_blank" rel="noreferrer" className="group relative flex items-center justify-center gap-3 flex-1 bg-gradient-to-r from-[#d4af37] via-[#e8cd71] to-[#d4af37] bg-[length:200%_auto] text-black hover:bg-[center_right_1rem] text-sm font-bold uppercase tracking-widest py-4 px-8 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.3)] hover:shadow-[0_0_40px_rgba(212,175,55,0.6)] hover:-translate-y-1 transition-all duration-500">
-                   <MessageCircle className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
+                 <a href="https://wa.me/918866445862" target="_blank" rel="noreferrer" className="group flex items-center justify-center gap-3 flex-1 bg-[#09160f] border border-[#1a3826] text-[#f0f0f0] hover:text-white hover:border-[#d4af37]/60 text-[14px] font-oswald font-medium tracking-[0.15em] uppercase h-[56px] px-8 transition-all duration-200 shadow-sm hover:shadow-md hover:-translate-y-[2px] active:translate-y-0 active:scale-[0.99] rounded-sm">
+                   <MessageCircle className="w-4 h-4 text-[#25d366]/70 group-hover:text-[#d4af37] transition-all duration-200" />
                    <span>WhatsApp Us</span>
                  </a>
                </div>
