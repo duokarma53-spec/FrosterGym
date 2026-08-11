@@ -395,8 +395,8 @@ export function PublicWebsite() {
                 Your transformation starts with the first step. Visit us or reach out today.
               </p>
               
-               <div className="flex flex-col sm:flex-row gap-5 mb-12 max-w-xl">
-                 <a href="tel:+918866445862" className="group relative flex items-center justify-between flex-1 bg-[#0B0B0A] border border-[#d4af37]/20 hover:border-[#d4af37]/50 h-[56px] px-6 sm:px-8 rounded-md transition-all duration-200 hover:-translate-y-[2px] active:translate-y-0 hover:shadow-[0_4px_20px_rgba(212,175,55,0.08)] overflow-hidden">
+               <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 mb-12 max-w-xl">
+                 <a href="tel:+918866445862" className="group relative flex items-center justify-between w-full sm:flex-1 bg-[#0B0B0A] border border-[#d4af37]/20 hover:border-[#d4af37]/50 h-14 px-6 sm:px-8 rounded-md transition-all duration-200 hover:-translate-y-[2px] active:translate-y-0 hover:shadow-[0_4px_20px_rgba(212,175,55,0.08)] overflow-hidden">
                    <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
                    
                    <Phone className="w-4 h-4 text-[#d4af37] relative z-10" />
@@ -407,7 +407,7 @@ export function PublicWebsite() {
                    
                    <ChevronRight className="w-4 h-4 text-[#d4af37]/50 group-hover:text-[#d4af37] transition-all duration-200 group-hover:translate-x-1 relative z-10" />
                  </a>
-                 <a href="https://wa.me/918866445862" target="_blank" rel="noreferrer" className="group relative flex items-center justify-between flex-1 bg-[#0B0B0A] border border-[#d4af37]/20 hover:border-[#d4af37]/40 h-[56px] px-6 sm:px-8 rounded-md transition-all duration-200 hover:-translate-y-[2px] active:translate-y-0 hover:shadow-[0_4px_20px_rgba(47,99,75,0.12)] overflow-hidden">
+                 <a href="https://wa.me/918866445862" target="_blank" rel="noreferrer" className="group relative flex items-center justify-between w-full sm:flex-1 bg-[#0B0B0A] border border-[#d4af37]/20 hover:border-[#d4af37]/40 h-14 px-6 sm:px-8 rounded-md transition-all duration-200 hover:-translate-y-[2px] active:translate-y-0 hover:shadow-[0_4px_20px_rgba(47,99,75,0.12)] overflow-hidden">
                    <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
                    
                    <MessageCircle className="w-4 h-4 text-[#3a7c5c] group-hover:text-[#4c956c] transition-colors duration-200 relative z-10" />
