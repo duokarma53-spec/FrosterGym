@@ -1,11 +1,43 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, ArrowRight, MapPin, Phone, MessageCircle, ChevronRight } from 'lucide-react';
+import { Menu, X, ArrowRight, MapPin, Phone, MessageCircle, ChevronRight, ChevronLeft } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
 export function PublicWebsite() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeMobilePlan, setActiveMobilePlan] = useState(1);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const nextSlide = () => {
+    setActiveMobilePlan((prev) => (prev + 1) % 3);
+  };
+
+  const prevSlide = () => {
+    setActiveMobilePlan((prev) => (prev - 1 + 3) % 3);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -267,28 +299,104 @@ export function PublicWebsite() {
             </div>
           </div>
 
-          {/* Mobile Layout (Stacked Vertically in Normal Flow) */}
-          <div className="lg:hidden flex flex-col items-center gap-12 mt-10 mb-20 px-4 w-full">
-             <div className="w-full max-w-[320px] transition-all duration-500 hover:scale-[1.02]">
-               <img 
-                 src="/FrosterGym/basic-plan.jpeg" 
-                 alt="Basic Plan" 
-                 className="w-full h-auto block rounded-2xl shadow-2xl border border-slate-500/20 object-contain" 
-               />
+          {/* Mobile Carousel Layout */}
+          <div className="lg:hidden relative w-full flex flex-col items-center mt-10 mb-20 px-4">
+             {/* Slider Viewport Container */}
+             <div className="relative w-full flex items-center justify-center overflow-visible">
+                {/* Left Navigation Arrow */}
+                <button 
+                  onClick={prevSlide}
+                  className="absolute left-2 z-40 flex items-center justify-center w-11 h-11 rounded-full bg-[#111111]/90 border border-[#d4af37]/30 text-[#d4af37] shadow-lg hover:border-[#d4af37]/60 hover:text-[#f4f1e8] hover:-translate-y-[1px] active:translate-y-0 active:scale-95 transition-all duration-200"
+                  aria-label="Previous Plan"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+
+                {/* Carousel Card Wrapper */}
+                <div 
+                  className="relative w-full flex justify-center items-center overflow-visible select-none"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                >
+                   {/* Relative Placeholder to define height based on aspect ratio */}
+                   <div className="relative w-[70%] max-w-[280px] opacity-0 pointer-events-none" style={{ aspectRatio: '900 / 1455' }}>
+                      <img src="/FrosterGym/premium-plan.jpeg" className="w-full h-auto block" alt="placeholder" />
+                   </div>
+
+                   {/* Cards */}
+                   {[
+                     { id: 0, src: "/FrosterGym/basic-plan.jpeg", alt: "Basic Plan", border: "border-slate-500/20" },
+                     { id: 1, src: "/FrosterGym/premium-plan.jpeg", alt: "Premium Plan", border: "border-[#d4af37] border-2" },
+                     { id: 2, src: "/FrosterGym/stnd-plan.jpeg", alt: "Standard Plan", border: "border-[#689f38]/30" }
+                   ].map((plan, index) => {
+                      const isActive = index === activeMobilePlan;
+                      const isPrev = index === (activeMobilePlan - 1 + 3) % 3;
+                      const isNext = index === (activeMobilePlan + 1) % 3;
+
+                      let transform = 'translateX(-50%) scale(0.5)';
+                      let zIndex = 10;
+                      let opacity = 0;
+
+                      if (isActive) {
+                        transform = 'translateX(-50%) scale(1)';
+                        zIndex = 30;
+                        opacity = 1;
+                      } else if (isPrev) {
+                        transform = 'translateX(-105%) scale(0.88)';
+                        zIndex = 20;
+                        opacity = 0.65;
+                      } else if (isNext) {
+                        transform = 'translateX(5%) scale(0.88)';
+                        zIndex = 20;
+                        opacity = 0.65;
+                      }
+
+                      return (
+                        <div 
+                          key={plan.id}
+                          onClick={() => setActiveMobilePlan(index)}
+                          className="absolute top-0 left-1/2 transition-all duration-500 ease-out cursor-pointer w-[70%] max-w-[280px] origin-center"
+                          style={{
+                            transform,
+                            zIndex,
+                            opacity,
+                          }}
+                        >
+                           <img 
+                             src={plan.src} 
+                             alt={plan.alt} 
+                             className={`w-full h-auto block rounded-2xl shadow-[0_15px_35px_rgba(0,0,0,0.6)] border transition-all duration-500 ${plan.border} ${!isActive ? 'blur-[1.5px] grayscale-[20%]' : 'grayscale-0 blur-0'}`}
+                           />
+                        </div>
+                      );
+                   })}
+                </div>
+
+                {/* Right Navigation Arrow */}
+                <button 
+                  onClick={nextSlide}
+                  className="absolute right-2 z-40 flex items-center justify-center w-11 h-11 rounded-full bg-[#111111]/90 border border-[#d4af37]/30 text-[#d4af37] shadow-lg hover:border-[#d4af37]/60 hover:text-[#f4f1e8] hover:-translate-y-[1px] active:translate-y-0 active:scale-95 transition-all duration-200"
+                  aria-label="Next Plan"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
              </div>
-             <div className="w-full max-w-[320px] transition-all duration-500 hover:scale-[1.02]">
-               <img 
-                 src="/FrosterGym/premium-plan.jpeg" 
-                 alt="Premium Plan" 
-                 className="w-full h-auto block rounded-2xl shadow-[0_20px_50px_rgba(212,175,55,0.15)] border-2 border-[#d4af37] object-contain" 
-               />
-             </div>
-             <div className="w-full max-w-[320px] transition-all duration-500 hover:scale-[1.02]">
-               <img 
-                 src="/FrosterGym/stnd-plan.jpeg" 
-                 alt="Standard Plan" 
-                 className="w-full h-auto block rounded-2xl shadow-2xl border border-[#689f38]/30 object-contain" 
-               />
+
+             {/* Indicators */}
+             <div className="flex gap-2.5 mt-8 justify-center">
+                {[0, 1, 2].map((index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveMobilePlan(index)}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                      activeMobilePlan === index 
+                        ? 'bg-[#d4af37] scale-110' 
+                        : 'bg-zinc-600 hover:bg-zinc-500'
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
              </div>
           </div>
         </div>
