@@ -36,24 +36,20 @@ const managementNav: NavItem[] = [
   { label: 'Attendance', icon: <CalendarCheck className="w-5 h-5" />, path: '/attendance', permission: PERMISSIONS.ATTENDANCE_VIEW },
   { label: 'PT', icon: <Target className="w-5 h-5" />, path: '/pt', permission: PERMISSIONS.PT_VIEW },
   { label: 'Diet Plans', icon: <Utensils className="w-5 h-5" />, path: '/diet-plans', permission: PERMISSIONS.DIET_PLANS_VIEW },
-  { label: 'Body Progress', icon: <Ruler className="w-5 h-5" />, path: '/body-progress', permission: PERMISSIONS.BODY_MEASUREMENTS_VIEW },
-  { label: 'Enquiries', icon: <Search className="w-5 h-5" />, path: '/enquiries', permission: PERMISSIONS.ENQUIRIES_VIEW },
   { label: 'Staff', icon: <UserCog className="w-5 h-5" />, path: '/staff', permission: PERMISSIONS.STAFF_VIEW },
   { label: 'Expenses', icon: <Receipt className="w-5 h-5" />, path: '/expenses', permission: PERMISSIONS.EXPENSES_VIEW },
 ];
 
+
 const analyticsNav: NavItem[] = [
   { label: 'Reports', icon: <BarChart3 className="w-5 h-5" />, path: '/reports', permission: PERMISSIONS.REPORTS_VIEW },
-  { label: 'WhatsApp', icon: <MessageCircle className="w-5 h-5" />, path: '/whatsapp', permission: PERMISSIONS.WHATSAPP_VIEW },
-  { label: 'SMS', icon: <Smartphone className="w-5 h-5" />, path: '/sms', permission: PERMISSIONS.SMS_VIEW },
 ];
 
+
 const systemNav: NavItem[] = [
-  { label: 'Digital Cards', icon: <CardIcon className="w-5 h-5" />, path: '/digital-cards', permission: PERMISSIONS.DIGITAL_CARDS_VIEW },
-  { label: 'Branches', icon: <Building2 className="w-5 h-5" />, path: '/branches', permission: PERMISSIONS.BRANCHES_VIEW },
   { label: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/settings', permission: PERMISSIONS.SETTINGS_VIEW },
-  { label: 'Trash', icon: <Trash2 className="w-5 h-5" />, path: '/trash', permission: PERMISSIONS.MEMBERS_DELETE },
 ];
+
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { profile, signOut } = useAuth();

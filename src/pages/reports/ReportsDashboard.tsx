@@ -30,12 +30,7 @@ export function ReportsDashboard() {
         </div>
       </div>
 
-      <Card className="p-6">
-        <h3 className="text-lg font-bold text-[#F4F1E8] mb-4">Placeholder for Charts</h3>
-        <div className="h-48 bg-[#171613]/50 rounded-xl flex items-center justify-center border border-dashed border-[rgba(255,255,255,0.12)]">
-          <p className="text-sm text-[#706D66]">Chart.js / Recharts visualization goes here</p>
-        </div>
-      </Card>
+
     </div>
   );
 }

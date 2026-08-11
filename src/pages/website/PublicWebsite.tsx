@@ -292,7 +292,7 @@ export function PublicWebsite() {
               <img src="/FrosterGym/basic-plan.jpeg" alt="Basic Plan" className="w-full rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-slate-500/20" />
             </div>
             <div className="w-full max-w-[350px] transition-all duration-500 hover:scale-105 relative -mt-12 z-10">
-              <img src="/FrosterGym/premium-plan.jpeg" alt="Premium Plan" className="w-full rounded-2xl shadow-[0_20px_50px_rgba(212,175,55,0.15)] border-2 border-[#d4af37]" />
+              <img src="/FrosterGym/pro-plan.jpeg" alt="Premium Plan" className="w-full rounded-2xl shadow-[0_20px_50px_rgba(212,175,55,0.15)] border-2 border-[#d4af37]" />
             </div>
             <div className="w-full max-w-[350px] transition-all duration-500 hover:scale-105">
               <img src="/FrosterGym/stnd-plan.jpeg" alt="Standard Plan" className="w-full rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-[#689f38]/30" />
@@ -321,13 +321,13 @@ export function PublicWebsite() {
                 >
                    {/* Relative Placeholder to define height based on aspect ratio */}
                    <div className="relative w-[70%] max-w-[280px] opacity-0 pointer-events-none" style={{ aspectRatio: '900 / 1455' }}>
-                      <img src="/FrosterGym/premium-plan.jpeg" className="w-full h-auto block" alt="placeholder" />
+                      <img src="/FrosterGym/pro-plan.jpeg" className="w-full h-auto block" alt="placeholder" />
                    </div>
 
                    {/* Cards */}
                    {[
                      { id: 0, src: "/FrosterGym/basic-plan.jpeg", alt: "Basic Plan", border: "border-slate-500/20" },
-                     { id: 1, src: "/FrosterGym/premium-plan.jpeg", alt: "Premium Plan", border: "border-[#d4af37] border-2" },
+                     { id: 1, src: "/FrosterGym/pro-plan.jpeg", alt: "Premium Plan", border: "border-[#d4af37] border-2" },
                      { id: 2, src: "/FrosterGym/stnd-plan.jpeg", alt: "Standard Plan", border: "border-[#689f38]/30" }
                    ].map((plan, index) => {
                       const isActive = index === activeMobilePlan;

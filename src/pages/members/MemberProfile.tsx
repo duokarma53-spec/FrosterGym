@@ -8,6 +8,8 @@ import { useToast } from '../../components/ui/Toast';
 import { useAuth } from '../../contexts/AuthContext';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Avatar } from '../../components/ui/Avatar';
+import { dietService, type DietPlan } from '../../services/diet.service';
+import { Utensils, Target } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { LoadingState } from '../../components/ui/LoadingState';
@@ -65,6 +67,11 @@ export function MemberProfile() {
   const [member, setMember] = useState<Member | null>(null);
   const [membership, setMembership] = useState<Membership | null>(null);
   const [payments, setPayments] = useState<Payment[]>([]);
+  const [memberDiet, setMemberDiet] = useState<any>(null);
+  const [dietPlans, setDietPlans] = useState<DietPlan[]>([]);
+  const [selectedDiet, setSelectedDiet] = useState('');
+  const [isAssigningDiet, setIsAssigningDiet] = useState(false);
+  const [memberPT, setMemberPT] = useState<any>(null);
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -116,6 +123,22 @@ export function MemberProfile() {
           
         if (paymentsError) throw paymentsError;
         setPayments(paymentsData || []);
+
+        // Fetch Diet
+        const dietRes = await dietService.getMemberDietPlan(gym.id, id);
+        if (dietRes.data) setMemberDiet(dietRes.data);
+        
+        const dPlansRes = await dietService.fetchDietPlans(gym.id);
+        if (dPlansRes.data) setDietPlans(dPlansRes.data);
+
+        // Fetch PT
+        const { data: ptData } = await supabase
+          .from('pt_memberships')
+          .select('*, trainer:trainers(name), pt_plan:pt_plans(name)')
+          .eq('member_id', id)
+          .eq('status', 'active')
+          .maybeSingle();
+        setMemberPT(ptData);
       }
     } catch (err: any) {
       setError(err);
@@ -143,6 +166,21 @@ export function MemberProfile() {
     if (daysLeft <= 7 && daysLeft >= 0) return <Badge variant="warning">Expiring soon</Badge>;
     if (membership.status === 'frozen') return <Badge variant="info">Frozen</Badge>;
     return <Badge variant="success">Active</Badge>;
+  };
+
+  const handleAssignDiet = async () => {
+    if (!gym || !selectedDiet || !id) return;
+    setIsAssigningDiet(true);
+    try {
+      await dietService.assignDietPlan(gym.id, id, selectedDiet);
+      toast('success', 'Diet plan assigned');
+      const dietRes = await dietService.getMemberDietPlan(gym.id, id);
+      if (dietRes.data) setMemberDiet(dietRes.data);
+    } catch (err) {
+      toast('error', 'Failed to assign diet plan');
+    } finally {
+      setIsAssigningDiet(false);
+    }
   };
 
   const handleFreeze = async () => {
@@ -271,6 +309,72 @@ export function MemberProfile() {
           <div className="bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-2xl p-6 text-center">
             <p className="text-sm text-[#A7A39A] mb-4">No active membership plan</p>
             <Button size="sm" onClick={() => navigate(`/app/members/${member.id}/renew`)}>Assign Plan</Button>
+          </div>
+        )}
+
+        {/* Diet Plan */}
+        <div className="bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-2xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.08)] bg-[#11110F]">
+            <h3 className="text-sm font-semibold text-[#F4F1E8] uppercase tracking-wider flex items-center">
+              <Utensils className="w-4 h-4 mr-2 text-[#4D6B5A]" />
+              Diet Plan
+            </h3>
+          </div>
+          <div className="p-4">
+            {memberDiet ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-xs text-[#706D66]">Plan Name</p>
+                  <p className="text-sm font-medium text-[#F4F1E8]">{memberDiet.diet_plan?.name}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-[#706D66]">Calories</p>
+                  <p className="text-sm font-medium text-[#F4F1E8]">{memberDiet.diet_plan?.calories} kcal</p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <select 
+                  className="flex-1 h-[40px] bg-[#0B0B0A] border border-[rgba(255,255,255,0.08)] rounded-xl px-3 text-sm text-[#F4F1E8]"
+                  value={selectedDiet}
+                  onChange={e => setSelectedDiet(e.target.value)}
+                >
+                  <option value="">Select Diet Plan</option>
+                  {dietPlans.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
+                </select>
+                <Button size="sm" onClick={handleAssignDiet} loading={isAssigningDiet} disabled={!selectedDiet}>Assign</Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Personal Training */}
+        {memberPT && (
+          <div className="bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-2xl overflow-hidden">
+            <div className="px-4 py-3 border-b border-[rgba(255,255,255,0.08)] bg-[#11110F]">
+              <h3 className="text-sm font-semibold text-[#F4F1E8] uppercase tracking-wider flex items-center">
+                <Target className="w-4 h-4 mr-2 text-[#E2C46B]" />
+                Personal Training
+              </h3>
+            </div>
+            <div className="p-4 grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-[#706D66]">Trainer</p>
+                <p className="text-sm font-medium text-[#F4F1E8]">{memberPT.trainer?.name}</p>
+              </div>
+              <div>
+                <p className="text-xs text-[#706D66]">Plan</p>
+                <p className="text-sm font-medium text-[#F4F1E8]">{memberPT.pt_plan?.name || 'Custom'}</p>
+              </div>
+              <div>
+                <p className="text-xs text-[#706D66]">Start Date</p>
+                <p className="text-sm font-medium text-[#F4F1E8]">{new Date(memberPT.start_date).toLocaleDateString()}</p>
+              </div>
+              <div>
+                <p className="text-xs text-[#706D66]">End Date</p>
+                <p className="text-sm font-medium text-[#F4F1E8]">{new Date(memberPT.end_date).toLocaleDateString()}</p>
+              </div>
+            </div>
           </div>
         )}
 

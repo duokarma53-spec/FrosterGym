@@ -20,6 +20,7 @@ export interface DashboardStats {
   expiringSoon: number;
   activePT: number;
   ptDue: number;
+  lifetimeRevenue: number;
 }
 
 export interface ExpiryAlert {
@@ -78,6 +79,7 @@ export async function fetchDashboardStats(gymId: string): Promise<DashboardStats
       expiringSoon: 0,
       activePT: 0,
       ptDue: 0,
+      lifetimeRevenue: 0,
     };
   }
 
@@ -111,6 +113,10 @@ export async function fetchDashboardStats(gymId: string): Promise<DashboardStats
     const expenseRes: any = await db.from('expenses').select('amount').eq('gym_id', gymId).gte('expense_date', monthStart);
     const monthlyExpenses = (expenseRes.data || []).reduce((sum: number, e: any) => sum + Number(e.amount), 0);
 
+    // Lifetime Revenue
+    const lifetimePayRes: any = await db.from('payments').select('amount').eq('gym_id', gymId).eq('status', 'completed');
+    const lifetimeRevenue = (lifetimePayRes.data || []).reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+
     // Pending dues
     const dueRes: any = await db.from('memberships').select('due_amount').eq('gym_id', gymId).gt('due_amount', 0);
     const pendingDues = (dueRes.data || []).reduce((sum: number, m: any) => sum + Number(m.due_amount), 0);
@@ -125,6 +131,7 @@ export async function fetchDashboardStats(gymId: string): Promise<DashboardStats
       totalMembers, activeMembers, inactiveMembers, expiredMembers, blockedMembers, frozenMembers,
       todaysAttendance, todaysCollection, monthlyCollection, monthlyExpenses,
       pendingDues, revenueAtRisk, birthdaysToday: 0, expiringSoon, activePT: 0, ptDue: 0,
+      lifetimeRevenue,
     };
   } catch (err) {
     console.error('Dashboard stats error:', err);
@@ -132,6 +139,7 @@ export async function fetchDashboardStats(gymId: string): Promise<DashboardStats
       totalMembers: 0, activeMembers: 0, inactiveMembers: 0, expiredMembers: 0, blockedMembers: 0, frozenMembers: 0,
       todaysAttendance: 0, todaysCollection: 0, monthlyCollection: 0, monthlyExpenses: 0,
       pendingDues: 0, revenueAtRisk: 0, birthdaysToday: 0, expiringSoon: 0, activePT: 0, ptDue: 0,
+      lifetimeRevenue: 0,
     };
   }
 }

@@ -42,6 +42,23 @@ export const dietService = {
       .select()
       .single();
     return { data, error };
+  },
+
+  async assignDietPlan(gymId: string, memberId: string, dietPlanId: string) {
+    if (isDemo()) return { data: null, error: null };
+    // Check if existing
+    const { data: existing } = await db.from('member_diet_plans').select('id').eq('member_id', memberId).eq('gym_id', gymId).maybeSingle();
+    if (existing) {
+      const { data, error } = await db.from('member_diet_plans').update({ diet_plan_id: dietPlanId }).eq('id', existing.id).select().single();
+      return { data, error };
+    }
+    const { data, error } = await db.from('member_diet_plans').insert([{ gym_id: gymId, member_id: memberId, diet_plan_id: dietPlanId }]).select().single();
+    return { data, error };
+  },
+  
+  async getMemberDietPlan(gymId: string, memberId: string) {
+    if (isDemo()) return { data: null, error: null };
+    const { data, error } = await db.from('member_diet_plans').select('*, diet_plan:diet_plans(*)').eq('gym_id', gymId).eq('member_id', memberId).maybeSingle();
+    return { data, error };
   }
 };
-

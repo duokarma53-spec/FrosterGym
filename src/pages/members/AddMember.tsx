@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Camera, User, Phone, Mail, Calendar, MapPin, Check, Plus, Briefcase, Target, Droplet, Users } from 'lucide-react';
+import { Camera, User, Phone, Calendar, Check, Plus, Utensils, Target } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -9,6 +9,8 @@ import { useToast } from '../../components/ui/Toast';
 import { Card } from '../../components/ui/Card';
 import { createMember } from '../../services/members.service';
 import { fetchPlans, assignMembership, type MembershipPlan } from '../../services/memberships.service';
+import { dietService, type DietPlan } from '../../services/diet.service';
+import { fetchPTPlans, fetchTrainers, assignPTMembership, type PTPlan, type Trainer } from '../../services/pt.service';
 
 export function AddMember() {
   const navigate = useNavigate();
@@ -22,20 +24,16 @@ export function AddMember() {
 
   // Form State - Personal Info
   const [fullName, setFullName] = useState(enquiryState?.name || '');
-  const [phone, setPhone] = useState(enquiryState?.phone || '');
-  const [email, setEmail] = useState('');
-  const [dob, setDob] = useState('');
   const [gender, setGender] = useState('');
   
-  // Form State - Contact & Other Info
-  const [address, setAddress] = useState('');
-  const [occupation, setOccupation] = useState('');
-  const [goal, setGoal] = useState('');
-  const [bloodGroup, setBloodGroup] = useState('');
-  const [referralSource, setReferralSource] = useState(enquiryState?.notes || '');
+  // Form State - Contact Info
+  const [phone, setPhone] = useState(enquiryState?.phone || '');
 
-  // Plans
+  // Plans, Diet, PT
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
+  const [dietPlans, setDietPlans] = useState<DietPlan[]>([]);
+  const [ptPlans, setPtPlans] = useState<PTPlan[]>([]);
+  const [trainers, setTrainers] = useState<Trainer[]>([]);
   
   // Membership State
   const [planId, setPlanId] = useState('');
@@ -45,19 +43,35 @@ export function AddMember() {
   const [paidAmount, setPaidAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('upi');
 
+  // Diet State
+  const [dietPlanId, setDietPlanId] = useState('');
+
+  // PT State
+  const [ptIncluded, setPtIncluded] = useState(false);
+  const [ptPlanId, setPtPlanId] = useState('');
+  const [trainerId, setTrainerId] = useState('');
+
   useEffect(() => {
-    async function loadPlans() {
+    async function loadData() {
       if (!gym) return;
       try {
-        const activePlans = await fetchPlans(gym.id);
+        const [activePlans, dietRes, ptRes, trainerRes] = await Promise.all([
+          fetchPlans(gym.id),
+          dietService.fetchDietPlans(gym.id),
+          fetchPTPlans(gym.id),
+          fetchTrainers(gym.id)
+        ]);
         setPlans(activePlans);
+        if (dietRes.data) setDietPlans(dietRes.data);
+        if (ptRes) setPtPlans(ptRes);
+        if (trainerRes) setTrainers(trainerRes);
       } catch (err) {
-        console.error('Failed to fetch plans', err);
+        console.error('Failed to load data', err);
       } finally {
         setInitialLoading(false);
       }
     }
-    loadPlans();
+    loadData();
   }, [gym]);
 
   // Derived Values
@@ -88,6 +102,16 @@ export function AddMember() {
       toast('error', 'Name and Phone are required');
       return;
     }
+    
+    if (!planId || !selectedPlan) {
+      toast('error', 'Please select a Membership Plan');
+      return;
+    }
+    
+    if (ptIncluded && (!ptPlanId || !trainerId)) {
+      toast('error', 'Please select a PT Plan and a Trainer');
+      return;
+    }
 
     if (!gym) return;
 
@@ -98,14 +122,7 @@ export function AddMember() {
       const memberResponse = await createMember(gym.id, {
         full_name: fullName,
         phone,
-        email: email || undefined,
-        date_of_birth: dob || undefined,
         gender: gender || undefined,
-        address: address || undefined,
-        occupation: occupation || undefined,
-        goal: goal || undefined,
-        blood_group: bloodGroup || undefined,
-        referral_source: referralSource || undefined,
         status: 'active'
       });
 
@@ -115,22 +132,47 @@ export function AddMember() {
 
       const member = memberResponse.data;
 
-      // 2. Assign Membership (if plan selected)
-      if (planId && selectedPlan) {
-        const assignResponse = await assignMembership(gym.id, {
-          member_id: member.id,
-          plan_id: planId,
-          start_date: startDate,
-          original_amount: planAmount,
-          discount_amount: discountAmount,
-          final_amount: finalAmount,
-          paid_amount: paidAmount,
-          payment_method: paymentMethod
-        });
+      // 2. Assign Membership
+      const assignResponse = await assignMembership(gym.id, {
+        member_id: member.id,
+        plan_id: planId,
+        start_date: startDate,
+        original_amount: planAmount,
+        discount_amount: discountAmount,
+        final_amount: finalAmount,
+        paid_amount: paidAmount,
+        payment_method: paymentMethod
+      });
 
-        if (assignResponse.error) {
-          throw new Error(assignResponse.error);
+      if (assignResponse.error) {
+        throw new Error(assignResponse.error);
+      }
+
+      // 3. Assign Diet Plan
+      if (dietPlanId) {
+        await dietService.assignDietPlan(gym.id, member.id, dietPlanId);
+      }
+
+      // 4. Assign PT
+      if (ptIncluded && ptPlanId && trainerId) {
+        // Calculate end date based on PT plan duration
+        const ptPlan = ptPlans.find(p => p.id === ptPlanId);
+        const ptStartDate = new Date(startDate);
+        const ptEndDate = new Date(ptStartDate);
+        if (ptPlan && ptPlan.duration_months) {
+            ptEndDate.setMonth(ptEndDate.getMonth() + ptPlan.duration_months);
+        } else {
+            ptEndDate.setMonth(ptEndDate.getMonth() + 1); // default 1 month
         }
+
+        await assignPTMembership(gym.id, member.id, {
+          trainer_id: trainerId,
+          pt_plan_id: ptPlanId,
+          start_date: startDate,
+          end_date: ptEndDate.toISOString().split('T')[0],
+          final_amount: ptPlan?.price || 0,
+          status: 'active'
+        });
       }
 
       toast('success', 'Member added successfully!');
@@ -166,7 +208,7 @@ export function AddMember() {
           </div>
         </div>
 
-        {/* Section 1: Personal Details */}
+        {/* Section 1: Personal & Contact Details */}
         <Card className="space-y-4">
           <h2 className="text-sm font-semibold text-[#E2C46B] uppercase tracking-wider mb-2">Personal Details</h2>
           
@@ -181,11 +223,13 @@ export function AddMember() {
           
           <div className="grid grid-cols-2 gap-4">
             <Input 
-              label="Date of Birth" 
-              type="date"
-              value={dob}
-              onChange={e => setDob(e.target.value)}
-              icon={<Calendar className="w-5 h-5" />}
+              label="Phone Number" 
+              type="tel"
+              placeholder="e.g. 9876543210" 
+              value={phone}
+              onChange={e => setPhone(e.target.value)}
+              icon={<Phone className="w-5 h-5" />}
+              required
             />
             
             <div className="space-y-1.5">
@@ -202,97 +246,11 @@ export function AddMember() {
               </select>
             </div>
           </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <Input 
-              label="Occupation" 
-              placeholder="e.g. Software Engineer" 
-              value={occupation}
-              onChange={e => setOccupation(e.target.value)}
-              icon={<Briefcase className="w-5 h-5" />}
-            />
-            <div className="space-y-1.5">
-              <label className="block text-sm font-medium text-zinc-300">Blood Group</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Droplet className="w-5 h-5 text-[#706D66]" />
-                </div>
-                <select 
-                  className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl pl-10 pr-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
-                  value={bloodGroup}
-                  onChange={e => setBloodGroup(e.target.value)}
-                >
-                  <option value="">Select</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                </select>
-              </div>
-            </div>
-          </div>
         </Card>
 
-        {/* Section 2: Contact Details */}
+        {/* Section 2: Membership & Payment */}
         <Card className="space-y-4">
-          <h2 className="text-sm font-semibold text-[#E2C46B] uppercase tracking-wider mb-2">Contact Details</h2>
-          
-          <Input 
-            label="Phone Number" 
-            type="tel"
-            placeholder="e.g. 9876543210" 
-            value={phone}
-            onChange={e => setPhone(e.target.value)}
-            icon={<Phone className="w-5 h-5" />}
-            required
-          />
-
-          <Input 
-            label="Email (Optional)" 
-            type="email"
-            placeholder="e.g. rahul@example.com" 
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            icon={<Mail className="w-5 h-5" />}
-          />
-
-          <Input 
-            label="Address" 
-            placeholder="Enter full address" 
-            value={address}
-            onChange={e => setAddress(e.target.value)}
-            icon={<MapPin className="w-5 h-5" />}
-          />
-        </Card>
-        
-        {/* Section 3: Extra Info */}
-        <Card className="space-y-4">
-          <h2 className="text-sm font-semibold text-[#E2C46B] uppercase tracking-wider mb-2">Other Info</h2>
-          <div className="grid grid-cols-2 gap-4">
-             <Input 
-                label="Fitness Goal" 
-                placeholder="e.g. Weight Loss" 
-                value={goal}
-                onChange={e => setGoal(e.target.value)}
-                icon={<Target className="w-5 h-5" />}
-              />
-              <Input 
-                label="Referral Source" 
-                placeholder="e.g. Walk-in, Friend" 
-                value={referralSource}
-                onChange={e => setReferralSource(e.target.value)}
-                icon={<Users className="w-5 h-5" />}
-              />
-          </div>
-        </Card>
-
-        {/* Section 4: Membership & Payment */}
-        <Card className="space-y-4">
-          <h2 className="text-sm font-semibold text-[#E2C46B] uppercase tracking-wider mb-2">Membership & Payment</h2>
+          <h2 className="text-sm font-semibold text-[#E2C46B] uppercase tracking-wider mb-2">Membership Plan</h2>
           
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-zinc-300">Select Plan</label>
@@ -300,10 +258,12 @@ export function AddMember() {
               className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
               value={planId}
               onChange={e => setPlanId(e.target.value)}
+              required
             >
-              <option value="">No Plan (Add member only)</option>
+              <option value="">Select a membership plan</option>
+              {plans.length === 0 && <option disabled>No active membership plans available.</option>}
               {plans.map(p => (
-                <option key={p.id} value={p.id}>{p.name} - ₹{p.price}</option>
+                <option key={p.id} value={p.id}>{p.name} — ₹{p.price} — {p.duration_months} Months</option>
               ))}
             </select>
           </div>
@@ -392,6 +352,66 @@ export function AddMember() {
               </div>
             </div>
           )}
+        </Card>
+
+        {/* Section 3: Add-ons (Diet & PT) */}
+        <Card className="space-y-4">
+          <h2 className="text-sm font-semibold text-[#E2C46B] uppercase tracking-wider mb-2">Optional Add-ons</h2>
+          
+          <div className="space-y-1.5 border-b border-[rgba(255,255,255,0.08)] pb-4">
+            <label className="block text-sm font-medium text-zinc-300 flex items-center gap-2"><Utensils className="w-4 h-4"/> Diet Plan</label>
+            <select 
+              className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
+              value={dietPlanId}
+              onChange={e => setDietPlanId(e.target.value)}
+            >
+              <option value="">No Diet Plan</option>
+              {dietPlans.map(p => (
+                <option key={p.id} value={p.id}>{p.name} - {p.calories} Cal</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <label className="block text-sm font-medium text-zinc-300 flex items-center gap-2"><Target className="w-4 h-4"/> Personal Training</label>
+            <div className="flex gap-2">
+               <button type="button" onClick={() => setPtIncluded(false)} className={`flex-1 py-2 rounded-xl border text-sm font-medium ${!ptIncluded ? 'bg-[#4D6B5A]/20 border-[#4D6B5A]/50 text-[#4D6B5A]' : 'bg-[#11110F] border-[rgba(255,255,255,0.08)] text-[#A7A39A]'}`}>PT Not Included</button>
+               <button type="button" onClick={() => setPtIncluded(true)} className={`flex-1 py-2 rounded-xl border text-sm font-medium ${ptIncluded ? 'bg-[#C9A24D]/10 border-[#D4AF37]/50 text-[#E2C46B]' : 'bg-[#11110F] border-[rgba(255,255,255,0.08)] text-[#A7A39A]'}`}>PT Included</button>
+            </div>
+
+            {ptIncluded && (
+              <div className="grid grid-cols-2 gap-4 animate-in fade-in zoom-in-95 duration-200 mt-4">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-medium text-[#706D66]">Trainer</label>
+                  <select 
+                    className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
+                    value={trainerId}
+                    onChange={e => setTrainerId(e.target.value)}
+                    required
+                  >
+                    <option value="">Select Trainer</option>
+                    {trainers.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-medium text-[#706D66]">PT Plan</label>
+                  <select 
+                    className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
+                    value={ptPlanId}
+                    onChange={e => setPtPlanId(e.target.value)}
+                    required
+                  >
+                    <option value="">Select PT Plan</option>
+                    {ptPlans.map(p => (
+                      <option key={p.id} value={p.id}>{p.name} - ₹{p.price}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
         </Card>
 
         {/* Floating Action Button for Save */}

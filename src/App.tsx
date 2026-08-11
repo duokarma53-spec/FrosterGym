@@ -17,7 +17,6 @@ import { AddMember } from './pages/members/AddMember';
 import { MemberProfile } from './pages/members/MemberProfile';
 import { RenewMembership } from './pages/members/RenewMembership';
 import { EditMember } from './pages/members/EditMember';
-import { TrashMembers } from './pages/members/TrashMembers';
 
 // Plans
 import { PlansList } from './pages/plans/PlansList';
@@ -46,26 +45,12 @@ import { AddExpense } from './pages/expenses/AddExpense';
 // Reports
 import { ReportsDashboard } from './pages/reports/ReportsDashboard';
 
-// WhatsApp
-import { WhatsAppCampaign } from './pages/whatsapp/WhatsAppCampaign';
-
-// Enquiries
-import { EnquiriesList } from './pages/enquiries/EnquiriesList';
-import { AddEnquiry } from './pages/enquiries/AddEnquiry';
-
-// Placeholder
-import { ComingSoon } from './pages/placeholder/ComingSoon';
-
 // PT & Body Progress
-import { BodyProgressList } from './pages/body-progress/BodyProgressList';
 import { PTDashboard } from './pages/pt/PTDashboard';
 
 // Remaining Features
 import { ServicesList } from './pages/services/ServicesList';
 import { BatchesList } from './pages/batches/BatchesList';
-import { BranchesList } from './pages/branches/BranchesList';
-import { DigitalCards } from './pages/marketing/DigitalCards';
-import { SMSCampaigns } from './pages/marketing/SMSCampaigns';
 
 // Settings
 import { SettingsScreen } from './pages/settings/SettingsScreen';
@@ -140,38 +125,14 @@ export default function App() {
                 {/* Reports */}
                 <Route path="reports" element={<ReportsDashboard />} />
 
-                {/* WhatsApp */}
-                <Route path="whatsapp" element={<WhatsAppCampaign />} />
-
-                {/* Enquiries */}
-                <Route path="enquiries">
-                  <Route index element={<EnquiriesList />} />
-                  <Route path="add" element={<AddEnquiry />} />
-                </Route>
-
                 {/* PT Dashboard */}
                 <Route path="pt" element={<PTDashboard />} />
-
-                {/* Body Measurements */}
-                <Route path="body-progress" element={<BodyProgressList />} />
 
                 {/* Services */}
                 <Route path="services" element={<ServicesList />} />
 
                 {/* Batches */}
                 <Route path="batches" element={<BatchesList />} />
-
-                {/* Digital Cards */}
-                <Route path="digital-cards" element={<DigitalCards />} />
-
-                {/* Branches */}
-                <Route path="branches" element={<BranchesList />} />
-
-                {/* Trash */}
-                <Route path="trash" element={<TrashMembers />} />
-
-                {/* SMS */}
-                <Route path="sms" element={<SMSCampaigns />} />
 
                 {/* Settings */}
                 <Route path="settings" element={<SettingsScreen />} />
