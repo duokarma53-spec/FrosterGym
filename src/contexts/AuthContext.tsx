@@ -82,12 +82,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const isPrimaryAccount = user?.email === 'froastergym@gmail.com' || userId === '1313d7df-d15d-449e-b198-7e8da8c1cc2f';
 
       if (!profileError && profileData) {
+        const rawProf = profileData as any;
         typedProfile = {
-          ...profileData,
-          gym_id: profileData.gym_id || gymId,
-          full_name: profileData.full_name || user?.user_metadata?.full_name || 'Froaster Gym Owner',
-          email: profileData.email || user?.email || 'froastergym@gmail.com',
-          role: isPrimaryAccount ? 'owner' : (profileData.role || 'owner'),
+          ...rawProf,
+          gym_id: rawProf.gym_id || gymId,
+          full_name: rawProf.full_name || user?.user_metadata?.full_name || 'Froaster Gym Owner',
+          email: rawProf.email || user?.email || 'froastergym@gmail.com',
+          role: isPrimaryAccount ? 'owner' : (rawProf.role || 'owner'),
         } as unknown as Profile;
       } else {
         console.warn('Profile fetch error or RLS blocked. Applying self-healing profile fallback:', profileError);
