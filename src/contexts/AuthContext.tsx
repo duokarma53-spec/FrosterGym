@@ -71,24 +71,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       let typedProfile: Profile | null = null;
 
+      let gymId = '6d4277db-8b39-43c3-9f69-89a70348e085';
+      try {
+        const { data: rpcGymId } = await supabase.rpc('get_gym_id');
+        if (rpcGymId) gymId = rpcGymId;
+      } catch {
+        // ignore
+      }
+
+      const isPrimaryAccount = user?.email === 'froastergym@gmail.com' || userId === '1313d7df-d15d-449e-b198-7e8da8c1cc2f';
+
       if (!profileError && profileData) {
-        typedProfile = profileData as unknown as Profile;
+        typedProfile = {
+          ...profileData,
+          gym_id: profileData.gym_id || gymId,
+          full_name: profileData.full_name || user?.user_metadata?.full_name || 'Froaster Gym Owner',
+          email: profileData.email || user?.email || 'froastergym@gmail.com',
+          role: isPrimaryAccount ? 'owner' : (profileData.role || 'owner'),
+        } as unknown as Profile;
       } else {
         console.warn('Profile fetch error or RLS blocked. Applying self-healing profile fallback:', profileError);
-        let gymId = '6d4277db-8b39-43c3-9f69-89a70348e085';
-        try {
-          const { data: rpcGymId } = await supabase.rpc('get_gym_id');
-          if (rpcGymId) gymId = rpcGymId;
-        } catch {
-          // ignore
-        }
 
         typedProfile = {
           id: userId,
           user_id: userId,
           gym_id: gymId,
-          full_name: 'Froaster Gym Owner',
-          email: 'froastergym@gmail.com',
+          full_name: user?.user_metadata?.full_name || 'Froaster Gym Owner',
+          email: user?.email || 'froastergym@gmail.com',
           phone: '',
           avatar_url: null,
           role: 'owner',
