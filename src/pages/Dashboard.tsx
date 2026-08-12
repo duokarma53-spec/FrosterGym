@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Users, IndianRupee, Clock, CreditCard,
-  AlertCircle, ChevronRight, Plus, UserPlus, CalendarCheck, Receipt, Search, Zap
+  AlertCircle, ChevronRight, Plus, Search
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -86,14 +86,6 @@ export function Dashboard() {
     );
   }
 
-  const quickActions = [
-    { label: 'Add Member', icon: <UserPlus className="w-5 h-5" />, path: '/app/members/add', color: 'text-[#E2C46B] bg-[#C9A24D]/10' },
-    { label: 'Payment', icon: <IndianRupee className="w-5 h-5" />, path: '/app/payments', color: 'text-[#4D6B5A] bg-[#4D6B5A]/20' },
-    { label: 'Attendance', icon: <CalendarCheck className="w-5 h-5" />, path: '/app/attendance', color: 'text-[#E2C46B] bg-[#C9A24D]/10' },
-    { label: 'Expense', icon: <Receipt className="w-5 h-5" />, path: '/app/expenses/add', color: 'text-[#8B4B4B] bg-[#8B4B4B]/20' },
-    { label: 'Renew', icon: <Zap className="w-5 h-5" />, path: '/app/members', color: 'text-[#5A6B7C] bg-[#5A6B7C]/20' },
-  ];
-
   const alertBuckets = {
     '1-3': expiryAlerts.filter(a => a.bucket === '1-3'),
     '4-7': expiryAlerts.filter(a => a.bucket === '4-7'),
@@ -112,23 +104,6 @@ export function Dashboard() {
         </p>
       </div>
 
-      {/* ─── Quick Actions ─── */}
-      <div className="mb-6">
-        <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar -mx-4 px-4">
-          {quickActions.map(action => (
-            <button
-              key={action.label}
-              onClick={() => navigate(action.path)}
-              className="flex flex-col items-center gap-1.5 min-w-[72px] group"
-            >
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${action.color} group-hover:scale-110 transition-transform duration-200`}>
-                {action.icon}
-              </div>
-              <span className="text-[11px] font-medium text-[#A7A39A] group-hover:text-[#F4F1E8] transition-colors">{action.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* ─── Core Stats Row ─── */}
       <div className="grid grid-cols-2 gap-3 mb-6">
