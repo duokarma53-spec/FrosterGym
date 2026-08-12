@@ -1,10 +1,37 @@
 import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { Button } from '../../components/ui/Button';
-import { Download, Printer } from 'lucide-react';
+import { Download, Printer, Building2 } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
+import { 
+  fetchReceiptSettings, fetchGymProfile, 
+  type ReceiptSettings, type GymProfile 
+} from '../../services/settings.service';
 
 export function InvoiceView() {
   const { id } = useParams();
+  const { gym } = useAuth();
+  const gymId = gym?.id || '6d4277db-8b39-43c3-9f69-89a70348e085';
+
+  const [settings, setSettings] = useState<ReceiptSettings | null>(null);
+  const [profile, setProfile] = useState<GymProfile | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [r, p] = await Promise.all([
+          fetchReceiptSettings(gymId),
+          fetchGymProfile(gymId)
+        ]);
+        setSettings(r);
+        setProfile(p as GymProfile);
+      } catch (err) {
+        console.error('Failed to load invoice settings:', err);
+      }
+    };
+    if (gymId) load();
+  }, [gymId]);
 
   return (
     <div className="pb-24 animate-in zoom-in-95 duration-300">
@@ -12,13 +39,27 @@ export function InvoiceView() {
 
       <div className="bg-white text-zinc-900 rounded-2xl p-6 sm:p-8 mt-6">
         <div className="flex justify-between items-start border-b border-zinc-200 pb-6 mb-6">
-          <div>
-            <h1 className="text-2xl font-black text-[#8E7135] uppercase tracking-tighter">Froster Gym</h1>
-            <p className="text-sm text-[#706D66] mt-1">123 Fitness Street, Mumbai</p>
+          <div className="flex items-center gap-4">
+            {settings?.showGymLogo !== false && (
+              <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                {profile?.logo_url ? (
+                  <img src={profile.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                ) : (
+                  <Building2 className="w-8 h-8 text-gray-400" />
+                )}
+              </div>
+            )}
+            <div>
+              <h1 className="text-2xl font-black text-[#8E7135] uppercase tracking-tighter">
+                {profile?.name || 'Froster Gym'}
+              </h1>
+              <p className="text-sm text-[#706D66] mt-1">{profile?.address || '123 Fitness Street, Gym City'}</p>
+              {profile?.phone && <p className="text-sm text-[#706D66]">{profile.phone}</p>}
+            </div>
           </div>
           <div className="text-right">
             <h2 className="text-lg font-bold">INVOICE</h2>
-            <p className="text-sm text-[#706D66]">#INV-{id?.padStart(4, '0') || '0001'}</p>
+            <p className="text-sm text-[#706D66]">{settings?.invoicePrefix || 'INV-'}{id?.padStart(4, '0') || '0001'}</p>
           </div>
         </div>
 
@@ -64,6 +105,12 @@ export function InvoiceView() {
             <p className="text-xs text-[#706D66] text-right mt-1">Paid via UPI</p>
           </div>
         </div>
+
+        {settings?.footerMessage && (
+          <div className="mt-12 pt-6 border-t border-zinc-200 text-center">
+            <p className="text-sm text-zinc-500 italic">{settings.footerMessage}</p>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-4 mt-6">

@@ -2,6 +2,7 @@
 import { isDemo, db } from './base.service';
 import type { MemberWithMembership } from './members.service';
 import { fetchMembers } from './members.service';
+import { fetchNotificationSettings } from './settings.service';
 
 export interface DashboardStats {
   totalMembers: number;
@@ -145,6 +146,9 @@ export async function fetchDashboardStats(gymId: string): Promise<DashboardStats
 // ─── Expiry Alerts ──────────────────────────
 export async function fetchExpiryAlerts(gymId: string): Promise<ExpiryAlert[]> {
   try {
+    const settings = await fetchNotificationSettings(gymId);
+    if (!settings.membershipExpiryAlerts) return [];
+
     const result = await fetchMembers(gymId, { filter: 'all', pageSize: 100 });
     const now = new Date();
     const alerts: ExpiryAlert[] = [];
@@ -195,6 +199,9 @@ export async function fetchPaymentsDue(gymId: string): Promise<PaymentDueMember[
   }
   
   try {
+    const settings = await fetchNotificationSettings(gymId);
+    if (!settings.paymentDueAlerts) return [];
+
     const res: any = await db.from('memberships').select(`
       id, due_amount, end_date, plan_id,
       member:members!inner(id, full_name, phone, photo_url, member_id),

@@ -19,6 +19,7 @@ import {
   type ExpiryAlert,
   type PaymentDueMember,
 } from '../services/dashboard.service';
+import { fetchNotificationSettings, type NotificationSettings } from '../services/settings.service';
 
 export function Dashboard() {
   const navigate = useNavigate();
@@ -27,6 +28,9 @@ export function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [expiryAlerts, setExpiryAlerts] = useState<ExpiryAlert[]>([]);
   const [paymentsDue, setPaymentsDue] = useState<PaymentDueMember[]>([]);
+  const [notificationSettings, setNotificationSettings] = useState<NotificationSettings>({
+    membershipExpiryAlerts: true, paymentDueAlerts: true, birthdayAlerts: true
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -35,10 +39,11 @@ export function Dashboard() {
       setLoading(true);
       const gymId = gym?.id || '6d4277db-8b39-43c3-9f69-89a70348e085';
       try {
-        const [s, e, p] = await Promise.all([
+        const [s, e, p, nSettings] = await Promise.all([
           fetchDashboardStats(gymId),
           fetchExpiryAlerts(gymId),
           fetchPaymentsDue(gymId),
+          fetchNotificationSettings(gymId)
         ]);
         if (isMounted) {
           setStats(s || {
@@ -48,6 +53,7 @@ export function Dashboard() {
           });
           setExpiryAlerts(e || []);
           setPaymentsDue(p || []);
+          if (nSettings) setNotificationSettings(nSettings);
         }
       } catch (err) {
         console.error('Failed to load dashboard:', err);
@@ -135,8 +141,9 @@ export function Dashboard() {
       </div>
 
       {/* ─── Expiry Alerts (Membership Expiry) ─── */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-3">
+      {notificationSettings.membershipExpiryAlerts && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-[#8E7135]" />
             <h2 className="text-base font-semibold text-[#F4F1E8]">Membership Expiry</h2>
@@ -179,8 +186,10 @@ export function Dashboard() {
           </div>
         )}
       </div>
+      )}
 
       {/* ─── Payment Due ─── */}
+      {notificationSettings.paymentDueAlerts && (
       <div className="mb-6">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -215,6 +224,7 @@ export function Dashboard() {
           </div>
         )}
       </div>
+      )}
 
       {/* ─── Mobile FAB ─── */}
       <div className="fixed bottom-24 right-4 sm:hidden z-40">
