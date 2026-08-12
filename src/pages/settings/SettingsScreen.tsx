@@ -33,7 +33,7 @@ export const SettingsScreen: React.FC = () => {
       <div className="flex items-center justify-between">
         <PageHeader 
           title="Settings" 
-          subtitle="Manage your gym profile, billing, and branches" 
+          subtitle="Manage your gym profile" 
         />
         <Button 
           variant="primary" 
@@ -45,72 +45,59 @@ export const SettingsScreen: React.FC = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Navigation Sidebar */}
-        <div className="md:col-span-1 space-y-2">
-          <Card className="p-2">
-            <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg bg-gray-800 text-[#F4F1E8] font-medium transition-colors">
-              <Building2 className="w-5 h-5 text-indigo-400" />
-              Gym Profile
-            </button>
-          </Card>
-        </div>
-
-        {/* Content Area */}
-        <div className="md:col-span-2 space-y-6">
+      <div className="max-w-3xl mx-auto w-full space-y-6">
+        
+        {/* Gym Profile Section */}
+        <Card>
+          <div className="p-6 border-b border-gray-800">
+            <h2 className="text-xl font-semibold text-[#F4F1E8]">Gym Profile</h2>
+            <p className="text-sm text-[#A7A39A] mt-1">Basic information about your business</p>
+          </div>
           
-          {/* Gym Profile Section */}
-          <Card>
-            <div className="p-6 border-b border-gray-800">
-              <h2 className="text-xl font-semibold text-[#F4F1E8]">Gym Profile</h2>
-              <p className="text-sm text-[#A7A39A] mt-1">Basic information about your business</p>
-            </div>
-            
-            <div className="p-6 space-y-6">
-              {/* Logo Upload (Placeholder) */}
-              <div className="flex flex-col gap-3">
-                <label className="text-sm font-medium text-gray-300">Gym Logo</label>
-                <div className="flex items-center gap-4">
-                  <div className="w-20 h-20 rounded-xl bg-gray-800 border-2 border-dashed border-gray-700 flex items-center justify-center">
-                    <Building2 className="w-8 h-8 text-[#706D66]" />
-                  </div>
-                  <Button variant="secondary" icon={<UploadCloud className="w-4 h-4" />}>
-                    Upload Logo
-                  </Button>
+          <div className="p-6 space-y-6">
+            {/* Logo Upload (Placeholder) */}
+            <div className="flex flex-col gap-3">
+              <label className="text-sm font-medium text-gray-300">Gym Logo</label>
+              <div className="flex items-center gap-4">
+                <div className="w-20 h-20 rounded-xl bg-gray-800 border-2 border-dashed border-gray-700 flex items-center justify-center">
+                  <Building2 className="w-8 h-8 text-[#706D66]" />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Input 
-                  label="Gym Name" 
-                  value={gymName} 
-                  onChange={(e) => setGymName(e.target.value)} 
-                  placeholder="Enter gym name"
-                />
-                <Input 
-                  label="Phone Number" 
-                  value={phone} 
-                  onChange={(e) => setPhone(e.target.value)} 
-                  placeholder="Enter phone number"
-                />
-                <Input 
-                  label="Email Address" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
-                  placeholder="Enter email address"
-                  type="email"
-                />
-                <Input 
-                  label="Address" 
-                  value={address} 
-                  onChange={(e) => setAddress(e.target.value)} 
-                  placeholder="Enter complete address"
-                />
+                <Button variant="secondary" icon={<UploadCloud className="w-4 h-4" />}>
+                  Upload Logo
+                </Button>
               </div>
             </div>
-          </Card>
 
-        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input 
+                label="Gym Name" 
+                value={gymName} 
+                onChange={(e) => setGymName(e.target.value)} 
+                placeholder="Enter gym name"
+              />
+              <Input 
+                label="Phone Number" 
+                value={phone} 
+                onChange={(e) => setPhone(e.target.value)} 
+                placeholder="Enter phone number"
+              />
+              <Input 
+                label="Email Address" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                placeholder="Enter email address"
+                type="email"
+              />
+              <Input 
+                label="Address" 
+                value={address} 
+                onChange={(e) => setAddress(e.target.value)} 
+                placeholder="Enter complete address"
+              />
+            </div>
+          </div>
+        </Card>
+
       </div>
     </div>
   );
