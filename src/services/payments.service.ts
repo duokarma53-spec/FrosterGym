@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { isDemo, db, type ServiceResult, type PaginatedResult } from './base.service';
+import { db, type ServiceResult, type PaginatedResult } from './base.service';
 
 export interface Payment {
   id: string;
@@ -31,12 +31,9 @@ export interface RecordPaymentInput {
   type: 'membership' | 'renewal' | 'pt' | 'service' | 'other';
 }
 
-const DEMO_PAYMENTS: Payment[] = [];
 
 export const fetchPayments = async (gymId: string, options?: { search?: string; dateFrom?: string; dateTo?: string; method?: string; type?: string; page?: number; pageSize?: number }): Promise<PaginatedResult<Payment>> => {
-  if (isDemo()) {
-    return { data: DEMO_PAYMENTS.map(p => ({ ...p, gym_id: gymId })), total: DEMO_PAYMENTS.length, page: options?.page || 1, pageSize: options?.pageSize || 10 };
-  }
+  
   let query = db.from('payments').select('*, members(full_name, phone)', { count: 'exact' }).eq('gym_id', gymId);
   const page = options?.page || 1;
   const pageSize = options?.pageSize || 10;
@@ -62,28 +59,24 @@ export const fetchPayments = async (gymId: string, options?: { search?: string; 
 };
 
 export const recordPayment = async (gymId: string, data: RecordPaymentInput): Promise<ServiceResult<Payment>> => {
-  if (isDemo()) return { data: { ...DEMO_PAYMENTS[0], ...data, id: 'pay-' + Date.now(), gym_id: gymId, created_at: new Date().toISOString() }, error: null };
-  const { data: result, error } = await db.from('payments').insert({ ...data, gym_id: gymId }).select().single();
+    const { data: result, error } = await db.from('payments').insert({ ...data, gym_id: gymId }).select().single();
   return { data: result as any as Payment, error: error?.message || null };
 };
 
 export const getPaymentById = async (gymId: string, paymentId: string): Promise<ServiceResult<Payment>> => {
-  if (isDemo()) return { data: DEMO_PAYMENTS.find(p => p.id === paymentId) || null, error: null };
-  const { data, error } = await db.from('payments').select('*').eq('id', paymentId).eq('gym_id', gymId).single();
+    const { data, error } = await db.from('payments').select('*').eq('id', paymentId).eq('gym_id', gymId).single();
   return { data: data as any as Payment, error: error?.message || null };
 };
 
 export const getTodaysCollection = async (gymId: string): Promise<number> => {
-  if (isDemo()) return 0;
-  const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
   const { data, error } = await db.from('payments').select('amount').eq('gym_id', gymId).eq('payment_date', today).eq('status', 'completed');
   if (error) return 0;
   return (data as any[]).reduce((sum, p) => sum + (p.amount || 0), 0);
 };
 
 export const getMonthlyCollection = async (gymId: string): Promise<number> => {
-  if (isDemo()) return 0;
-  const date = new Date();
+    const date = new Date();
   const firstDay = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
   const { data, error } = await db.from('payments').select('amount').eq('gym_id', gymId).gte('payment_date', firstDay).eq('status', 'completed');
   if (error) return 0;
@@ -91,8 +84,7 @@ export const getMonthlyCollection = async (gymId: string): Promise<number> => {
 };
 
 export const getPendingDues = async (gymId: string): Promise<number> => {
-  if (isDemo()) return 0;
-  const { data, error } = await db.from('memberships').select('due_amount').eq('gym_id', gymId).gt('due_amount', 0);
+    const { data, error } = await db.from('memberships').select('due_amount').eq('gym_id', gymId).gt('due_amount', 0);
   if (error) return 0;
   return (data as any[]).reduce((sum, m) => sum + (m.due_amount || 0), 0);
 };

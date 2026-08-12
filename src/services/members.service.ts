@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { isDemo, db, type ServiceResult, type PaginatedResult } from './base.service';
+import { db, type ServiceResult, type PaginatedResult } from './base.service';
 
 export interface MemberWithMembership {
   id: string;
@@ -59,93 +59,9 @@ const d = (offset: number) => new Date(Date.now() + offset * 86400000).toISOStri
 const today = new Date();
 const todayStr = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-const DEMO_MEMBERS: MemberWithMembership[] = [];
 
 export const fetchMembers = async (gymId: string, options?: { search?: string; filter?: MemberFilter; sort?: MemberSort; page?: number; pageSize?: number }): Promise<PaginatedResult<MemberWithMembership>> => {
-  if (isDemo()) {
-    let results = [...DEMO_MEMBERS].map(m => ({ ...m, gym_id: gymId }));
-    
-    // Filtering
-    if (options?.filter && options.filter !== 'all') {
-      const todayDate = new Date();
-      todayDate.setHours(0, 0, 0, 0);
-      const tzOffset = todayDate.getTimezoneOffset() * 60000;
-      const todayStrLocal = new Date(Date.now() - tzOffset).toISOString().split('T')[0];
-      const monthDayStr = todayStrLocal.substring(5);
-
-      switch (options.filter) {
-        case 'active':
-        case 'inactive':
-        case 'expired':
-        case 'blocked':
-        case 'frozen':
-          results = results.filter(m => m.status === options.filter);
-          break;
-        case 'expiring_3':
-        case 'expiring_7':
-        case 'expiring_15': {
-          const days = options.filter === 'expiring_3' ? 3 : options.filter === 'expiring_7' ? 7 : 15;
-          const maxDate = new Date();
-          maxDate.setDate(maxDate.getDate() + days);
-          maxDate.setHours(23, 59, 59, 999);
-          
-          results = results.filter(m => {
-            if (m.status !== 'active' || !m.current_membership?.end_date) return false;
-            const endDate = new Date(m.current_membership.end_date);
-            return endDate >= todayDate && endDate <= maxDate;
-          });
-          break;
-        }
-        case 'due':
-          results = results.filter(m => m.current_membership && m.current_membership.due_amount > 0);
-          break;
-        case 'paid':
-          results = results.filter(m => m.current_membership && m.current_membership.due_amount === 0);
-          break;
-        case 'partially_paid':
-          results = results.filter(m => m.current_membership && m.current_membership.paid_amount > 0 && m.current_membership.due_amount > 0);
-          break;
-        case 'unpaid':
-          results = results.filter(m => m.current_membership && m.current_membership.paid_amount === 0);
-          break;
-        case 'birthday_today':
-          results = results.filter(m => m.date_of_birth && m.date_of_birth.endsWith(monthDayStr));
-          break;
-      }
-    }
-
-    if (options?.search) {
-      const s = options.search.toLowerCase();
-      results = results.filter(m => m.full_name.toLowerCase().includes(s) || m.phone.includes(s) || m.member_id.toLowerCase().includes(s));
-    }
-
-    // Sorting
-    if (options?.sort) {
-      results.sort((a, b) => {
-        switch (options.sort) {
-          case 'newest':
-            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-          case 'oldest':
-            return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-          case 'expiry_soonest':
-            if (!a.current_membership?.end_date) return 1;
-            if (!b.current_membership?.end_date) return -1;
-            return new Date(a.current_membership.end_date).getTime() - new Date(b.current_membership.end_date).getTime();
-          case 'due_highest':
-            return (b.current_membership?.due_amount || 0) - (a.current_membership?.due_amount || 0);
-          case 'due_lowest':
-            return (a.current_membership?.due_amount || 0) - (b.current_membership?.due_amount || 0);
-          default:
-            return 0;
-        }
-      });
-    }
-
-    const page = options?.page || 1;
-    const pageSize = options?.pageSize || 10;
-    
-    return { data: results.slice((page - 1) * pageSize, page * pageSize), total: results.length, page, pageSize };
-  }
+  
 
   const page = options?.page || 1;
   const pageSize = options?.pageSize || 10;
@@ -284,75 +200,63 @@ export const fetchMembers = async (gymId: string, options?: { search?: string; f
 };
 
 export const fetchMemberById = async (gymId: string, memberId: string): Promise<ServiceResult<MemberWithMembership>> => {
-  if (isDemo()) return { data: DEMO_MEMBERS.find(m => m.id === memberId) || null, error: null };
-  const { data, error } = await db.from('members').select(`*, current_membership:memberships(*)`).eq('id', memberId).eq('gym_id', gymId).single();
+    const { data, error } = await db.from('members').select(`*, current_membership:memberships(*)`).eq('id', memberId).eq('gym_id', gymId).single();
   return { data: data as any as MemberWithMembership, error: error?.message || null };
 };
 
 export const createMember = async (gymId: string, data: CreateMemberInput): Promise<ServiceResult<MemberWithMembership>> => {
-  if (isDemo()) return { data: { ...DEMO_MEMBERS[0], ...data, id: 'm-' + Date.now(), gym_id: gymId, member_id: 'FG-9999', status: data.status || 'active', created_at: new Date().toISOString(), updated_at: new Date().toISOString(), deleted_at: null } as MemberWithMembership, error: null };
-  const member_id = await generateMemberId(gymId);
+    const member_id = await generateMemberId(gymId);
   const { data: result, error } = await db.from('members').insert({ ...data, gym_id: gymId, member_id }).select().single();
   return { data: result as any as MemberWithMembership, error: error?.message || null };
 };
 
 export const updateMember = async (gymId: string, memberId: string, data: Partial<CreateMemberInput>): Promise<ServiceResult<MemberWithMembership>> => {
-  if (isDemo()) return { data: { ...DEMO_MEMBERS[0], ...data } as MemberWithMembership, error: null };
-  const { data: result, error } = await db.from('members').update(data).eq('id', memberId).eq('gym_id', gymId).select().single();
+    const { data: result, error } = await db.from('members').update(data).eq('id', memberId).eq('gym_id', gymId).select().single();
   return { data: result as any as MemberWithMembership, error: error?.message || null };
 };
 
 export const deleteMember = async (gymId: string, memberId: string): Promise<ServiceResult<boolean>> => {
-  if (isDemo()) return { data: true, error: null };
-  const { error } = await db.from('members').update({ deleted_at: new Date().toISOString() }).eq('id', memberId).eq('gym_id', gymId);
+    const { error } = await db.from('members').update({ deleted_at: new Date().toISOString() }).eq('id', memberId).eq('gym_id', gymId);
   return { data: !error, error: error?.message || null };
 };
 
 export const restoreMember = async (gymId: string, memberId: string): Promise<ServiceResult<boolean>> => {
-  if (isDemo()) return { data: true, error: null };
-  const { error } = await db.from('members').update({ deleted_at: null }).eq('id', memberId).eq('gym_id', gymId);
+    const { error } = await db.from('members').update({ deleted_at: null }).eq('id', memberId).eq('gym_id', gymId);
   return { data: !error, error: error?.message || null };
 };
 
 export const permanentDeleteMember = async (gymId: string, memberId: string): Promise<ServiceResult<boolean>> => {
-  if (isDemo()) return { data: true, error: null };
-  const { error } = await db.from('members').delete().eq('id', memberId).eq('gym_id', gymId);
+    const { error } = await db.from('members').delete().eq('id', memberId).eq('gym_id', gymId);
   return { data: !error, error: error?.message || null };
 };
 
 export const blockMember = async (gymId: string, memberId: string): Promise<ServiceResult<boolean>> => {
-  if (isDemo()) return { data: true, error: null };
-  const { error } = await db.from('members').update({ status: 'blocked' }).eq('id', memberId).eq('gym_id', gymId);
+    const { error } = await db.from('members').update({ status: 'blocked' }).eq('id', memberId).eq('gym_id', gymId);
   return { data: !error, error: error?.message || null };
 };
 
 export const unblockMember = async (gymId: string, memberId: string): Promise<ServiceResult<boolean>> => {
-  if (isDemo()) return { data: true, error: null };
-  const { error } = await db.from('members').update({ status: 'active' }).eq('id', memberId).eq('gym_id', gymId);
+    const { error } = await db.from('members').update({ status: 'active' }).eq('id', memberId).eq('gym_id', gymId);
   return { data: !error, error: error?.message || null };
 };
 
 export const freezeMember = async (gymId: string, memberId: string, startDate: string, endDate: string, reason: string): Promise<ServiceResult<boolean>> => {
-  if (isDemo()) return { data: true, error: null };
-  const { error } = await db.from('members').update({ status: 'frozen' }).eq('id', memberId).eq('gym_id', gymId);
+    const { error } = await db.from('members').update({ status: 'frozen' }).eq('id', memberId).eq('gym_id', gymId);
   return { data: !error, error: error?.message || null };
 };
 
 export const unfreezeMember = async (gymId: string, memberId: string): Promise<ServiceResult<boolean>> => {
-  if (isDemo()) return { data: true, error: null };
-  const { error } = await db.from('members').update({ status: 'active' }).eq('id', memberId).eq('gym_id', gymId);
+    const { error } = await db.from('members').update({ status: 'active' }).eq('id', memberId).eq('gym_id', gymId);
   return { data: !error, error: error?.message || null };
 };
 
 export const generateMemberId = async (gymId: string): Promise<string> => {
-  if (isDemo()) return `FG-${Math.floor(1000 + Math.random() * 9000)}`;
-  const { count } = await db.from('members').select('*', { count: 'exact', head: true }).eq('gym_id', gymId);
+    const { count } = await db.from('members').select('*', { count: 'exact', head: true }).eq('gym_id', gymId);
   return `FG-${1000 + (count || 0) + 1}`;
 };
 
 export const getDeletedMembers = async (gymId: string): Promise<MemberWithMembership[]> => {
-  if (isDemo()) return [];
-  const { data, error } = await db.from('members').select('*').eq('gym_id', gymId).not('deleted_at', 'is', null);
+    const { data, error } = await db.from('members').select('*').eq('gym_id', gymId).not('deleted_at', 'is', null);
   return (data || []) as any as MemberWithMembership[];
 };
 

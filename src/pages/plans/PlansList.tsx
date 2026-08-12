@@ -1,20 +1,43 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Tag } from 'lucide-react';
+import { Plus, Tag, Loader2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { EmptyState } from '../../components/ui/EmptyState';
-
-const MOCK_PLANS = [
-  { id: 'p1', name: '1 Month Standard', duration: '1 Month', price: 3000, status: 'active' },
-  { id: 'p3', name: '3 Months Standard', duration: '3 Months', price: 8000, status: 'active' },
-  { id: 'p12', name: 'Annual Pro', duration: '12 Months', price: 25000, status: 'active' },
-];
+import { fetchPlans, type MembershipPlan } from '../../services/memberships.service';
+import { useAuth } from '../../contexts/AuthContext';
 
 export function PlansList() {
   const navigate = useNavigate();
-  const [plans] = useState(MOCK_PLANS);
+  const { gym } = useAuth();
+  const gymId = gym?.id;
+  
+  const [plans, setPlans] = useState<MembershipPlan[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadPlans = async () => {
+      if (!gymId) return;
+      try {
+        setLoading(true);
+        const data = await fetchPlans(gymId);
+        if (mounted) {
+          setPlans(data || []);
+        }
+      } catch (err: any) {
+        console.error('Failed to load plans:', err);
+        if (mounted) toast.error('Failed to load membership plans');
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+
+    loadPlans();
+    return () => { mounted = false; };
+  }, [gymId]);
 
   return (
     <div className="pb-24 animate-in fade-in duration-300">
@@ -29,7 +52,12 @@ export function PlansList() {
         </Button>
       </div>
 
-      {plans.length === 0 ? (
+      {loading ? (
+        <div className="p-12 flex flex-col items-center justify-center text-[#A7A39A]">
+          <Loader2 className="w-8 h-8 animate-spin mb-4" />
+          <p>Loading plans...</p>
+        </div>
+      ) : plans.length === 0 ? (
         <EmptyState icon={<Tag className="w-12 h-12" />} title="No plans created" />
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -44,7 +72,7 @@ export function PlansList() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-[#706D66]">Duration</span>
-                  <span className="text-zinc-200 font-medium">{plan.duration}</span>
+                  <span className="text-zinc-200 font-medium">{plan.duration_months} Months</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-[#706D66]">Price</span>
@@ -52,7 +80,7 @@ export function PlansList() {
                 </div>
               </div>
               <div className="mt-5 flex gap-2">
-                <Button variant="secondary" size="sm" className="flex-1">Edit</Button>
+                <Button variant="secondary" size="sm" className="flex-1" onClick={() => navigate(`/app/memberships/edit/${plan.id}`)}>Edit</Button>
               </div>
             </div>
           ))}

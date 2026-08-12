@@ -7,10 +7,10 @@ import { useToast } from '../../components/ui/Toast';
 type AudienceType = 'all' | 'expiring' | 'pending' | 'inactive';
 
 const audiences = [
-  { id: 'all', label: 'All Active', count: 150, icon: Users, color: 'text-[#E2C46B]', bg: 'bg-[#C9A24D]/10', border: 'border-[#D4AF37]/20', activeBorder: 'border-[#D4AF37]' },
-  { id: 'expiring', label: 'Expiring Soon', count: 45, icon: Clock, color: 'text-[#8E7135]', bg: 'bg-[#8E7135]/20', border: 'border-amber-500/20', activeBorder: 'border-amber-500' },
-  { id: 'pending', label: 'Pending Dues', count: 12, icon: AlertCircle, color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/20', activeBorder: 'border-rose-500' },
-  { id: 'inactive', label: 'Inactive/Past', count: 320, icon: UserMinus, color: 'text-[#A7A39A]', bg: 'bg-[#171613]', border: 'border-[rgba(255,255,255,0.12)]', activeBorder: 'border-zinc-400' },
+  { id: 'all', label: 'All Active', count: 0, icon: Users, color: 'text-[#E2C46B]', bg: 'bg-[#C9A24D]/10', border: 'border-[#D4AF37]/20', activeBorder: 'border-[#D4AF37]' },
+  { id: 'expiring', label: 'Expiring Soon', count: 0, icon: Clock, color: 'text-[#8E7135]', bg: 'bg-[#8E7135]/20', border: 'border-amber-500/20', activeBorder: 'border-amber-500' },
+  { id: 'pending', label: 'Pending Dues', count: 0, icon: AlertCircle, color: 'text-rose-400', bg: 'bg-rose-500/10', border: 'border-rose-500/20', activeBorder: 'border-rose-500' },
+  { id: 'inactive', label: 'Inactive/Past', count: 0, icon: UserMinus, color: 'text-[#A7A39A]', bg: 'bg-[#171613]', border: 'border-[rgba(255,255,255,0.12)]', activeBorder: 'border-zinc-400' },
 ];
 
 const variables = [

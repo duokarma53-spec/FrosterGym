@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { supabase, supabaseConfigured } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import type { Profile, Gym } from '../lib/database.types';
 
 interface AuthContextType {
@@ -9,7 +9,7 @@ interface AuthContextType {
   profile: Profile | null;
   gym: Gym | null;
   loading: boolean;
-  isDemo: boolean;
+
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -25,41 +25,13 @@ export function useAuth() {
 }
 
 // Demo data used when Supabase is not configured
-const DEMO_PROFILE: Profile = {
-  id: 'demo-profile-id',
-  user_id: 'demo-user-id',
-  gym_id: 'demo-gym-id',
-  full_name: 'Froster Admin',
-  email: 'admin@frostergym.com',
-  phone: '+91 98765 43210',
-  avatar_url: null,
-  role: 'owner',
-  is_active: true,
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-};
-
-const DEMO_GYM: Gym = {
-  id: 'demo-gym-id',
-  name: 'Froster Gym',
-  slug: 'froster-gym',
-  owner_id: 'demo-user-id',
-  logo_url: null,
-  phone: '+91 98765 43210',
-  email: 'info@frostergym.com',
-  address: null,
-  settings: {},
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [gym, setGym] = useState<Gym | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isDemo, setIsDemo] = useState(false);
+
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -147,26 +119,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Enter demo mode — used when Supabase is not configured
-  const enterDemoMode = () => {
-    setIsDemo(true);
-    setProfile(DEMO_PROFILE);
-    setGym(DEMO_GYM);
-    setSession({ access_token: 'demo', refresh_token: 'demo' } as Session);
-    setUser({ id: 'demo-user-id', email: 'admin@frostergym.com' } as User);
-    localStorage.setItem('demo_auth', 'true');
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (!supabaseConfigured) {
-      // Check if user previously logged into demo mode
-      if (localStorage.getItem('demo_auth') === 'true') {
-        enterDemoMode();
-      } else {
-        setLoading(false);
-      }
-      return;
-    }
+    useEffect(() => {
+    
 
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
@@ -196,53 +150,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    if (!supabaseConfigured) {
-      if (email === 'froastergym@gmail.com' && password === 'froaster@2244') {
-        enterDemoMode();
-        return { error: null };
-      }
-      return { error: new Error('Invalid email or password') };
-    }
-    
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    
-    return { error };
+    return supabase.auth.signInWithPassword({ email, password });
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    if (!supabaseConfigured) {
-      enterDemoMode();
-      return { error: null };
-    }
-    const { error } = await supabase.auth.signUp({
+    return supabase.auth.signUp({
       email,
       password,
-      options: { data: { full_name: fullName } },
+      options: {
+        data: { full_name: fullName }
+      }
     });
-    return { error: error as Error | null };
   };
 
   const signOut = async () => {
-    if (!supabaseConfigured) {
-      localStorage.removeItem('demo_auth');
-      setIsDemo(false);
-      setSession(null);
-      setUser(null);
-      setProfile(null);
-      setGym(null);
-      return;
-    }
     await supabase.auth.signOut();
+    setSession(null);
+    setUser(null);
     setProfile(null);
     setGym(null);
   };
 
   return (
     <AuthContext.Provider
-      value={{ session, user, profile, gym, loading, isDemo, signIn, signUp, signOut, refreshProfile }}
+      value={{ session, user, profile, gym, loading, signIn, signUp, signOut, refreshProfile }}
     >
       {children}
     </AuthContext.Provider>

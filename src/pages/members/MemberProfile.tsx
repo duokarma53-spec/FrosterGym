@@ -16,53 +16,12 @@ import { LoadingState } from '../../components/ui/LoadingState';
 import { ErrorState } from '../../components/ui/ErrorState';
 import type { Member, Membership, Payment } from '../../lib/database.types';
 
-// Mock data
-const DEMO_MEMBER = {
-  id: 'm1',
-  gym_id: 'demo-gym-id',
-  member_id: 'FG-1001',
-  full_name: 'Rahul Sharma',
-  phone: '+91 9876543210',
-  email: 'rahul@example.com',
-  date_of_birth: '1995-05-15',
-  gender: 'male',
-  address: 'Mumbai, MH',
-  emergency_contact: '9988776655',
-  photo_url: null,
-  notes: 'Prefers morning batches.',
-  status: 'active',
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
-};
 
-const DEMO_MEMBERSHIP = {
-  id: 'ms1',
-  plan_id: 'p1',
-  start_date: '2023-08-01',
-  end_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Expires in 3 days
-  status: 'active',
-  original_amount: 3000,
-  discount_amount: 0,
-  discount_type: 'fixed',
-  final_amount: 3000,
-  paid_amount: 1500,
-  due_amount: 1500,
-};
-
-const DEMO_PAYMENTS = [
-  {
-    id: 'pay1',
-    amount: 1500,
-    payment_date: '2023-08-01T10:00:00Z',
-    payment_method: 'upi',
-    status: 'completed',
-  }
-];
 
 export function MemberProfile() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { gym, isDemo } = useAuth();
+  const { gym } = useAuth();
   
   const [member, setMember] = useState<Member | null>(null);
   const [membership, setMembership] = useState<Membership | null>(null);
@@ -87,12 +46,8 @@ export function MemberProfile() {
     if (!gym || !id) return;
     setLoading(true);
     try {
-      if (isDemo || !supabaseConfigured) {
-        setMember(DEMO_MEMBER as Member);
-        setMembership(DEMO_MEMBERSHIP as Membership);
-        setPayments(DEMO_PAYMENTS as Payment[]);
-      } else {
-        // Fetch Member
+      if (!supabaseConfigured) throw new Error('Supabase not configured');
+      // Fetch Member
         const { data: memberData, error: memberError } = await supabase
           .from('members')
           .select('*')
@@ -139,7 +94,6 @@ export function MemberProfile() {
           .eq('status', 'active')
           .maybeSingle();
         setMemberPT(ptData);
-      }
     } catch (err: any) {
       setError(err);
     } finally {
@@ -150,7 +104,7 @@ export function MemberProfile() {
   useEffect(() => {
     fetchProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, gym, isDemo]);
+  }, [id, gym]);
 
   if (loading) return <LoadingState fullScreen />;
   if (error || !member) return <ErrorState title="Member not found" message={error?.message} onRetry={fetchProfile} />;

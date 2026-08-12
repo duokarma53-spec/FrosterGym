@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { isDemo, db, type ServiceResult, type PaginatedResult } from './base.service';
+import { db, type ServiceResult, type PaginatedResult } from './base.service';
 
 export interface MembershipPlan {
   id: string;
@@ -41,12 +41,9 @@ export interface FreezeInput {
   reason: string;
 }
 
-const DEMO_PLANS: MembershipPlan[] = [];
 
 export const fetchPlans = async (gymId: string): Promise<MembershipPlan[]> => {
-  if (isDemo()) {
-    return DEMO_PLANS.map(p => ({ ...p, gym_id: gymId }));
-  }
+  
   const { data, error } = await db.from('membership_plans').select('*').eq('gym_id', gymId).eq('status', 'active');
   if (error) {
     console.error('fetchPlans error:', error);
@@ -56,40 +53,33 @@ export const fetchPlans = async (gymId: string): Promise<MembershipPlan[]> => {
 };
 
 export const createPlan = async (gymId: string, data: CreatePlanInput): Promise<ServiceResult<MembershipPlan>> => {
-  if (isDemo()) {
-    return { data: { ...DEMO_PLANS[0], ...data, id: 'plan-' + Date.now(), gym_id: gymId, status: data.status || 'active', created_at: new Date().toISOString() }, error: null };
-  }
+  
   const { data: result, error } = await db.from('membership_plans').insert({ ...data, gym_id: gymId }).select().single();
   return { data: result as any as MembershipPlan, error: error?.message || null };
 };
 
 export const updatePlan = async (gymId: string, planId: string, data: Partial<CreatePlanInput>): Promise<ServiceResult<MembershipPlan>> => {
-  if (isDemo()) return { data: { ...DEMO_PLANS[0], ...data } as MembershipPlan, error: null };
-  const { data: result, error } = await db.from('membership_plans').update(data).eq('id', planId).eq('gym_id', gymId).select().single();
+    const { data: result, error } = await db.from('membership_plans').update(data).eq('id', planId).eq('gym_id', gymId).select().single();
   return { data: result as any as MembershipPlan, error: error?.message || null };
 };
 
 export const assignMembership = async (gymId: string, data: AssignMembershipInput): Promise<ServiceResult<any>> => {
-  if (isDemo()) return { data: { success: true }, error: null };
-  // Implement RPC or multi-table insert
+    // Implement RPC or multi-table insert
   return { data: { success: true }, error: null };
 };
 
 export const renewMembership = async (gymId: string, data: RenewMembershipInput): Promise<ServiceResult<any>> => {
-  if (isDemo()) return { data: { success: true }, error: null };
-  return { data: { success: true }, error: null };
+    return { data: { success: true }, error: null };
 };
 
 export const freezeMembership = async (gymId: string, membershipId: string, data: FreezeInput): Promise<ServiceResult<any>> => {
-  if (isDemo()) return { data: { success: true }, error: null };
-  const { data: result, error } = await db.from('memberships').update({ status: 'frozen' }).eq('id', membershipId).eq('gym_id', gymId).select().single();
+    const { data: result, error } = await db.from('memberships').update({ status: 'frozen' }).eq('id', membershipId).eq('gym_id', gymId).select().single();
   // We can also insert into a freeze history log if we had one, but for now just updating status is enough to fulfill the requirement.
   return { data: result, error: error?.message || null };
 };
 
 export const getMembershipHistory = async (gymId: string, memberId: string): Promise<any[]> => {
-  if (isDemo()) return [];
-  const { data, error } = await db.from('memberships').select('*').eq('member_id', memberId).eq('gym_id', gymId);
+    const { data, error } = await db.from('memberships').select('*').eq('member_id', memberId).eq('gym_id', gymId);
   return data || [];
 };
 

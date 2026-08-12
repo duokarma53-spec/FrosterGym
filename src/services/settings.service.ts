@@ -1,4 +1,4 @@
-import { db, isDemo } from './base.service';
+import { db } from './base.service';
 import { supabase } from '../lib/supabase';
 
 export interface GymProfile {
@@ -48,15 +48,7 @@ const DEFAULT_NOTIFICATION_SETTINGS: NotificationSettings = {
 // ─── GYM PROFILE ────────────────────────────────────────────────────────
 
 export async function fetchGymProfile(gymId: string): Promise<GymProfile | null> {
-  if (isDemo()) {
-    return {
-      name: 'Froster Gym HQ',
-      phone: '+91 9876543210',
-      email: 'admin@frostergym.com',
-      address: '123 Fitness Street, Gym City',
-      logo_url: null,
-    };
-  }
+  
 
   const { data, error } = await (db.from('gyms') as any).select('name, phone, email, address, logo_url').eq('id', gymId).single();
   if (error) throw error;
@@ -64,7 +56,7 @@ export async function fetchGymProfile(gymId: string): Promise<GymProfile | null>
 }
 
 export async function updateGymProfile(gymId: string, profile: Partial<GymProfile>): Promise<void> {
-  if (isDemo()) return;
+  
   const { error } = await (db.from('gyms') as any).update(profile).eq('id', gymId);
   if (error) throw error;
 }
@@ -72,8 +64,7 @@ export async function updateGymProfile(gymId: string, profile: Partial<GymProfil
 // ─── GENERIC GYM SETTINGS ───────────────────────────────────────────────
 
 async function fetchGymSetting<T>(gymId: string, key: string, defaultValue: T): Promise<T> {
-  if (isDemo()) return defaultValue;
-  
+    
   const { data, error } = await (db.from('gym_settings') as any).select('value').eq('gym_id', gymId).eq('key', key).single();
   
   if (error && error.code !== 'PGRST116') { // PGRST116 is not found
@@ -87,7 +78,7 @@ async function fetchGymSetting<T>(gymId: string, key: string, defaultValue: T): 
 }
 
 async function updateGymSetting<T>(gymId: string, key: string, value: T): Promise<void> {
-  if (isDemo()) return;
+  
   
   // Try to update first
   const { error: updateError } = await (db.from('gym_settings') as any).update({ value }).eq('gym_id', gymId).eq('key', key);
@@ -133,7 +124,7 @@ export async function updateNotificationSettings(gymId: string, settings: Notifi
 // ─── SECURITY ───────────────────────────────────────────────────────────
 
 export async function updatePassword(newPassword: string): Promise<void> {
-  if (isDemo()) return;
+  
   
   const { error } = await supabase.auth.updateUser({
     password: newPassword
@@ -143,7 +134,7 @@ export async function updatePassword(newPassword: string): Promise<void> {
 }
 
 export async function signOutCurrentSession(): Promise<void> {
-  if (isDemo()) return;
+  
   
   const { error } = await supabase.auth.signOut();
   if (error) throw error;

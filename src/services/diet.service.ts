@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { db, isDemo } from './base.service';
+import { db } from './base.service';
 
 export interface DietMeal {
   breakfast?: string;
@@ -18,12 +18,7 @@ export interface DietPlan {
 
 export const dietService = {
   async fetchDietPlans(gymId: string) {
-    if (isDemo()) {
-      return {
-        data: [],
-        error: null,
-      };
-    }
+    
     const { data, error } = await db
       .from('diet_plans')
       .select('*')
@@ -33,9 +28,7 @@ export const dietService = {
   },
 
   async createDietPlan(gymId: string, dietData: Omit<DietPlan, 'id' | 'gym_id'>) {
-    if (isDemo()) {
-      return { data: { id: `diet${Math.floor(Math.random() * 1000)}`, ...dietData }, error: null };
-    }
+    
     const { data, error } = await db
       .from('diet_plans')
       .insert([{ gym_id: gymId, ...dietData }])
@@ -45,8 +38,7 @@ export const dietService = {
   },
 
   async assignDietPlan(gymId: string, memberId: string, dietPlanId: string) {
-    if (isDemo()) return { data: null, error: null };
-    // Check if existing
+        // Check if existing
     const { data: existing } = await db.from('member_diet_plans').select('id').eq('member_id', memberId).eq('gym_id', gymId).maybeSingle();
     if (existing) {
       const { data, error } = await db.from('member_diet_plans').update({ diet_plan_id: dietPlanId }).eq('id', existing.id).select().single();
@@ -57,8 +49,7 @@ export const dietService = {
   },
   
   async getMemberDietPlan(gymId: string, memberId: string) {
-    if (isDemo()) return { data: null, error: null };
-    const { data, error } = await db.from('member_diet_plans').select('*, diet_plan:diet_plans(*)').eq('gym_id', gymId).eq('member_id', memberId).maybeSingle();
+        const { data, error } = await db.from('member_diet_plans').select('*, diet_plan:diet_plans(*)').eq('gym_id', gymId).eq('member_id', memberId).maybeSingle();
     return { data, error };
   }
 };

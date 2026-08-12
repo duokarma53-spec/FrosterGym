@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { isDemo, db } from './base.service';
+import { db } from './base.service';
 import type { MemberWithMembership } from './members.service';
 import { fetchMembers } from './members.service';
 import { fetchNotificationSettings } from './settings.service';
@@ -61,26 +61,7 @@ export interface PaymentDueMember {
 
 // ─── Dashboard Stats ──────────────────────────
 export async function fetchDashboardStats(gymId: string): Promise<DashboardStats> {
-  if (isDemo()) {
-    return {
-      totalMembers: 0,
-      activeMembers: 0,
-      inactiveMembers: 0,
-      expiredMembers: 0,
-      blockedMembers: 0,
-      frozenMembers: 0,
-      todaysAttendance: 0,
-      todaysCollection: 0,
-      monthlyCollection: 0,
-      monthlyExpenses: 0,
-      pendingDues: 0,
-      revenueAtRisk: 0,
-      expiringSoon: 0,
-      activePT: 0,
-      ptDue: 0,
-      lifetimeRevenue: 0,
-    };
-  }
+  
 
   try {
     const today = new Date().toISOString().split('T')[0];
@@ -172,9 +153,7 @@ export async function fetchExpiryAlerts(gymId: string): Promise<ExpiryAlert[]> {
 
 // ─── Recent Activity ──────────────────────────
 export async function fetchRecentActivity(gymId: string, limit = 10): Promise<ActivityItem[]> {
-  if (isDemo()) {
-    return [];
-  }
+  
 
   try {
     const res: any = await db.from('activity_logs').select('*').eq('gym_id', gymId).order('created_at', { ascending: false }).limit(limit);
@@ -194,9 +173,7 @@ export async function fetchRecentActivity(gymId: string, limit = 10): Promise<Ac
 
 // ─── Payments Due ──────────────────────────
 export async function fetchPaymentsDue(gymId: string): Promise<PaymentDueMember[]> {
-  if (isDemo()) {
-    return [];
-  }
+  
   
   try {
     const settings = await fetchNotificationSettings(gymId);

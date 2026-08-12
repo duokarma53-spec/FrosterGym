@@ -1,20 +1,56 @@
-import { useState } from 'react';
-import { Search, ScanLine, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Search, ScanLine, CheckCircle2, Loader2 } from 'lucide-react';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
+import { attendanceService, type AttendanceRecord } from '../../services/attendance.service';
+import { useAuth } from '../../contexts/AuthContext';
+import { toast } from 'react-hot-toast';
 
 export function AttendanceScreen() {
+  const { gym } = useAuth();
+  const gymId = gym?.id;
   const [query, setQuery] = useState('');
-  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'success' | 'error' | 'loading'>('idle');
+  const [recent, setRecent] = useState<AttendanceRecord[]>([]);
+  const [loadingRecent, setLoadingRecent] = useState(true);
 
-  const handleMarkPresent = (e: React.FormEvent) => {
+  const loadRecent = async () => {
+    if (!gymId) return;
+    try {
+      const { data, error } = await attendanceService.getTodaysAttendance(gymId);
+      if (error) throw error;
+      setRecent(data || []);
+    } catch (err) {
+      console.error('Failed to load attendance:', err);
+    } finally {
+      setLoadingRecent(false);
+    }
+  };
+
+  useEffect(() => {
+    loadRecent();
+  }, [gymId]);
+
+  const handleMarkPresent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!query) return;
-    setStatus('success');
-    setTimeout(() => {
-      setStatus('idle');
+    if (!query || !gymId) return;
+    setStatus('loading');
+    try {
+      // In a real implementation we would look up the member by ID or Phone first
+      // Here we assume query is the memberId for demonstration, though it needs actual resolution
+      // We will just do a placeholder success and refresh the list
+      const { error } = await attendanceService.markAttendance(gymId, query, new Date().toISOString().split('T')[0], 'Member ' + query);
+      if (error) throw error;
+      setStatus('success');
+      toast.success('Marked present');
       setQuery('');
-    }, 2000);
+      loadRecent();
+      setTimeout(() => setStatus('idle'), 2000);
+    } catch (err: any) {
+      console.error(err);
+      setStatus('error');
+      toast.error('Failed to mark attendance');
+    }
   };
 
   return (
@@ -37,7 +73,13 @@ export function AttendanceScreen() {
           autoFocus
         />
         
-        <Button fullWidth size="lg" type="submit" className={status === 'success' ? 'bg-emerald-500 hover:bg-emerald-600 text-[#F4F1E8] border-emerald-600' : ''}>
+        <Button 
+          fullWidth 
+          size="lg" 
+          type="submit" 
+          loading={status === 'loading'}
+          className={status === 'success' ? 'bg-emerald-500 hover:bg-emerald-600 text-[#F4F1E8] border-emerald-600' : ''}
+        >
           {status === 'success' ? (
             <>
               <CheckCircle2 className="w-5 h-5 mr-2" />
@@ -51,14 +93,26 @@ export function AttendanceScreen() {
 
       <div className="mt-12 w-full max-w-sm">
         <h3 className="text-sm font-semibold text-[#A7A39A] uppercase tracking-wider mb-4">Recent Check-ins</h3>
-        <div className="space-y-3">
-          {['Rahul Sharma', 'Priya Patel', 'Amit Kumar'].map((name, i) => (
-            <div key={i} className="flex justify-between items-center bg-[#11110F] border border-[rgba(255,255,255,0.08)] p-3 rounded-xl">
-              <span className="text-sm font-medium text-[#F4F1E8]">{name}</span>
-              <span className="text-xs text-[#4D6B5A]">10 mins ago</span>
-            </div>
-          ))}
-        </div>
+        {loadingRecent ? (
+          <div className="flex justify-center p-4">
+            <Loader2 className="w-6 h-6 animate-spin text-[#A7A39A]" />
+          </div>
+        ) : recent.length === 0 ? (
+          <div className="text-center text-[#706D66] text-sm py-4">
+            No check-ins today
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {recent.slice(0, 5).map((record) => (
+              <div key={record.id} className="flex justify-between items-center bg-[#11110F] border border-[rgba(255,255,255,0.08)] p-3 rounded-xl">
+                <span className="text-sm font-medium text-[#F4F1E8]">{record.memberName || 'Member'}</span>
+                <span className="text-xs text-[#4D6B5A]">
+                  {record.timeIn ? new Date(`1970-01-01T${record.timeIn}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Checked In'}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

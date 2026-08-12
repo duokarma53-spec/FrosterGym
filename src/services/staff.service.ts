@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { db, isDemo } from './base.service';
+import { db } from './base.service';
 
 export interface StaffMember {
   id: string;
@@ -11,12 +11,7 @@ export interface StaffMember {
 }
 
 export const fetchStaff = async (gymId: string) => {
-  if (isDemo()) {
-    return {
-      data: [],
-      error: null,
-    };
-  }
+  
   const { data, error } = await db
     .from('staff')
     .select('*')
@@ -25,9 +20,7 @@ export const fetchStaff = async (gymId: string) => {
 };
 
 export const createStaff = async (gymId: string, staffData: Omit<StaffMember, 'id'>) => {
-  if (isDemo()) {
-    return { data: { id: `s${Date.now()}`, ...staffData }, error: null };
-  }
+  
   const { data, error } = await db
     .from('staff')
     .insert([{ gym_id: gymId, ...staffData }])
@@ -37,9 +30,7 @@ export const createStaff = async (gymId: string, staffData: Omit<StaffMember, 'i
 };
 
 export const updateStaffPermissions = async (gymId: string, staffId: string, permissions: string[]) => {
-  if (isDemo()) {
-    return { data: { success: true }, error: null };
-  }
+  
   const { data, error } = await db
     .from('staff')
     .update({ permissions })

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { db, isDemo } from './base.service';
+import { db } from './base.service';
 
 export interface AttendanceRecord {
   id: string;
@@ -12,9 +12,7 @@ export interface AttendanceRecord {
 
 export const attendanceService = {
   async markAttendance(gymId: string, memberId: string, date: string, memberName: string = 'Unknown') {
-    if (isDemo()) {
-      return { data: { success: true }, error: null };
-    }
+    
     const { data, error } = await db
       .from('attendance')
       .insert([{ gym_id: gymId, member_id: memberId, date, member_name: memberName }])
@@ -24,12 +22,7 @@ export const attendanceService = {
   },
 
   async getTodaysAttendance(gymId: string) {
-    if (isDemo()) {
-      return {
-        data: [],
-        error: null,
-      };
-    }
+    
     const today = new Date().toISOString().split('T')[0];
     const { data, error } = await db
       .from('attendance')
@@ -40,12 +33,7 @@ export const attendanceService = {
   },
 
   async getMemberAttendanceHistory(gymId: string, memberId: string) {
-    if (isDemo()) {
-      return {
-        data: [],
-        error: null,
-      };
-    }
+    
     const { data, error } = await db
       .from('attendance')
       .select('*')

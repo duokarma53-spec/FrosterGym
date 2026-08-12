@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { db, isDemo } from './base.service';
+import { db } from './base.service';
 
 export interface Enquiry {
   id: string;
@@ -12,12 +12,7 @@ export interface Enquiry {
 }
 
 export const fetchEnquiries = async (gymId: string) => {
-  if (isDemo()) {
-    return {
-      data: [],
-      error: null,
-    };
-  }
+  
   const { data, error } = await db
     .from('enquiries')
     .select('*')
@@ -27,9 +22,7 @@ export const fetchEnquiries = async (gymId: string) => {
 };
 
 export const addEnquiry = async (gymId: string, enquiryData: Omit<Enquiry, 'id' | 'status'>) => {
-  if (isDemo()) {
-    return { data: { id: 'enq5', status: 'new', ...enquiryData }, error: null };
-  }
+  
   const { data, error } = await db
     .from('enquiries')
     .insert([{ gym_id: gymId, status: 'new', ...enquiryData }])
@@ -39,9 +32,7 @@ export const addEnquiry = async (gymId: string, enquiryData: Omit<Enquiry, 'id' 
 };
 
 export const convertEnquiry = async (gymId: string, enquiryId: string) => {
-  if (isDemo()) {
-    return { data: { success: true }, error: null };
-  }
+  
   const { data, error } = await db
     .from('enquiries')
     .update({ status: 'converted' })
