@@ -3,6 +3,8 @@
 -- Run this in your Supabase SQL Editor: https://supabase.com/dashboard/project/pndkqnnsxjpjvxufrdav/sql
 -- ============================================================
 
+DROP TABLE IF EXISTS public.staff CASCADE;
+
 CREATE TABLE IF NOT EXISTS public.staff (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     gym_id UUID NOT NULL REFERENCES public.gyms(id) ON DELETE CASCADE,
