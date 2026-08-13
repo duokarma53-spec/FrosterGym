@@ -225,7 +225,7 @@ CREATE POLICY "Owner can manage permissions"
   USING (
     EXISTS (
       SELECT 1 FROM public.gyms g
-      WHERE g.id = (SELECT gym_id FROM public.profiles WHERE id = public.staff_permissions.profile_id)
+      WHERE g.id = (SELECT gym_id FROM public.profiles p WHERE p.id = profile_id)
       AND g.owner_id = auth.uid()
     )
   );
