@@ -1,150 +1,25 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* ============================================
-   FROSTER GYM — GLOBAL STYLES
-   ============================================ */
-
-/* Base styles */
 @layer base {
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  html {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
   body {
-    @apply bg-[#000000] text-slate-100;
-    overscroll-behavior: none;
-  }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: theme(--color-zinc-700);
-    border-radius: 3px;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: theme(--color-zinc-600);
-  }
-
-  /* Safe area for bottom nav */
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    @apply bg-background text-gray-100 antialiased selection:bg-primary-500/30;
   }
 }
 
-/* Animations */
-@layer utilities {
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes slide-in-from-bottom {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-  }
-
-  @keyframes slide-in-from-top {
-    from { transform: translateY(-16px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  @keyframes zoom-in-95 {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  .animate-in {
-    animation-fill-mode: both;
-  }
-
-  .fade-in {
-    animation-name: fade-in;
-  }
-
-  .slide-in-from-bottom {
-    animation-name: slide-in-from-bottom;
-  }
-
-  .slide-in-from-top {
-    animation-name: slide-in-from-top;
-  }
-
-  .zoom-in-95 {
-    animation-name: zoom-in-95;
-  }
-
-  .duration-200 {
-    animation-duration: 200ms;
-  }
-
-  .duration-300 {
-    animation-duration: 300ms;
-  }
-
-  @keyframes scroll-marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(calc(-50% - 0.5rem)); }
-  }
-
-  .animate-scroll-marquee {
-    animation: scroll-marquee 20s linear infinite;
-  }
-  
-  .animate-scroll-marquee:hover {
-    animation-play-state: paused;
-  }
-
-  /* Min height utility for touch targets */
-  .min-h-\[44px\] {
-    min-height: 44px;
-  }
-
-  /* Gym Typography */
-  .font-bebas {
-    font-family: 'Bebas Neue', sans-serif;
-  }
-  
-  .font-oswald {
-    font-family: 'Oswald', sans-serif;
-  }
-  
-  /* Text Outline Effect */
-  .text-outline-orange {
-    -webkit-text-stroke: 1px #f95700;
-    color: transparent;
-  }
-  
-  .text-outline-white {
-    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.4);
-    color: transparent;
-  }
-  
-  /* Custom clip path for buttons */
-  .clip-button {
-    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
-  }
+/* Hide scrollbar for clean premium look, while allowing scroll */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
-
-/* Input autofill styling */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus {
-  -webkit-text-fill-color: white;
-  -webkit-box-shadow: 0 0 0px 1000px theme(--color-zinc-800) inset;
-  transition: background-color 5000s ease-in-out 0s;
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+::-webkit-scrollbar-thumb {
+  background: #262626; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #404040; 
 }

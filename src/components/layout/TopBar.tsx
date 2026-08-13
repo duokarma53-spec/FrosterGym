@@ -1,44 +1,41 @@
-import { Menu, Bell } from 'lucide-react';
+
 import { useAuth } from '../../contexts/AuthContext';
-import { Avatar } from '../ui/Avatar';
+import { LogOut, User, Menu } from 'lucide-react';
 
-interface TopBarProps {
-  onMenuToggle: () => void;
-}
-
-export function TopBar({ onMenuToggle }: TopBarProps) {
-  const { profile, gym } = useAuth();
+export function TopBar() {
+  const { profile, gym, signOut } = useAuth();
 
   return (
-    <header className="sticky top-0 z-30 bg-[#0B0B0A]/90 backdrop-blur-xl border-b border-[rgba(255,255,255,0.08)] shadow-sm">
-      <div className="flex items-center justify-between h-14 px-4">
+    <header className="h-16 bg-surface border-b border-surface-highlight flex items-center justify-between px-4 md:px-8">
+      <div className="flex items-center gap-4">
+        <button className="md:hidden text-gray-400 hover:text-white">
+          <Menu className="w-6 h-6" />
+        </button>
+        {gym && (
+          <h2 className="text-lg font-semibold text-white hidden sm:block">
+            {gym.name}
+          </h2>
+        )}
+      </div>
+
+      <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
-          <button
-            onClick={onMenuToggle}
-            className="w-10 h-10 rounded-xl flex items-center justify-center text-[#A7A39A] hover:text-[#F4F1E8] hover:bg-[#1D1B17] transition-colors lg:hidden"
-            aria-label="Toggle menu"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
-          <div className="hidden lg:block">
-            <h1 className="text-sm font-semibold text-[#F4F1E8]">{gym?.name || 'Froaster Gym'}</h1>
+          <div className="hidden md:block text-right">
+            <p className="text-sm font-medium text-white">{profile?.full_name}</p>
+            <p className="text-xs text-primary-400 capitalize">{profile?.role}</p>
+          </div>
+          <div className="w-10 h-10 rounded-full bg-surface-highlight border border-gray-700 flex items-center justify-center text-white">
+            <User className="w-5 h-5" />
           </div>
         </div>
-
-        <div className="lg:hidden">
-          <h1 className="text-sm font-bold text-[#F4F1E8] tracking-tight">{gym?.name || 'Froaster Gym'}</h1>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button className="w-10 h-10 rounded-xl flex items-center justify-center text-[#A7A39A] hover:text-[#F4F1E8] hover:bg-[#1D1B17] transition-colors relative">
-            <Bell className="w-5 h-5" />
-          </button>
-          <Avatar
-            src={profile?.avatar_url}
-            name={profile?.full_name || 'User'}
-            size="sm"
-          />
-        </div>
+        
+        <button 
+          onClick={() => signOut()}
+          className="p-2 text-gray-400 hover:text-red-400 transition-colors rounded-md hover:bg-surface-highlight"
+          title="Sign Out"
+        >
+          <LogOut className="w-5 h-5" />
+        </button>
       </div>
     </header>
   );

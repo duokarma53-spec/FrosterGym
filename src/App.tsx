@@ -1,144 +1,52 @@
-// @ts-nocheck
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import { PermissionProvider } from './contexts/PermissionContext';
-import { ToastProvider } from './components/ui/Toast';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
-import { Login } from './pages/Login';
-import { Dashboard } from './pages/Dashboard';
+import { Login } from './pages/auth/Login';
+import { Dashboard } from './pages/app/Dashboard';
+import { MembershipPlans } from './pages/app/MembershipPlans';
+import { Members } from './pages/app/Members';
+import { MemberProfile } from './pages/app/MemberProfile';
+import { Payments } from './pages/app/Payments';
+import { Attendance } from './pages/app/Attendance';
+import { Staff } from './pages/app/Staff';
+import { PT } from './pages/app/PT';
+import { DietPlans } from './pages/app/DietPlans';
+import { Expenses } from './pages/app/Expenses';
+import { Reports } from './pages/app/Reports';
+import { Settings } from './pages/app/Settings';
 
-// Public Website
-import { PublicWebsite } from './pages/website/PublicWebsite';
-
-// Members
-import { MembersList } from './pages/members/MembersList';
-import { AddMember } from './pages/members/AddMember';
-import { MemberProfile } from './pages/members/MemberProfile';
-import { RenewMembership } from './pages/members/RenewMembership';
-import { EditMember } from './pages/members/EditMember';
-
-// Plans
-import { PlansList } from './pages/plans/PlansList';
-import { AddPlan } from './pages/plans/AddPlan';
-
-// Payments
-import { PaymentsList } from './pages/payments/PaymentsList';
-import { RecordPayment } from './pages/payments/RecordPayment';
-import { InvoiceView } from './pages/payments/InvoiceView';
-
-// Attendance
-import { AttendanceScreen } from './pages/attendance/AttendanceScreen';
-
-// Diet
-import { DietPlansList } from './pages/diet/DietPlansList';
-import { AddDietPlan } from './pages/diet/AddDietPlan';
-
-// Staff
-import StaffList from "./pages/staff/StaffList";
-import AddStaff from "./pages/staff/AddStaff";
-
-// Expenses
-import { ExpensesList } from './pages/expenses/ExpensesList';
-import { AddExpense } from './pages/expenses/AddExpense';
-
-// Reports
-import { ReportsDashboard } from './pages/reports/ReportsDashboard';
-
-// PT & Body Progress
-import { PTDashboard } from './pages/pt/PTDashboard';
-
-// Remaining Features
-
-// Settings
-import { SettingsScreen } from './pages/settings/SettingsScreen';
-
-export default function App() {
+function App() {
   return (
-    <HashRouter>
-      <ToastProvider>
-        <AuthProvider>
-          <PermissionProvider>
-            <Routes>
-              {/* Public Website Route */}
-              <Route path="/" element={<PublicWebsite />} />
-
-              {/* Auth Route */}
-              <Route path="/login" element={<Login />} />
-
-              {/* Admin / SaaS App Routes */}
-              <Route
-                path="/app"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout />
-                  </ProtectedRoute>
-                }
-              >
-                <Route index element={<Dashboard />} />
-
-                {/* Members */}
-                <Route path="members">
-                  <Route index element={<MembersList />} />
-                  <Route path="add" element={<AddMember />} />
-                  <Route path=":id" element={<MemberProfile />} />
-                  <Route path=":id/edit" element={<EditMember />} />
-                  <Route path=":id/renew" element={<RenewMembership />} />
-                </Route>
-
-                {/* Membership Plans */}
-                <Route path="memberships">
-                  <Route index element={<PlansList />} />
-                  <Route path="add" element={<AddPlan />} />
-                </Route>
-
-                {/* Payments */}
-                <Route path="payments">
-                  <Route index element={<PaymentsList />} />
-                  <Route path="record" element={<RecordPayment />} />
-                  <Route path="invoice/:id" element={<InvoiceView />} />
-                </Route>
-
-                {/* Attendance */}
-                <Route path="attendance" element={<AttendanceScreen />} />
-
-                {/* Diet Plans */}
-                <Route path="diet-plans">
-                  <Route index element={<DietPlansList />} />
-                  <Route path="add" element={<AddDietPlan />} />
-                </Route>
-
-                {/* Staff */}
-                <Route path="staff">
-                  <Route index element={<StaffList />} />
-                  <Route path="add" element={<AddStaff />} />
-                </Route>
-
-                {/* Expenses */}
-                <Route path="expenses">
-                  <Route index element={<ExpensesList />} />
-                  <Route path="add" element={<AddExpense />} />
-                </Route>
-
-                {/* Reports */}
-                <Route path="reports" element={<ReportsDashboard />} />
-
-                {/* PT Dashboard */}
-                <Route path="pt" element={<PTDashboard />} />
-
-
-
-                {/* Settings */}
-                <Route path="settings" element={<SettingsScreen />} />
-              </Route>
-              
-              {/* Fallback to Catch-All */}
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Dashboard />} />
+              {/* Placeholders for future routes */}
+              <Route path="/members" element={<Members />} />
+              <Route path="/members/:id" element={<MemberProfile />} />
+              <Route path="/memberships" element={<MembershipPlans />} />
+              <Route path="/attendance" element={<Attendance />} />
+              <Route path="/payments" element={<Payments />} />
+              <Route path="/diet-plans" element={<DietPlans />} />
+              <Route path="/pt" element={<PT />} />
+              <Route path="/staff" element={<Staff />} />
+              <Route path="/expenses" element={<Expenses />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="/invoices" element={<div className="text-white p-4">Invoices (Pending)</div>} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </PermissionProvider>
-        </AuthProvider>
-      </ToastProvider>
-    </HashRouter>
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
+export default App;
