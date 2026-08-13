@@ -93,33 +93,27 @@ export function PTDashboard() {
               </Button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/5 text-left text-xs uppercase tracking-wider text-gray-400">
-                    <th className="pb-4 font-medium">Member</th>
-                    <th className="pb-4 font-medium">Trainer</th>
-                    <th className="pb-4 font-medium">Duration</th>
-                    <th className="pb-4 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {ptMemberships.map((pt) => (
-                    <tr key={pt.id} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="py-4 text-white text-sm font-medium">{pt.member?.full_name || 'Unknown'}</td>
-                      <td className="py-4 text-gray-300 text-sm">{pt.trainer?.name || 'Unknown'}</td>
-                      <td className="py-4 text-gray-300 text-sm">
-                        {new Date(pt.start_date).toLocaleDateString()} - {new Date(pt.end_date).toLocaleDateString()}
-                      </td>
-                      <td className="py-4">
-                        <Badge variant={pt.status === 'active' ? 'success' : 'default'}>
-                          {pt.status}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-3">
+              {ptMemberships.map((pt) => (
+                <div key={pt.id} className="p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-colors flex flex-col sm:flex-row justify-between gap-4">
+                  <div className="flex-1">
+                    <h4 className="text-white font-medium text-base mb-1">{pt.member?.full_name || 'Unknown Member'}</h4>
+                    <p className="text-sm text-gray-400 flex items-center gap-2">
+                      <Users className="w-3.5 h-3.5" />
+                      {pt.trainer?.name || 'Unknown Trainer'}
+                    </p>
+                  </div>
+                  <div className="flex flex-row sm:flex-col justify-between sm:justify-center items-center sm:items-end gap-2">
+                    <div className="text-sm text-gray-400 flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" />
+                      {new Date(pt.start_date).toLocaleDateString()} - {new Date(pt.end_date).toLocaleDateString()}
+                    </div>
+                    <Badge variant={pt.status === 'active' ? 'success' : 'default'}>
+                      {pt.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

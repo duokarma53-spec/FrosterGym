@@ -59,58 +59,20 @@ export interface PaymentDueMember {
   expiry_date: string;
 }
 
-// ─── Dashboard Stats ──────────────────────────
 export async function fetchDashboardStats(gymId: string): Promise<DashboardStats> {
-  
-
   try {
-    const today = new Date().toISOString().split('T')[0];
-    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0];
-
-    // Members by status
-    const membersRes: any = await db.from('members').select('status', { count: 'exact' }).eq('gym_id', gymId);
-    const allMembers = membersRes.data || [];
-    const totalMembers = allMembers.length;
-    const activeMembers = allMembers.filter((m: any) => m.status === 'active').length;
-    const inactiveMembers = allMembers.filter((m: any) => m.status === 'inactive').length;
-    const expiredMembers = allMembers.filter((m: any) => m.status === 'expired').length;
-    const blockedMembers = allMembers.filter((m: any) => m.status === 'blocked').length;
-    const frozenMembers = allMembers.filter((m: any) => m.status === 'frozen').length;
-
-    // Today's attendance
-    const attendRes: any = await db.from('attendance').select('id', { count: 'exact' }).eq('gym_id', gymId).eq('date', today);
-    const todaysAttendance = attendRes.data?.length || 0;
-
-    // Today's collection
-    const todayPayRes: any = await db.from('payments').select('amount').eq('gym_id', gymId).eq('status', 'completed').gte('payment_date', today + 'T00:00:00').lte('payment_date', today + 'T23:59:59');
-    const todaysCollection = (todayPayRes.data || []).reduce((sum: number, p: any) => sum + Number(p.amount), 0);
-
-    // Monthly collection
-    const monthPayRes: any = await db.from('payments').select('amount').eq('gym_id', gymId).eq('status', 'completed').gte('payment_date', monthStart);
-    const monthlyCollection = (monthPayRes.data || []).reduce((sum: number, p: any) => sum + Number(p.amount), 0);
-
-    // Monthly expenses
-    const expenseRes: any = await db.from('expenses').select('amount').eq('gym_id', gymId).gte('expense_date', monthStart);
-    const monthlyExpenses = (expenseRes.data || []).reduce((sum: number, e: any) => sum + Number(e.amount), 0);
+    // Total members
+    const membersRes: any = await db.from('members').select('id', { count: 'exact', head: true }).eq('gym_id', gymId);
+    const totalMembers = membersRes.count || 0;
 
     // Lifetime Revenue
     const lifetimePayRes: any = await db.from('payments').select('amount').eq('gym_id', gymId).eq('status', 'completed');
     const lifetimeRevenue = (lifetimePayRes.data || []).reduce((sum: number, p: any) => sum + Number(p.amount), 0);
 
-    // Pending dues
-    const dueRes: any = await db.from('memberships').select('due_amount').eq('gym_id', gymId).gt('due_amount', 0);
-    const pendingDues = (dueRes.data || []).reduce((sum: number, m: any) => sum + Number(m.due_amount), 0);
-
-    // Expiring soon (next 15 days)
-    const in15Days = new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0];
-    const expiringRes: any = await db.from('memberships').select('final_amount').eq('gym_id', gymId).eq('status', 'active').gte('end_date', today).lte('end_date', in15Days);
-    const expiringSoon = expiringRes.data?.length || 0;
-    const revenueAtRisk = (expiringRes.data || []).reduce((sum: number, m: any) => sum + Number(m.final_amount), 0);
-
     return {
-      totalMembers, activeMembers, inactiveMembers, expiredMembers, blockedMembers, frozenMembers,
-      todaysAttendance, todaysCollection, monthlyCollection, monthlyExpenses,
-      pendingDues, revenueAtRisk, expiringSoon, activePT: 0, ptDue: 0,
+      totalMembers, activeMembers: 0, inactiveMembers: 0, expiredMembers: 0, blockedMembers: 0, frozenMembers: 0,
+      todaysAttendance: 0, todaysCollection: 0, monthlyCollection: 0, monthlyExpenses: 0,
+      pendingDues: 0, revenueAtRisk: 0, expiringSoon: 0, activePT: 0, ptDue: 0,
       lifetimeRevenue,
     };
   } catch (err) {

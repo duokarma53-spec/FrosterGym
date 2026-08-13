@@ -18,6 +18,8 @@ export function AddPlan() {
   const [duration, setDuration] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
+  const [includesPT, setIncludesPT] = useState(false);
+  const [includesDiet, setIncludesDiet] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,7 +38,9 @@ export function AddPlan() {
         duration_months: parseInt(duration),
         duration_days: parseInt(duration) * 30,
         price: parseFloat(price),
-        
+        description,
+        includes_pt: includesPT,
+        includes_diet: includesDiet,
         status: 'active'
       });
       
@@ -96,6 +100,23 @@ export function AddPlan() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             ></textarea>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <button 
+              type="button" 
+              onClick={() => setIncludesPT(!includesPT)} 
+              className={`py-3 rounded-xl border text-sm font-medium transition-colors ${includesPT ? 'bg-[#C9A24D]/10 border-[#D4AF37]/50 text-[#E2C46B]' : 'bg-[#11110F] border-[rgba(255,255,255,0.08)] text-[#A7A39A] hover:bg-[#1A1A18]'}`}
+            >
+              Includes PT
+            </button>
+            <button 
+              type="button" 
+              onClick={() => setIncludesDiet(!includesDiet)} 
+              className={`py-3 rounded-xl border text-sm font-medium transition-colors ${includesDiet ? 'bg-[#C9A24D]/10 border-[#D4AF37]/50 text-[#E2C46B]' : 'bg-[#11110F] border-[rgba(255,255,255,0.08)] text-[#A7A39A] hover:bg-[#1A1A18]'}`}
+            >
+              Includes Diet Plan
+            </button>
           </div>
         </div>
 

@@ -1,7 +1,8 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { createStaff } from '../../services/staff.service';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { createStaff } from '../../services/staff.service';
 import './Staff.css';
 
 const AddStaff: React.FC = () => {
@@ -10,10 +11,11 @@ const AddStaff: React.FC = () => {
     name: '',
     role: '',
     phone: '',
-    email: '',
-    password: ''
+    email: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const { gym } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -21,9 +23,10 @@ const AddStaff: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!gym) return;
     setIsSubmitting(true);
     
-    const { data, error } = await createStaff('gym1', {
+    const { data, error } = await createStaff(gym.id, {
       name: formData.name,
       role: formData.role,
       phone: formData.phone,
@@ -99,17 +102,7 @@ const AddStaff: React.FC = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label>Temporary Password</label>
-            <input 
-              type="password" 
-              name="password" 
-              value={formData.password} 
-              onChange={handleChange} 
-              className="form-control" 
-              required 
-            />
-          </div>
+
 
           <button 
             type="submit" 

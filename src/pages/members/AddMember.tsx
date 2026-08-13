@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Camera, User, Phone, Calendar, Check, Plus, Utensils, Target } from 'lucide-react';
+import { User, Phone, Calendar, Check, Utensils, Target } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -47,7 +47,6 @@ export function AddMember() {
   const [dietPlanId, setDietPlanId] = useState('');
 
   // PT State
-  const [ptIncluded, setPtIncluded] = useState(false);
   const [ptPlanId, setPtPlanId] = useState('');
   const [trainerId, setTrainerId] = useState('');
 
@@ -77,6 +76,10 @@ export function AddMember() {
   // Derived Values
   const selectedPlan = plans.find(p => p.id === planId);
   const planAmount = selectedPlan ? selectedPlan.price : 0;
+  
+  // PT and Diet Derived States
+  const ptIncluded = selectedPlan?.includes_pt || false;
+  const dietIncluded = selectedPlan?.includes_diet || false;
   
   const discountAmount = discountType === 'fixed' 
     ? discountValue 
@@ -196,17 +199,7 @@ export function AddMember() {
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-6">
         
-        {/* Photo Upload Area (UI Only for now) */}
-        <div className="flex justify-center mb-6">
-          <div className="relative">
-            <div className="w-24 h-24 rounded-full bg-[#11110F] backdrop-blur-xl border-2 border-dashed border-[rgba(255,255,255,0.12)] flex items-center justify-center">
-              <Camera className="w-8 h-8 text-zinc-600" />
-            </div>
-            <button type="button" className="absolute bottom-0 right-0 w-8 h-8 bg-[#C9A24D] rounded-full flex items-center justify-center border-2 border-zinc-950 text-[#F4F1E8] shadow-lg">
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+
 
         {/* Section 1: Personal & Contact Details */}
         <Card className="space-y-4">
@@ -355,64 +348,65 @@ export function AddMember() {
         </Card>
 
         {/* Section 3: Add-ons (Diet & PT) */}
-        <Card className="space-y-4">
-          <h2 className="text-sm font-semibold text-[#E2C46B] uppercase tracking-wider mb-2">Optional Add-ons</h2>
-          
-          <div className="space-y-1.5 border-b border-[rgba(255,255,255,0.08)] pb-4">
-            <label className="block text-sm font-medium text-zinc-300 flex items-center gap-2"><Utensils className="w-4 h-4"/> Diet Plan</label>
-            <select 
-              className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
-              value={dietPlanId}
-              onChange={e => setDietPlanId(e.target.value)}
-            >
-              <option value="">No Diet Plan</option>
-              {dietPlans.map(p => (
-                <option key={p.id} value={p.id}>{p.name} - {p.calories} Cal</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            <label className="block text-sm font-medium text-zinc-300 flex items-center gap-2"><Target className="w-4 h-4"/> Personal Training</label>
-            <div className="flex gap-2">
-               <button type="button" onClick={() => setPtIncluded(false)} className={`flex-1 py-2 rounded-xl border text-sm font-medium ${!ptIncluded ? 'bg-[#4D6B5A]/20 border-[#4D6B5A]/50 text-[#4D6B5A]' : 'bg-[#11110F] border-[rgba(255,255,255,0.08)] text-[#A7A39A]'}`}>PT Not Included</button>
-               <button type="button" onClick={() => setPtIncluded(true)} className={`flex-1 py-2 rounded-xl border text-sm font-medium ${ptIncluded ? 'bg-[#C9A24D]/10 border-[#D4AF37]/50 text-[#E2C46B]' : 'bg-[#11110F] border-[rgba(255,255,255,0.08)] text-[#A7A39A]'}`}>PT Included</button>
-            </div>
+        {(ptIncluded || dietIncluded) && (
+          <Card className="space-y-4">
+            <h2 className="text-sm font-semibold text-[#E2C46B] uppercase tracking-wider mb-2">Included in Plan</h2>
+            
+            {dietIncluded && (
+              <div className={`space-y-1.5 ${ptIncluded ? 'border-b border-[rgba(255,255,255,0.08)] pb-4' : ''}`}>
+                <label className="block text-sm font-medium text-zinc-300 flex items-center gap-2"><Utensils className="w-4 h-4"/> Diet Plan</label>
+                <select 
+                  className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
+                  value={dietPlanId}
+                  onChange={e => setDietPlanId(e.target.value)}
+                  required={dietIncluded}
+                >
+                  <option value="">Select Diet Plan</option>
+                  {dietPlans.map(p => (
+                    <option key={p.id} value={p.id}>{p.name} - {p.calories} Cal</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {ptIncluded && (
-              <div className="grid grid-cols-2 gap-4 animate-in fade-in zoom-in-95 duration-200 mt-4">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-medium text-[#706D66]">Trainer</label>
-                  <select 
-                    className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
-                    value={trainerId}
-                    onChange={e => setTrainerId(e.target.value)}
-                    required
-                  >
-                    <option value="">Select Trainer</option>
-                    {trainers.map(t => (
-                      <option key={t.id} value={t.id}>{t.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-medium text-[#706D66]">PT Plan</label>
-                  <select 
-                    className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
-                    value={ptPlanId}
-                    onChange={e => setPtPlanId(e.target.value)}
-                    required
-                  >
-                    <option value="">Select PT Plan</option>
-                    {ptPlans.map(p => (
-                      <option key={p.id} value={p.id}>{p.name} - ₹{p.price}</option>
-                    ))}
-                  </select>
+              <div className="space-y-3 pt-2">
+                <label className="block text-sm font-medium text-zinc-300 flex items-center gap-2"><Target className="w-4 h-4"/> Personal Training Details</label>
+
+                <div className="grid grid-cols-2 gap-4 animate-in fade-in zoom-in-95 duration-200 mt-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-[#706D66]">Trainer</label>
+                    <select 
+                      className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
+                      value={trainerId}
+                      onChange={e => setTrainerId(e.target.value)}
+                      required={ptIncluded}
+                    >
+                      <option value="">Select Trainer</option>
+                      {trainers.map(t => (
+                        <option key={t.id} value={t.id}>{t.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-[#706D66]">PT Plan</label>
+                    <select 
+                      className="w-full h-[44px] bg-[#11110F] border border-[rgba(255,255,255,0.08)] rounded-xl px-4 text-[#F4F1E8] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 appearance-none"
+                      value={ptPlanId}
+                      onChange={e => setPtPlanId(e.target.value)}
+                      required={ptIncluded}
+                    >
+                      <option value="">Select PT Plan</option>
+                      {ptPlans.map(p => (
+                        <option key={p.id} value={p.id}>{p.name} - ₹{p.price}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
             )}
-          </div>
-        </Card>
+          </Card>
+        )}
 
         {/* Floating Action Button for Save */}
         <div className="fixed bottom-20 left-0 right-0 px-4 pt-4 pb-safe bg-gradient-to-t from-zinc-950 via-zinc-950/90 to-transparent z-40 lg:static lg:bg-none lg:px-0 lg:p-0 lg:pt-4">

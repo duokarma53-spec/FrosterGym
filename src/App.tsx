@@ -49,8 +49,6 @@ import { ReportsDashboard } from './pages/reports/ReportsDashboard';
 import { PTDashboard } from './pages/pt/PTDashboard';
 
 // Remaining Features
-import { ServicesList } from './pages/services/ServicesList';
-import { BatchesList } from './pages/batches/BatchesList';
 
 // Settings
 import { SettingsScreen } from './pages/settings/SettingsScreen';
@@ -128,11 +126,7 @@ export default function App() {
                 {/* PT Dashboard */}
                 <Route path="pt" element={<PTDashboard />} />
 
-                {/* Services */}
-                <Route path="services" element={<ServicesList />} />
 
-                {/* Batches */}
-                <Route path="batches" element={<BatchesList />} />
 
                 {/* Settings */}
                 <Route path="settings" element={<SettingsScreen />} />

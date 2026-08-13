@@ -9,6 +9,8 @@ export interface MembershipPlan {
   duration_days: number;
   price: number;
   description: string | null;
+  includes_pt: boolean;
+  includes_diet: boolean;
   status: 'active' | 'inactive';
   created_at: string;
 }
@@ -19,6 +21,8 @@ export interface CreatePlanInput {
   duration_days: number;
   price: number;
   description?: string;
+  includes_pt?: boolean;
+  includes_diet?: boolean;
   status?: 'active' | 'inactive';
 }
 
