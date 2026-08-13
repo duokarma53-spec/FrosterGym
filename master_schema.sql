@@ -45,6 +45,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- ============================================
 -- STAFF PERMISSIONS TABLE
 -- ============================================
+DROP TABLE IF EXISTS public.staff_permissions CASCADE;
+
 CREATE TABLE IF NOT EXISTS public.staff_permissions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   profile_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,

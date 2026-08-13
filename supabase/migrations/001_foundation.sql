@@ -42,6 +42,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 -- ============================================
 -- STAFF PERMISSIONS TABLE
 -- ============================================
+DROP TABLE IF EXISTS public.staff_permissions CASCADE;
+
 CREATE TABLE IF NOT EXISTS public.staff_permissions (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   profile_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -186,19 +188,21 @@ CREATE POLICY "Owner can manage gym profiles"
 CREATE POLICY "Users can view gym permissions"
   ON public.staff_permissions FOR SELECT
   USING (
-    profile_id IN (
-      SELECT id FROM public.profiles
-      WHERE gym_id IN (SELECT gym_id FROM public.profiles WHERE user_id = auth.uid())
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id = public.staff_permissions.profile_id
+      AND gym_id IN (SELECT gym_id FROM public.profiles WHERE user_id = auth.uid())
     )
   );
 
 CREATE POLICY "Owner can manage permissions"
   ON public.staff_permissions FOR ALL
   USING (
-    profile_id IN (
-      SELECT p.id FROM public.profiles p
-      JOIN public.gyms g ON g.id = p.gym_id
-      WHERE g.owner_id = auth.uid()
+    EXISTS (
+      SELECT 1 FROM public.gyms g
+      JOIN public.profiles p ON g.id = p.gym_id
+      WHERE p.id = public.staff_permissions.profile_id
+      AND g.owner_id = auth.uid()
     )
   );
 
