@@ -223,10 +223,10 @@ CREATE POLICY "Users can view gym permissions"
 CREATE POLICY "Owner can manage permissions"
   ON public.staff_permissions FOR ALL
   USING (
-    profile_id IN (
-      SELECT p.id FROM public.profiles p
-      JOIN public.gyms g ON g.id = p.gym_id
-      WHERE g.owner_id = auth.uid()
+    EXISTS (
+      SELECT 1 FROM public.gyms g
+      WHERE g.id = (SELECT gym_id FROM public.profiles WHERE id = public.staff_permissions.profile_id)
+      AND g.owner_id = auth.uid()
     )
   );
 
