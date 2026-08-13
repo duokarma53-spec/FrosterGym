@@ -103,14 +103,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS set_profiles_updated_at ON public.profiles;
 CREATE TRIGGER set_profiles_updated_at
   BEFORE UPDATE ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_gyms_updated_at ON public.gyms;
 CREATE TRIGGER set_gyms_updated_at
   BEFORE UPDATE ON public.gyms
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
+DROP TRIGGER IF EXISTS set_gym_settings_updated_at ON public.gym_settings;
 CREATE TRIGGER set_gym_settings_updated_at
   BEFORE UPDATE ON public.gym_settings
   FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
@@ -167,6 +170,7 @@ AS $$
   SELECT gym_id FROM public.profiles WHERE user_id = auth.uid() LIMIT 1;
 $$;
 
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
@@ -439,13 +443,28 @@ CREATE TABLE IF NOT EXISTS public.invoices (
 -- ============================================
 -- TRIGGERS FOR UPDATED_AT
 -- ============================================
+DROP TRIGGER IF EXISTS set_membership_plans_updated_at ON public.membership_plans;
 CREATE TRIGGER set_membership_plans_updated_at BEFORE UPDATE ON public.membership_plans FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+DROP TRIGGER IF EXISTS set_members_updated_at ON public.members;
 CREATE TRIGGER set_members_updated_at BEFORE UPDATE ON public.members FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+DROP TRIGGER IF EXISTS set_memberships_updated_at ON public.memberships;
 CREATE TRIGGER set_memberships_updated_at BEFORE UPDATE ON public.memberships FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+DROP TRIGGER IF EXISTS set_payments_updated_at ON public.payments;
 CREATE TRIGGER set_payments_updated_at BEFORE UPDATE ON public.payments FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+DROP TRIGGER IF EXISTS set_diet_plans_updated_at ON public.diet_plans;
 CREATE TRIGGER set_diet_plans_updated_at BEFORE UPDATE ON public.diet_plans FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+DROP TRIGGER IF EXISTS set_member_diet_plans_updated_at ON public.member_diet_plans;
 CREATE TRIGGER set_member_diet_plans_updated_at BEFORE UPDATE ON public.member_diet_plans FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+DROP TRIGGER IF EXISTS set_expenses_updated_at ON public.expenses;
 CREATE TRIGGER set_expenses_updated_at BEFORE UPDATE ON public.expenses FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
+
+DROP TRIGGER IF EXISTS set_invoices_updated_at ON public.invoices;
 CREATE TRIGGER set_invoices_updated_at BEFORE UPDATE ON public.invoices FOR EACH ROW EXECUTE FUNCTION public.handle_updated_at();
 
 -- ============================================
