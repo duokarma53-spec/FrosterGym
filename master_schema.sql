@@ -214,9 +214,10 @@ CREATE POLICY "Owner can manage gym profiles"
 CREATE POLICY "Users can view gym permissions"
   ON public.staff_permissions FOR SELECT
   USING (
-    profile_id IN (
-      SELECT id FROM public.profiles
-      WHERE gym_id IN (SELECT gym_id FROM public.profiles WHERE user_id = auth.uid())
+    EXISTS (
+      SELECT 1 FROM public.profiles
+      WHERE id = public.staff_permissions.profile_id
+      AND gym_id IN (SELECT gym_id FROM public.profiles WHERE user_id = auth.uid())
     )
   );
 
@@ -225,7 +226,8 @@ CREATE POLICY "Owner can manage permissions"
   USING (
     EXISTS (
       SELECT 1 FROM public.gyms g
-      WHERE g.id = (SELECT gym_id FROM public.profiles p WHERE p.id = profile_id)
+      JOIN public.profiles p ON g.id = p.gym_id
+      WHERE p.id = public.staff_permissions.profile_id
       AND g.owner_id = auth.uid()
     )
   );
