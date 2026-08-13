@@ -56,6 +56,20 @@ CREATE TABLE IF NOT EXISTS public.staff_permissions (
 );
 
 -- ============================================
+-- STAFF DIRECTORY
+-- ============================================
+CREATE TABLE IF NOT EXISTS public.staff (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    gym_id UUID NOT NULL REFERENCES public.gyms(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    role TEXT NOT NULL,
+    phone TEXT,
+    email TEXT,
+    permissions TEXT[] DEFAULT '{}',
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- ============================================
 -- GYM SETTINGS TABLE
 -- ============================================
 CREATE TABLE IF NOT EXISTS public.gym_settings (
@@ -139,6 +153,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- ============================================
+-- RLS HELPER FUNCTIONS
+-- ============================================
+CREATE OR REPLACE FUNCTION public.get_gym_id()
+RETURNS uuid
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT gym_id FROM public.profiles WHERE user_id = auth.uid() LIMIT 1;
+$$;
+
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
@@ -149,6 +175,7 @@ CREATE TRIGGER on_auth_user_created
 ALTER TABLE public.gyms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.staff_permissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.staff ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.gym_settings ENABLE ROW LEVEL SECURITY;
 
 -- Gyms: users can only see their own gym
@@ -203,6 +230,23 @@ CREATE POLICY "Owner can manage permissions"
     )
   );
 
+-- Staff directory: viewable by gym members
+CREATE POLICY "Users can view staff in their gym" 
+  ON public.staff FOR SELECT 
+  USING (gym_id = public.get_gym_id());
+
+CREATE POLICY "Users can insert staff in their gym" 
+  ON public.staff FOR INSERT 
+  WITH CHECK (gym_id = public.get_gym_id());
+
+CREATE POLICY "Users can update staff in their gym" 
+  ON public.staff FOR UPDATE 
+  USING (gym_id = public.get_gym_id());
+
+CREATE POLICY "Users can delete staff in their gym" 
+  ON public.staff FOR DELETE 
+  USING (gym_id = public.get_gym_id());
+
 -- Gym settings: viewable by gym members, manageable by owner
 CREATE POLICY "Users can view gym settings"
   ON public.gym_settings FOR SELECT
@@ -233,6 +277,8 @@ CREATE TABLE IF NOT EXISTS public.membership_plans (
   duration_days INTEGER NOT NULL DEFAULT 0,
   price NUMERIC(10,2) NOT NULL DEFAULT 0,
   description TEXT,
+  includes_pt BOOLEAN NOT NULL DEFAULT false,
+  includes_diet BOOLEAN NOT NULL DEFAULT false,
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
