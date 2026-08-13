@@ -7,17 +7,22 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#0a0a0a',
-        surface: '#171717',
-        'surface-highlight': '#262626',
+        background: '#0a0a0b',
+        surface: '#121213',
+        'surface-highlight': '#1f1f20',
         primary: {
-          400: '#fbbf24', // Amber/Gold accent
-          500: '#f59e0b',
-          600: '#d97706',
+          400: '#d9a952',
+          500: '#c9973e', // Bronze/Amber accent
+          600: '#b0812d',
+        },
+        text: {
+          primary: '#f5f5f0',
+          muted: '#9c9c9a'
         }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Oswald', 'sans-serif'],
       }
     },
   },

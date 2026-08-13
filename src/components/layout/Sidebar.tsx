@@ -7,17 +7,17 @@ import {
 import { cn } from '../../utils/cn';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-  { icon: Users, label: 'Members', path: '/members' },
-  { icon: CreditCard, label: 'Memberships', path: '/memberships' },
-  { icon: Receipt, label: 'Payments', path: '/payments' },
-  { icon: CalendarCheck, label: 'Attendance', path: '/attendance' },
-  { icon: Apple, label: 'Diet Plans', path: '/diet-plans' },
-  { icon: Dumbbell, label: 'Personal Training', path: '/pt' },
-  { icon: UserCheck, label: 'Staff', path: '/staff' },
-  { icon: Receipt, label: 'Expenses', path: '/expenses' },
-  { icon: BarChart3, label: 'Reports', path: '/reports' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/app' },
+  { icon: Users, label: 'Members', path: '/app/members' },
+  { icon: CreditCard, label: 'Memberships', path: '/app/memberships' },
+  { icon: Receipt, label: 'Payments', path: '/app/payments' },
+  { icon: CalendarCheck, label: 'Attendance', path: '/app/attendance' },
+  { icon: Apple, label: 'Diet Plans', path: '/app/diet-plans' },
+  { icon: Dumbbell, label: 'Personal Training', path: '/app/pt' },
+  { icon: UserCheck, label: 'Staff', path: '/app/staff' },
+  { icon: Receipt, label: 'Expenses', path: '/app/expenses' },
+  { icon: BarChart3, label: 'Reports', path: '/app/reports' },
+  { icon: Settings, label: 'Settings', path: '/app/settings' },
 ];
 
 export function Sidebar() {

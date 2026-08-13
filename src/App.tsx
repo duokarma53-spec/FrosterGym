@@ -16,31 +16,33 @@ import { DietPlans } from './pages/app/DietPlans';
 import { Expenses } from './pages/app/Expenses';
 import { Reports } from './pages/app/Reports';
 import { Settings } from './pages/app/Settings';
+import { Landing } from './pages/public/Landing';
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           
-          <Route element={<ProtectedRoute />}>
+          <Route path="/app" element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
-              <Route path="/" element={<Dashboard />} />
+              <Route index element={<Dashboard />} />
               {/* Placeholders for future routes */}
-              <Route path="/members" element={<Members />} />
-              <Route path="/members/:id" element={<MemberProfile />} />
-              <Route path="/memberships" element={<MembershipPlans />} />
-              <Route path="/attendance" element={<Attendance />} />
-              <Route path="/payments" element={<Payments />} />
-              <Route path="/diet-plans" element={<DietPlans />} />
-              <Route path="/pt" element={<PT />} />
-              <Route path="/staff" element={<Staff />} />
-              <Route path="/expenses" element={<Expenses />} />
-              <Route path="/reports" element={<Reports />} />
-              <Route path="/invoices" element={<div className="text-white p-4">Invoices (Pending)</div>} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="members" element={<Members />} />
+              <Route path="members/:id" element={<MemberProfile />} />
+              <Route path="memberships" element={<MembershipPlans />} />
+              <Route path="attendance" element={<Attendance />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="diet-plans" element={<DietPlans />} />
+              <Route path="pt" element={<PT />} />
+              <Route path="staff" element={<Staff />} />
+              <Route path="expenses" element={<Expenses />} />
+              <Route path="reports" element={<Reports />} />
+              <Route path="invoices" element={<div className="text-white p-4">Invoices (Pending)</div>} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="*" element={<Navigate to="/app" replace />} />
             </Route>
           </Route>
         </Routes>

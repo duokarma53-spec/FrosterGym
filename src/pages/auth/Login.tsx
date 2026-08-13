@@ -22,7 +22,7 @@ export function Login() {
       });
 
       if (error) throw error;
-      navigate('/');
+      navigate('/app');
     } catch (err: any) {
       setError(err.message || 'Failed to sign in');
     } finally {

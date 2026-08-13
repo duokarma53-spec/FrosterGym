@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Receipt, DollarSign, X, Calendar, Filter } from 'lucide-react';
+import { Plus, Search, Receipt, DollarSign, X, Calendar } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import type { Database } from '../../types/database.types';

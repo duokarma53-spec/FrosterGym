@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { 
-  BarChart3, TrendingUp, TrendingDown, Users, 
+  TrendingUp, TrendingDown, Users, 
   CreditCard, CalendarCheck, Loader2, DollarSign 
 } from 'lucide-react';
 
