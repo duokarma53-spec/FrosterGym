@@ -29,7 +29,7 @@ function App() {
           <Route path="/app" element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route index element={<Dashboard />} />
-              {/* Placeholders for future routes */}
+
               <Route path="members" element={<Members />} />
               <Route path="members/:id" element={<MemberProfile />} />
               <Route path="memberships" element={<MembershipPlans />} />
@@ -40,7 +40,7 @@ function App() {
               <Route path="staff" element={<Staff />} />
               <Route path="expenses" element={<Expenses />} />
               <Route path="reports" element={<Reports />} />
-              <Route path="invoices" element={<div className="text-white p-4">Invoices (Pending)</div>} />
+
               <Route path="settings" element={<Settings />} />
               <Route path="*" element={<Navigate to="/app" replace />} />
             </Route>
