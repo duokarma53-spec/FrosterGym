@@ -2,13 +2,16 @@
 import { useAuth } from '../../contexts/AuthContext';
 import { LogOut, User, Menu } from 'lucide-react';
 
-export function TopBar() {
+export function TopBar({ onMenuClick }: { onMenuClick?: () => void }) {
   const { profile, gym, signOut } = useAuth();
 
   return (
     <header className="h-16 bg-surface border-b border-surface-highlight flex items-center justify-between px-4 md:px-8">
       <div className="flex items-center gap-4">
-        <button className="md:hidden text-gray-400 hover:text-white">
+        <button 
+          onClick={onMenuClick}
+          className="md:hidden text-gray-400 hover:text-white"
+        >
           <Menu className="w-6 h-6" />
         </button>
         {gym && (

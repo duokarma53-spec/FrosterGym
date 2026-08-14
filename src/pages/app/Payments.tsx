@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Receipt, User, DollarSign, X, Check } from 'lucide-react';
+import { Plus, Search, Receipt, User, X, Check } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import type { Database } from '../../types/database.types';
@@ -29,7 +29,7 @@ export function Payments() {
   const [selectedMember, setSelectedMember] = useState('');
   const [selectedMembership, setSelectedMembership] = useState('');
   const [amount, setAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [paymentMethod, setPaymentMethod] = useState('cash');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
 
@@ -190,7 +190,7 @@ export function Payments() {
     setSelectedMember('');
     setSelectedMembership('');
     setAmount('');
-    setPaymentMethod('Cash');
+    setPaymentMethod('cash');
     setPaymentDate(new Date().toISOString().split('T')[0]);
     setNotes('');
     setError(null);
@@ -388,7 +388,7 @@ export function Payments() {
                     Amount *
                   </label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">Rs</span>
                     <input
                       required
                       type="number"
@@ -425,10 +425,11 @@ export function Payments() {
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none"
                 >
-                  <option value="Cash">Cash</option>
-                  <option value="UPI">UPI</option>
-                  <option value="Card">Card</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="cash">Cash</option>
+                  <option value="upi">UPI</option>
+                  <option value="card">Card</option>
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
 

@@ -7,8 +7,14 @@ import type { Database } from '../../types/database.types';
 type Expense = Database['public']['Tables']['expenses']['Row'];
 
 const CATEGORIES = [
-  'Rent', 'Electricity', 'Water', 'Staff Salary', 'Equipment', 
-  'Maintenance', 'Marketing', 'Cleaning', 'Other'
+  { value: 'rent', label: 'Rent' },
+  { value: 'electricity', label: 'Electricity' },
+  { value: 'salary', label: 'Staff Salary' },
+  { value: 'equipment', label: 'Equipment' },
+  { value: 'maintenance', label: 'Maintenance' },
+  { value: 'marketing', label: 'Marketing' },
+  { value: 'supplies', label: 'Supplies' },
+  { value: 'other', label: 'Other' }
 ];
 
 export function Expenses() {
@@ -24,10 +30,10 @@ export function Expenses() {
 
   // Form State
   const [title, setTitle] = useState('');
-  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [category, setCategory] = useState(CATEGORIES[0].value);
   const [amount, setAmount] = useState('');
   const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split('T')[0]);
-  const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [paymentMethod, setPaymentMethod] = useState('cash');
   const [notes, setNotes] = useState('');
 
   useEffect(() => {
@@ -114,9 +120,9 @@ export function Expenses() {
 
   const resetForm = () => {
     setTitle('');
-    setCategory(CATEGORIES[0]);
+    setCategory(CATEGORIES[0].value);
     setAmount('');
-    setPaymentMethod('Cash');
+    setPaymentMethod('cash');
     setExpenseDate(new Date().toISOString().split('T')[0]);
     setNotes('');
     setError(null);
@@ -228,7 +234,7 @@ export function Expenses() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="px-2 py-1 bg-surface-highlight rounded-md text-xs font-medium text-gray-300">
-                        {expense.category}
+                        {CATEGORIES.find(c => c.value === expense.category)?.label || expense.category}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-gray-400">{expense.payment_method}</td>
@@ -282,7 +288,7 @@ export function Expenses() {
                     className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
                   >
                     {CATEGORIES.map(c => (
-                      <option key={c} value={c}>{c}</option>
+                      <option key={c.value} value={c.value}>{c.label}</option>
                     ))}
                   </select>
                 </div>
@@ -319,10 +325,11 @@ export function Expenses() {
                     onChange={(e) => setPaymentMethod(e.target.value)}
                     className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
                   >
-                    <option value="Cash">Cash</option>
-                    <option value="Card">Card</option>
-                    <option value="UPI">UPI</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="upi">UPI</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="other">Other</option>
                   </select>
                 </div>
               </div>

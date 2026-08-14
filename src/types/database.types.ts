@@ -195,6 +195,9 @@ export interface Database {
           occupation: string | null
           blood_group: string | null
           goal: string | null
+          is_blocked: boolean
+          blocked_at: string | null
+          blocked_reason: string | null
         }
         Insert: {
           id?: string
@@ -219,6 +222,9 @@ export interface Database {
           occupation?: string | null
           blood_group?: string | null
           goal?: string | null
+          is_blocked?: boolean
+          blocked_at?: string | null
+          blocked_reason?: string | null
         }
         Update: {
           id?: string
@@ -243,6 +249,42 @@ export interface Database {
           occupation?: string | null
           blood_group?: string | null
           goal?: string | null
+          is_blocked?: boolean
+          blocked_at?: string | null
+          blocked_reason?: string | null
+        }
+        Relationships: []
+      }
+      member_freezes: {
+        Row: {
+          id: string
+          gym_id: string
+          member_id: string
+          membership_id: string | null
+          freeze_from: string
+          freeze_to: string
+          reason: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          gym_id: string
+          member_id: string
+          membership_id?: string | null
+          freeze_from: string
+          freeze_to: string
+          reason?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          gym_id?: string
+          member_id?: string
+          membership_id?: string | null
+          freeze_from?: string
+          freeze_to?: string
+          reason?: string | null
+          created_at?: string
         }
         Relationships: []
       }

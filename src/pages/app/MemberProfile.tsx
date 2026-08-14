@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { Loader2, ArrowLeft, User as UserIcon, Calendar, Phone, Mail, MapPin, CheckCircle, Clock, Dumbbell, Apple, Plus } from 'lucide-react';
+import { Loader2, ArrowLeft, User as UserIcon, Calendar, Phone, Mail, MapPin, CheckCircle, Clock, Dumbbell, Apple, Plus, Ban, Snowflake } from 'lucide-react';
 import type { Database } from '../../types/database.types';
 
 type Member = Database['public']['Tables']['members']['Row'];
+type MemberFreeze = Database['public']['Tables']['member_freezes']['Row'];
 type Membership = Database['public']['Tables']['memberships']['Row'];
 type Plan = Database['public']['Tables']['membership_plans']['Row'];
 type Payment = Database['public']['Tables']['payments']['Row'];
@@ -20,7 +21,7 @@ export function MemberProfile() {
   const navigate = useNavigate();
   const { gym } = useAuth();
   
-  const [member, setMember] = useState<Member | null>(null);
+  const [member, setMember] = useState<(Member & { member_freezes?: MemberFreeze[] }) | null>(null);
   const [currentMembership, setCurrentMembership] = useState<(Membership & { membership_plans: Plan | null }) | null>(null);
   const [membershipHistory, setMembershipHistory] = useState<(Membership & { membership_plans: Plan | null })[]>([]);
   
@@ -57,7 +58,7 @@ export function MemberProfile() {
   const [formData, setFormData] = useState({
     full_name: '',
     phone: '',
-    gender: 'Male',
+    gender: 'male',
     date_of_birth: '',
     email: '',
     address: ''
@@ -70,7 +71,7 @@ export function MemberProfile() {
       // 1. Fetch Member
       const { data: memberData, error: memberError } = await supabase
         .from('members')
-        .select('*')
+        .select('*, member_freezes(*)')
         .eq('id', id)
         .eq('gym_id', gym.id)
         .single();
@@ -81,7 +82,7 @@ export function MemberProfile() {
       setFormData({
         full_name: memberData.full_name || '',
         phone: memberData.phone || '',
-        gender: memberData.gender || 'Male',
+        gender: memberData.gender || 'male',
         date_of_birth: memberData.date_of_birth || '',
         email: memberData.email || '',
         address: memberData.address || ''
@@ -404,9 +405,20 @@ export function MemberProfile() {
                 )}
               </div>
               <h2 className="text-xl font-bold text-white">{member.full_name}</h2>
-              <span className={`mt-2 px-2.5 py-1 rounded-md text-xs font-medium ${member.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                {member.status.toUpperCase()}
-              </span>
+              {(() => {
+                if (member.is_blocked) return <span className="mt-2 px-2.5 py-1 rounded-md text-xs font-bold border bg-red-500/10 text-red-500 border-red-500/20 flex items-center gap-1"><Ban className="w-3 h-3"/>BLOCKED</span>;
+                const now = new Date();
+                now.setHours(0,0,0,0);
+                const activeFreeze = member.member_freezes?.find(f => {
+                  const from = new Date(f.freeze_from);
+                  const to = new Date(f.freeze_to);
+                  return now >= from && now <= to;
+                });
+                if (activeFreeze) return <span className="mt-2 px-2.5 py-1 rounded-md text-xs font-bold border bg-blue-500/10 text-blue-400 border-blue-500/20 flex items-center gap-1"><Snowflake className="w-3 h-3"/>FROZEN UNTIL {new Date(activeFreeze.freeze_to).toLocaleDateString()}</span>;
+                const isExpired = currentMembership ? new Date(currentMembership.end_date) < new Date() : true;
+                if (isExpired) return <span className="mt-2 px-2.5 py-1 rounded-md text-xs font-bold border bg-orange-500/10 text-orange-400 border-orange-500/20">EXPIRED</span>;
+                return <span className="mt-2 px-2.5 py-1 rounded-md text-xs font-bold border bg-green-500/10 text-green-400 border-green-500/20">ACTIVE</span>;
+              })()}
             </div>
 
             {!isEditing ? (
@@ -435,7 +447,7 @@ export function MemberProfile() {
                 )}
                 <div className="flex items-center gap-3 text-gray-300">
                   <UserIcon className="w-4 h-4 text-gray-500" />
-                  <span className="text-sm">{member.gender}</span>
+                  <span className="text-sm">{member.gender ? member.gender.charAt(0).toUpperCase() + member.gender.slice(1).replace(/_/g, ' ') : 'N/A'}</span>
                 </div>
               </div>
             ) : (
@@ -459,9 +471,10 @@ export function MemberProfile() {
                 <div>
                   <label className="block text-xs font-medium text-gray-400 mb-1">Gender</label>
                   <select value={formData.gender} onChange={e => setFormData({...formData, gender: e.target.value})} className="w-full bg-background border border-surface-highlight rounded md px-3 py-1.5 text-white text-sm">
-                    <option>Male</option>
-                    <option>Female</option>
-                    <option>Other</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                    <option value="prefer_not_to_say">Prefer Not To Say</option>
                   </select>
                 </div>
                 <div>
@@ -584,6 +597,40 @@ export function MemberProfile() {
             ) : (
               <div className="text-center py-8">
                 <p className="text-gray-500 text-sm">No previous memberships.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-surface border border-surface-highlight rounded-xl p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <Snowflake className="w-5 h-5 text-gray-400" />
+              <h3 className="text-lg font-bold text-white">Freeze History</h3>
+            </div>
+            {member.member_freezes && member.member_freezes.length > 0 ? (
+              <div className="space-y-4">
+                {[...member.member_freezes].sort((a,b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map(f => {
+                  const now = new Date();
+                  now.setHours(0,0,0,0);
+                  const isCurrent = now >= new Date(f.freeze_from) && now <= new Date(f.freeze_to);
+                  return (
+                    <div key={f.id} className={`flex justify-between items-center p-4 bg-background border ${isCurrent ? 'border-blue-500/50' : 'border-surface-highlight'} rounded-lg`}>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-white">Frozen</span>
+                          {isCurrent && <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/10 text-blue-400">CURRENT</span>}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-1 flex gap-2">
+                          <span>{new Date(f.freeze_from).toLocaleDateString()} &rarr; {new Date(f.freeze_to).toLocaleDateString()}</span>
+                        </div>
+                        {f.reason && <p className="text-sm text-gray-500 mt-2">{f.reason}</p>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500 text-sm">No freeze records.</p>
               </div>
             )}
           </div>

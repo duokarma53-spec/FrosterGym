@@ -12,13 +12,25 @@ export function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const normalizedEmail = email.trim().toLowerCase();
+    
+    if (!normalizedEmail) {
+      setError('Email address is required');
+      return;
+    }
+    if (!password) {
+      setError('Password is required');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: normalizedEmail,
+        password, // Do NOT trim password as spaces may be intentional
       });
 
       if (error) throw error;

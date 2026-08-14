@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, CreditCard, CalendarCheck, 
   Apple, Dumbbell, UserCheck, Receipt, BarChart3, 
-  Settings 
+  Settings, X
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
@@ -20,20 +20,34 @@ const navItems = [
   { icon: Settings, label: 'Settings', path: '/app/settings' },
 ];
 
-export function Sidebar() {
+export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
   return (
-    <aside className="hidden md:flex flex-col w-64 bg-surface border-r border-surface-highlight">
-      <div className="p-6">
-        <h1 className="text-2xl font-bold tracking-tighter text-white">
-          FROASTER<span className="text-primary-500">.</span>
-        </h1>
-      </div>
-      <nav className="flex-1 overflow-y-auto px-4 space-y-1">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
+    <>
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden" 
+          onClick={onClose}
+        />
+      )}
+      <aside className={cn(
+        "fixed inset-y-0 left-0 z-50 flex flex-col w-64 bg-surface border-r border-surface-highlight transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0 md:flex",
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="p-6 flex items-center justify-between">
+          <h1 className="text-2xl font-bold tracking-tighter text-white">
+            FROASTER<span className="text-primary-500">.</span>
+          </h1>
+          <button onClick={onClose} className="md:hidden text-gray-400 hover:text-white">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <nav className="flex-1 overflow-y-auto px-4 space-y-1">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.path}
+              to={item.path}
+              onClick={onClose}
+              className={({ isActive }) =>
               cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm font-medium",
                 isActive 
@@ -48,5 +62,6 @@ export function Sidebar() {
         ))}
       </nav>
     </aside>
+    </>
   );
 }
