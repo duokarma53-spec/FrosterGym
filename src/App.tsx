@@ -1,6 +1,6 @@
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { Login } from './pages/auth/Login';
@@ -17,6 +17,7 @@ import { Expenses } from './pages/app/Expenses';
 import { Reports } from './pages/app/Reports';
 import { Settings } from './pages/app/Settings';
 import { Landing } from './pages/public/Landing';
+import { Loader2 } from 'lucide-react';
 
 function PermissionGuard({ permission, children }: { permission: string; children: React.ReactNode }) {
   const { profile, permissions, isLoading } = useAuth();

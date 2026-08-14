@@ -352,7 +352,10 @@ export function Members() {
         if (membershipError) throw membershipError;
       }
       setShowAddForm(false);
-      resetForm();
+      setFormData({
+        full_name: '', phone: '', gender: 'male', date_of_birth: '',
+        email: '', address: '', photo_url: '', selected_plan_id: '',
+      });
     } catch (err: any) {
       setFormError(err.message);
     } finally {
@@ -411,7 +414,7 @@ export function Members() {
       // 10. Delete invoice_items (first get matching invoices)
       const { data: memberInvoices } = await supabase.from('invoices').select('id').eq('member_id', memberId);
       if (memberInvoices && memberInvoices.length > 0) {
-        const invoiceIds = memberInvoices.map(i => i.id);
+        const invoiceIds = memberInvoices.map((i: any) => i.id);
         await supabase.from('invoice_items').delete().in('invoice_id', invoiceIds);
       }
 

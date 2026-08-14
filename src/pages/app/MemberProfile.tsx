@@ -97,7 +97,9 @@ export function MemberProfile() {
         gender: memberData.gender || 'male',
         date_of_birth: memberData.date_of_birth || '',
         email: memberData.email || '',
-        address: memberData.address || ''
+        address: memberData.address || '',
+        photo_url: memberData.photo_url || '',
+        status: memberData.status
       });
 
       // 2. Fetch Memberships
@@ -147,8 +149,43 @@ export function MemberProfile() {
       if (paymentsData) {
         setPayments(paymentsData as Payment[]);
       }
+      // 5. Fetch Plans for Renewal
+      const { data: plansData } = await supabase
+        .from('membership_plans')
+        .select('*')
+        .eq('gym_id', gym.id)
+        .eq('status', 'active');
+        
+      if (plansData) {
+        setPlans(plansData as Plan[]);
+      }
+
+      // 6. Fetch PT Assignment
+      const { data: ptData } = await supabase
+        .from('pt_memberships')
+        .select('*, trainers(*), pt_plans(*)')
+        .eq('member_id', id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+        
+      if (ptData) setCurrentPT(ptData as any);
+
+      // 7. Fetch Diet Assignment
+      const { data: dietData } = await supabase
+        .from('member_diet_plans')
+        .select('*, diet_plans(*)')
+        .eq('member_id', id)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+        
+      if (dietData) setCurrentDiet(dietData as any);
+
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch member details');
+      setError(err.message || 'Failed to load member profile');
     } finally {
       setLoading(false);
     }
@@ -265,47 +302,7 @@ export function MemberProfile() {
     }
   };
 
-      // 5. Fetch Plans for Renewal
-      const { data: plansData } = await supabase
-        .from('membership_plans')
-        .select('*')
-        .eq('gym_id', gym.id)
-        .eq('status', 'active');
-        
-      if (plansData) {
-        setPlans(plansData as Plan[]);
-      }
 
-      // 6. Fetch PT Assignment
-      const { data: ptData } = await supabase
-        .from('pt_memberships')
-        .select('*, trainers(*), pt_plans(*)')
-        .eq('member_id', id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-        
-      if (ptData) setCurrentPT(ptData as any);
-
-      // 7. Fetch Diet Assignment
-      const { data: dietData } = await supabase
-        .from('member_diet_plans')
-        .select('*, diet_plans(*)')
-        .eq('member_id', id)
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-        
-      if (dietData) setCurrentDiet(dietData as any);
-
-    } catch (err: any) {
-      setError(err.message || 'Failed to load member profile');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   async function loadAssignmentData() {
     if (!gym) return;
