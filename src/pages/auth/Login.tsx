@@ -62,7 +62,7 @@ export function Login() {
       <div className="absolute inset-0 z-0">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
-          style={{ backgroundImage: 'url(/gym-bg.jpg)' }}
+          style={{ backgroundImage: `url(${import.meta.env.BASE_URL}gym-bg.jpg)` }}
         />
         <div className="absolute inset-0 bg-black/70 mix-blend-multiply" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-0" />
