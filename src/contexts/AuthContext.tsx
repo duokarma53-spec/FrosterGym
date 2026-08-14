@@ -14,6 +14,7 @@ interface AuthContextType {
   isLoading: boolean;
   error: Error | null;
   signOut: () => Promise<void>;
+  permissions: string[];
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [gym, setGym] = useState<Gym | null>(null);
+  const [permissions, setPermissions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -35,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null);
           setProfile(null);
           setGym(null);
+          setPermissions([]);
           setIsLoading(false);
         }
         return;
@@ -58,6 +61,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         
         if (mounted) {
           setProfile(profileData as Profile);
+        }
+
+        // Fetch permissions based on role
+        let userPermissions: string[] = [];
+        if (profileData.role === 'owner') {
+          userPermissions = [
+            'dashboard', 'members', 'memberships', 'payments', 
+            'attendance', 'pt', 'diet-plans', 'staff', 
+            'expenses', 'reports', 'settings'
+          ];
+        } else {
+          // Fetch from staff_permissions table
+          const { data: permRows } = await supabase
+            .from('staff_permissions')
+            .select('module_name, can_view')
+            .eq('user_id', profileData.id);
+
+          if (permRows) {
+            userPermissions = permRows
+              .filter((r: any) => r.can_view)
+              .map((r: any) => r.module_name.toLowerCase());
+          }
+
+          // Fetch from staff table by email as fallback
+          const { data: staffRow } = await supabase
+            .from('staff')
+            .select('permissions')
+            .eq('email', profileData.email)
+            .maybeSingle();
+
+          if (staffRow?.permissions) {
+            const mappedStaffPerms = (staffRow.permissions as string[]).map(p => p.toLowerCase());
+            userPermissions = [...new Set([...userPermissions, ...mappedStaffPerms])];
+          }
+        }
+
+        if (mounted) {
+          setPermissions(userPermissions);
         }
 
         // Fetch Gym if profile is attached to one
@@ -109,7 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, gym, session, isLoading, error, signOut }}>
+    <AuthContext.Provider value={{ user, profile, gym, session, isLoading, error, signOut, permissions }}>
       {children}
     </AuthContext.Provider>
   );

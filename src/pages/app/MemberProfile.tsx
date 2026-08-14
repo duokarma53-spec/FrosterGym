@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { Loader2, ArrowLeft, User as UserIcon, Calendar, Phone, Mail, MapPin, CheckCircle, Clock, Dumbbell, Apple, Plus, Ban, Snowflake } from 'lucide-react';
+import { Loader2, ArrowLeft, User as UserIcon, Calendar, Phone, Mail, MapPin, CheckCircle, Clock, Dumbbell, Apple, Plus, Ban, Snowflake, X, Check } from 'lucide-react';
 import type { Database } from '../../types/database.types';
 
 type Member = Database['public']['Tables']['members']['Row'];
@@ -61,8 +61,20 @@ export function MemberProfile() {
     gender: 'male',
     date_of_birth: '',
     email: '',
-    address: ''
+    address: '',
+    photo_url: '',
+    status: 'active'
   });
+
+  // Record Payment State
+  const [showRecordPaymentModal, setShowRecordPaymentModal] = useState(false);
+  const [recordPaymentAmount, setRecordPaymentAmount] = useState('');
+  const [recordPaymentMethod, setRecordPaymentMethod] = useState('cash');
+  const [recordPaymentNotes, setRecordPaymentNotes] = useState('');
+  const [recordPaymentDate, setRecordPaymentDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isRecordingPayment, setIsRecordingPayment] = useState(false);
+
+  const [invoiceToPrint, setInvoiceToPrint] = useState<any | null>(null);
 
   const fetchMemberData = async () => {
     if (!gym || !id) return;
@@ -131,10 +143,127 @@ export function MemberProfile() {
         .select('*')
         .eq('member_id', id)
         .order('payment_date', { ascending: false });
-        
+
       if (paymentsData) {
         setPayments(paymentsData as Payment[]);
       }
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch member details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRecordPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentMembership || !gym || !member) return;
+    const amt = parseFloat(recordPaymentAmount);
+    if (isNaN(amt) || amt <= 0) return alert("Amount must be greater than zero");
+    
+    setIsRecordingPayment(true);
+    try {
+      // 1. Insert Payment
+      const { data: newPayment, error: paymentError } = await (supabase
+        .from('payments')
+        .insert({
+          gym_id: gym.id,
+          member_id: member.id,
+          membership_id: currentMembership.id,
+          amount: amt,
+          payment_date: new Date(recordPaymentDate).toISOString(),
+          payment_method: recordPaymentMethod,
+          status: 'completed',
+          notes: recordPaymentNotes || null
+        })
+        .select()
+        .single() as any);
+        
+      if (paymentError) throw paymentError;
+
+      // 2. Insert Invoice
+      if (newPayment) {
+        const invoiceNumber = `INV-${new Date(recordPaymentDate).getFullYear()}${(new Date(recordPaymentDate).getMonth() + 1).toString().padStart(2, '0')}-${newPayment.id.slice(0, 8).toUpperCase()}`;
+        const { error: invoiceError } = await supabase.from('invoices').insert({
+          gym_id: gym.id,
+          invoice_number: invoiceNumber,
+          member_id: member.id,
+          membership_id: currentMembership.id,
+          payment_id: newPayment.id,
+          issue_date: new Date(recordPaymentDate).toISOString().split('T')[0],
+          due_date: new Date(recordPaymentDate).toISOString().split('T')[0],
+          subtotal: amt,
+          tax_amount: 0,
+          total_amount: amt,
+          status: 'paid'
+        });
+        
+        if (invoiceError) console.error('Invoice creation failed:', invoiceError.message);
+      }
+      
+      // 3. Update Membership Dues
+      const newPaidAmount = Number(currentMembership.paid_amount) + amt;
+      const newDueAmount = Math.max(0, Number(currentMembership.due_amount) - amt);
+      
+      const { error: membershipError } = await supabase
+        .from('memberships')
+        .update({
+          paid_amount: newPaidAmount,
+          due_amount: newDueAmount
+        })
+        .eq('id', currentMembership.id);
+        
+      if (membershipError) throw membershipError;
+      
+      setShowRecordPaymentModal(false);
+      setRecordPaymentNotes('');
+      fetchMemberData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to record payment');
+    } finally {
+      setIsRecordingPayment(false);
+    }
+  };
+
+  const handleViewInvoice = async (payment: any) => {
+    try {
+      let { data: invoiceData } = await supabase
+        .from('invoices')
+        .select('*, memberships(*, membership_plans(*)), members(*)')
+        .eq('payment_id', payment.id)
+        .maybeSingle();
+
+      if (!invoiceData) {
+        const invoiceNumber = `INV-${new Date(payment.payment_date).getFullYear()}${(new Date(payment.payment_date).getMonth() + 1).toString().padStart(2, '0')}-${payment.id.slice(0, 8).toUpperCase()}`;
+        const { data: newInvoice, error: createError } = await supabase
+          .from('invoices')
+          .insert({
+            gym_id: gym!.id,
+            invoice_number: invoiceNumber,
+            member_id: member!.id,
+            membership_id: payment.membership_id || null,
+            payment_id: payment.id,
+            issue_date: new Date(payment.payment_date).toISOString().split('T')[0],
+            due_date: new Date(payment.payment_date).toISOString().split('T')[0],
+            subtotal: payment.amount,
+            tax_amount: 0,
+            total_amount: payment.amount,
+            status: 'paid'
+          })
+          .select('*, memberships(*, membership_plans(*)), members(*)')
+          .single();
+
+        if (createError) throw createError;
+        invoiceData = newInvoice;
+      }
+
+      setInvoiceToPrint({
+        ...invoiceData,
+        payment
+      });
+    } catch (err: any) {
+      alert(err.message || 'Failed to fetch invoice');
+    }
+  };
 
       // 5. Fetch Plans for Renewal
       const { data: plansData } = await supabase
@@ -517,12 +646,25 @@ export function MemberProfile() {
           <div className="bg-surface border border-surface-highlight rounded-xl p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-lg font-bold text-white">Current Membership</h3>
-              <button 
-                onClick={() => setShowRenewModal(true)}
-                className="px-4 py-2 bg-amber-500 text-black text-sm font-bold rounded-lg hover:bg-amber-400 transition-colors"
-              >
-                Renew Membership
-              </button>
+              <div className="flex gap-2">
+                {currentMembership && Number(currentMembership.due_amount) > 0 && (
+                  <button 
+                    onClick={() => {
+                      setRecordPaymentAmount(currentMembership.due_amount.toString());
+                      setShowRecordPaymentModal(true);
+                    }}
+                    className="px-4 py-2 bg-green-500 text-black text-sm font-bold rounded-lg hover:bg-green-400 transition-colors"
+                  >
+                    Record Payment
+                  </button>
+                )}
+                <button 
+                  onClick={() => setShowRenewModal(true)}
+                  className="px-4 py-2 bg-amber-500 text-black text-sm font-bold rounded-lg hover:bg-amber-400 transition-colors"
+                >
+                  Renew Membership
+                </button>
+              </div>
             </div>
             
             {currentMembership ? (
@@ -734,9 +876,17 @@ export function MemberProfile() {
                         {new Date(payment.payment_date).toLocaleDateString()} • {payment.payment_method}
                       </div>
                     </div>
-                    <span className="px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-xs font-bold">
-                      {payment.status.toUpperCase()}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-1 bg-green-500/10 text-green-500 rounded-full text-xs font-bold">
+                        {payment.status.toUpperCase()}
+                      </span>
+                      <button
+                        onClick={() => handleViewInvoice(payment)}
+                        className="px-2.5 py-1 bg-surface-highlight hover:bg-amber-500 text-gray-300 hover:text-black rounded text-xs font-bold transition-colors"
+                      >
+                        Invoice
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -891,6 +1041,244 @@ export function MemberProfile() {
         </div>
       )}
 
+      {/* Record Payment Modal */}
+      {showRecordPaymentModal && currentMembership && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-surface border border-surface-highlight rounded-xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div className="flex justify-between items-center p-6 border-b border-surface-highlight">
+              <h2 className="text-xl font-bold text-white">Record Payment</h2>
+              <button
+                onClick={() => setShowRecordPaymentModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleRecordPayment} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Membership Plan
+                </label>
+                <input 
+                  disabled 
+                  value={currentMembership.membership_plans?.name || 'Active Membership'}
+                  className="w-full bg-background/50 border border-surface-highlight rounded-lg px-4 py-2.5 text-gray-400 focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    Amount (₹) *
+                  </label>
+                  <input
+                    required
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    value={recordPaymentAmount}
+                    onChange={(e) => setRecordPaymentAmount(e.target.value)}
+                    className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500"
+                    placeholder="0.00"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">
+                    Payment Date *
+                  </label>
+                  <input
+                    required
+                    type="date"
+                    value={recordPaymentDate}
+                    onChange={(e) => setRecordPaymentDate(e.target.value)}
+                    className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Payment Method *
+                </label>
+                <select
+                  required
+                  value={recordPaymentMethod}
+                  onChange={(e) => setRecordPaymentMethod(e.target.value)}
+                  className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500"
+                >
+                  <option value="cash">Cash</option>
+                  <option value="upi">UPI</option>
+                  <option value="card">Card</option>
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">
+                  Notes
+                </label>
+                <textarea
+                  value={recordPaymentNotes}
+                  onChange={(e) => setRecordPaymentNotes(e.target.value)}
+                  rows={2}
+                  className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500 resize-none"
+                  placeholder="Optional notes..."
+                ></textarea>
+              </div>
+
+              <div className="flex space-x-3 pt-4 border-t border-surface-highlight">
+                <button
+                  type="button"
+                  onClick={() => setShowRecordPaymentModal(false)}
+                  className="flex-1 px-4 py-2.5 bg-background text-gray-300 rounded-lg hover:text-white transition-colors font-medium border border-surface-highlight"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isRecordingPayment}
+                  className="flex-1 flex justify-center items-center space-x-2 px-4 py-2.5 bg-amber-500 text-black rounded-lg hover:bg-amber-400 transition-colors font-bold disabled:opacity-50"
+                >
+                  {isRecordingPayment ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <Check className="w-5 h-5" />
+                      <span>Save Payment</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Printable Invoice Modal Overlay */}
+      {invoiceToPrint && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white text-gray-900 rounded-xl w-full max-w-2xl shadow-2xl p-8 relative print:absolute print:inset-0 print:shadow-none print:p-0">
+            <style>{`
+              @media print {
+                body * {
+                  visibility: hidden;
+                }
+                .print-container, .print-container * {
+                  visibility: visible;
+                }
+                .print-container {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                }
+              }
+            `}</style>
+            
+            <button 
+              onClick={() => setInvoiceToPrint(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 print:hidden"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <div className="space-y-6 print-container">
+              {/* Header */}
+              <div className="flex justify-between items-start border-b border-gray-200 pb-6">
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight text-gray-900 uppercase">{gym?.name}</h1>
+                  <p className="text-sm text-gray-500 mt-1">{gym?.address || 'Gym Address Not Configured'}</p>
+                  <p className="text-sm text-gray-500">Phone: {gym?.phone || 'N/A'}</p>
+                </div>
+                <div className="text-right">
+                  <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold uppercase rounded-full">Paid</span>
+                  <p className="text-sm font-semibold text-gray-800 mt-3">Invoice Number</p>
+                  <p className="text-lg font-bold text-amber-600">{invoiceToPrint.invoice_number}</p>
+                </div>
+              </div>
+              
+              {/* Details */}
+              <div className="grid grid-cols-2 gap-6 text-sm">
+                <div>
+                  <h3 className="font-bold text-gray-800 uppercase tracking-wider text-xs mb-2">Billed To</h3>
+                  <p className="font-semibold">{invoiceToPrint.members?.full_name}</p>
+                  <p className="text-gray-500">Phone: {invoiceToPrint.members?.phone}</p>
+                  <p className="text-gray-500">Member ID: {invoiceToPrint.members?.member_id}</p>
+                </div>
+                <div className="text-right">
+                  <h3 className="font-bold text-gray-800 uppercase tracking-wider text-xs mb-2">Invoice Info</h3>
+                  <p><span className="text-gray-500">Issue Date:</span> {new Date(invoiceToPrint.issue_date).toLocaleDateString()}</p>
+                  <p><span className="text-gray-500">Payment Method:</span> {invoiceToPrint.payment?.payment_method?.toUpperCase() || 'CASH'}</p>
+                </div>
+              </div>
+              
+              {/* Table */}
+              <div className="border-t border-b border-gray-200 py-4">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-xs uppercase font-bold text-gray-500">
+                      <th className="py-2">Description</th>
+                      <th className="py-2 text-right">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-100">
+                      <td className="py-3">
+                        <span className="font-semibold">{invoiceToPrint.memberships?.membership_plans?.name || 'Gym Membership'}</span>
+                        {invoiceToPrint.memberships && (
+                          <div className="text-xs text-gray-400 mt-0.5">
+                            Validity: {new Date(invoiceToPrint.memberships.start_date).toLocaleDateString()} to {new Date(invoiceToPrint.memberships.end_date).toLocaleDateString()}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 text-right font-bold">₹{Number(invoiceToPrint.total_amount).toLocaleString()}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* Totals */}
+              <div className="flex justify-end text-sm">
+                <div className="w-64 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Subtotal:</span>
+                    <span className="font-semibold">₹{Number(invoiceToPrint.subtotal).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-gray-200 pt-2 text-base font-bold">
+                    <span>Total Paid:</span>
+                    <span className="text-amber-600">₹{Number(invoiceToPrint.total_amount).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Footer */}
+              <div className="text-center text-xs text-gray-400 pt-8 border-t border-gray-100">
+                <p>Thank you for your business!</p>
+                {gym?.settings && (gym.settings as any).receipt_footer && (
+                  <p className="mt-1 font-medium text-gray-500">{(gym.settings as any).receipt_footer}</p>
+                )}
+              </div>
+            </div>
+            
+            <div className="mt-8 flex justify-end gap-3 print:hidden">
+              <button 
+                onClick={() => setInvoiceToPrint(null)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                Close
+              </button>
+              <button 
+                onClick={() => window.print()}
+                className="px-6 py-2 bg-amber-500 text-gray-900 rounded-lg hover:bg-amber-400 transition-colors font-bold flex items-center gap-2"
+              >
+                Print Invoice
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

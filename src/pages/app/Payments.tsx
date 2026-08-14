@@ -33,6 +33,8 @@ export function Payments() {
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
 
+  const [invoiceToPrint, setInvoiceToPrint] = useState<any | null>(null);
+
   useEffect(() => {
     if (gym) {
       fetchPayments();
@@ -66,7 +68,6 @@ export function Payments() {
 
   async function fetchMemberMemberships(memberId: string) {
     try {
-      // Need active memberships with due amounts preferably
       const { data, error } = await supabase
         .from('memberships')
         .select('*, membership_plans(*)')
@@ -81,7 +82,6 @@ export function Payments() {
       }));
       setMemberships(mapped);
 
-      // Auto-select the first active membership with due balance if available
       const activeWithDue = mapped.find(m => m.status === 'active' && m.due_amount > 0);
       if (activeWithDue) {
         setSelectedMembership(activeWithDue.id);
@@ -144,7 +144,7 @@ export function Payments() {
       const membership = memberships.find(m => m.id === selectedMembership);
       
       // 1. Insert Payment
-      const { error: paymentError } = await (supabase
+      const { data: newPayment, error: paymentError } = await (supabase
         .from('payments')
         .insert({
           gym_id: gym.id,
@@ -155,11 +155,33 @@ export function Payments() {
           payment_method: paymentMethod,
           status: 'completed',
           notes: notes || null
-        }) as any);
+        })
+        .select()
+        .single() as any);
 
       if (paymentError) throw paymentError;
 
-      // 2. Update Membership Dues if attached to a membership
+      // 2. Insert Invoice
+      if (newPayment) {
+        const invoiceNumber = `INV-${new Date(paymentDate).getFullYear()}${(new Date(paymentDate).getMonth() + 1).toString().padStart(2, '0')}-${newPayment.id.slice(0, 8).toUpperCase()}`;
+        const { error: invoiceError } = await supabase.from('invoices').insert({
+          gym_id: gym.id,
+          invoice_number: invoiceNumber,
+          member_id: selectedMember,
+          membership_id: selectedMembership || null,
+          payment_id: newPayment.id,
+          issue_date: new Date(paymentDate).toISOString().split('T')[0],
+          due_date: new Date(paymentDate).toISOString().split('T')[0],
+          subtotal: parseFloat(amount),
+          tax_amount: 0,
+          total_amount: parseFloat(amount),
+          status: 'paid'
+        });
+        
+        if (invoiceError) console.error('Invoice creation failed:', invoiceError.message);
+      }
+
+      // 3. Update Membership Dues if attached to a membership
       if (membership) {
         const newPaidAmount = Number(membership.paid_amount) + parseFloat(amount);
         const newDueAmount = Math.max(0, Number(membership.due_amount) - parseFloat(amount));
@@ -186,11 +208,52 @@ export function Payments() {
     }
   };
 
+  const handleViewInvoice = async (payment: any) => {
+    try {
+      let { data: invoiceData } = await supabase
+        .from('invoices')
+        .select('*, memberships(*, membership_plans(*)), members(*)')
+        .eq('payment_id', payment.id)
+        .maybeSingle();
+
+      if (!invoiceData) {
+        const invoiceNumber = `INV-${new Date(payment.payment_date).getFullYear()}${(new Date(payment.payment_date).getMonth() + 1).toString().padStart(2, '0')}-${payment.id.slice(0, 8).toUpperCase()}`;
+        const { data: newInvoice, error: createError } = await supabase
+          .from('invoices')
+          .insert({
+            gym_id: gym!.id,
+            invoice_number: invoiceNumber,
+            member_id: payment.member_id,
+            membership_id: payment.membership_id || null,
+            payment_id: payment.id,
+            issue_date: new Date(payment.payment_date).toISOString().split('T')[0],
+            due_date: new Date(payment.payment_date).toISOString().split('T')[0],
+            subtotal: payment.amount,
+            tax_amount: 0,
+            total_amount: payment.amount,
+            status: 'paid'
+          })
+          .select('*, memberships(*, membership_plans(*)), members(*)')
+          .single();
+
+        if (createError) throw createError;
+        invoiceData = newInvoice;
+      }
+
+      setInvoiceToPrint({
+        ...invoiceData,
+        payment
+      });
+    } catch (err: any) {
+      alert(err.message || 'Failed to fetch invoice');
+    }
+  };
+
   const resetForm = () => {
     setSelectedMember('');
     setSelectedMembership('');
     setAmount('');
-    setPaymentMethod('cash');
+    setPaymentMethod('Cash');
     setPaymentDate(new Date().toISOString().split('T')[0]);
     setNotes('');
     setError(null);
@@ -244,12 +307,13 @@ export function Payments() {
                 <th className="px-6 py-4 font-medium">Method</th>
                 <th className="px-6 py-4 font-medium">Membership</th>
                 <th className="px-6 py-4 font-medium">Status</th>
+                <th className="px-6 py-4 font-medium text-right">Invoice</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-400">
                     <div className="flex items-center justify-center space-x-2">
                       <div className="w-5 h-5 border-2 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
                       <span>Loading payments...</span>
@@ -258,7 +322,7 @@ export function Payments() {
                 </tr>
               ) : filteredPayments.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-gray-400">
+                  <td colSpan={7} className="px-6 py-8 text-center text-gray-400">
                     <div className="flex flex-col items-center">
                       <Receipt className="w-12 h-12 mb-2 opacity-20" />
                       <p>No payments found</p>
@@ -313,6 +377,14 @@ export function Payments() {
                         {payment.status}
                       </span>
                     </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => handleViewInvoice(payment)}
+                        className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-gray-900 rounded-lg text-xs font-semibold transition-colors"
+                      >
+                        View Invoice
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -322,6 +394,7 @@ export function Payments() {
       </div>
 
       {/* Add Payment Modal */}
+      {/* ... */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-gray-800 rounded-xl w-full max-w-lg border border-gray-700 overflow-hidden shadow-2xl">
@@ -473,6 +546,131 @@ export function Payments() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Printable Invoice Modal Overlay */}
+      {invoiceToPrint && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[150] flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white text-gray-900 rounded-xl w-full max-w-2xl shadow-2xl p-8 relative print:absolute print:inset-0 print:shadow-none print:p-0">
+            {/* Inject print style to hide parent layers and only display the printed card */}
+            <style>{`
+              @media print {
+                body * {
+                  visibility: hidden;
+                }
+                .print-container, .print-container * {
+                  visibility: visible;
+                }
+                .print-container {
+                  position: absolute;
+                  left: 0;
+                  top: 0;
+                  width: 100%;
+                }
+              }
+            `}</style>
+            
+            <button 
+              onClick={() => setInvoiceToPrint(null)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-900 print:hidden"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <div className="space-y-6 print-container">
+              {/* Header */}
+              <div className="flex justify-between items-start border-b border-gray-200 pb-6">
+                <div>
+                  <h1 className="text-2xl font-bold tracking-tight text-gray-900 uppercase">{gym?.name}</h1>
+                  <p className="text-sm text-gray-500 mt-1">{gym?.address || 'Gym Address Not Configured'}</p>
+                  <p className="text-sm text-gray-500">Phone: {gym?.phone || 'N/A'}</p>
+                </div>
+                <div className="text-right">
+                  <span className="px-3 py-1 bg-green-100 text-green-800 text-xs font-bold uppercase rounded-full">Paid</span>
+                  <p className="text-sm font-semibold text-gray-800 mt-3">Invoice Number</p>
+                  <p className="text-lg font-bold text-amber-600">{invoiceToPrint.invoice_number}</p>
+                </div>
+              </div>
+              
+              {/* Details */}
+              <div className="grid grid-cols-2 gap-6 text-sm">
+                <div>
+                  <h3 className="font-bold text-gray-800 uppercase tracking-wider text-xs mb-2">Billed To</h3>
+                  <p className="font-semibold">{invoiceToPrint.members?.full_name}</p>
+                  <p className="text-gray-500">Phone: {invoiceToPrint.members?.phone}</p>
+                  <p className="text-gray-500">Member ID: {invoiceToPrint.members?.member_id}</p>
+                </div>
+                <div className="text-right">
+                  <h3 className="font-bold text-gray-800 uppercase tracking-wider text-xs mb-2">Invoice Info</h3>
+                  <p><span className="text-gray-500">Issue Date:</span> {new Date(invoiceToPrint.issue_date).toLocaleDateString()}</p>
+                  <p><span className="text-gray-500">Payment Method:</span> {invoiceToPrint.payment?.payment_method?.toUpperCase() || 'CASH'}</p>
+                </div>
+              </div>
+              
+              {/* Table */}
+              <div className="border-t border-b border-gray-200 py-4">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-xs uppercase font-bold text-gray-500">
+                      <th className="py-2">Description</th>
+                      <th className="py-2 text-right">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-gray-100">
+                      <td className="py-3">
+                        <span className="font-semibold">{invoiceToPrint.memberships?.membership_plans?.name || 'Gym Membership'}</span>
+                        {invoiceToPrint.memberships && (
+                          <div className="text-xs text-gray-400 mt-0.5">
+                            Validity: {new Date(invoiceToPrint.memberships.start_date).toLocaleDateString()} to {new Date(invoiceToPrint.memberships.end_date).toLocaleDateString()}
+                          </div>
+                        )}
+                      </td>
+                      <td className="py-3 text-right font-bold">₹{Number(invoiceToPrint.total_amount).toLocaleString()}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              {/* Totals */}
+              <div className="flex justify-end text-sm">
+                <div className="w-64 space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Subtotal:</span>
+                    <span className="font-semibold">₹{Number(invoiceToPrint.subtotal).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between border-t border-gray-200 pt-2 text-base font-bold">
+                    <span>Total Paid:</span>
+                    <span className="text-amber-600">₹{Number(invoiceToPrint.total_amount).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Footer */}
+              <div className="text-center text-xs text-gray-400 pt-8 border-t border-gray-100">
+                <p>Thank you for your business!</p>
+                {gym?.settings && (gym.settings as any).receipt_footer && (
+                  <p className="mt-1 font-medium text-gray-500">{(gym.settings as any).receipt_footer}</p>
+                )}
+              </div>
+            </div>
+            
+            <div className="mt-8 flex justify-end gap-3 print:hidden">
+              <button 
+                onClick={() => setInvoiceToPrint(null)}
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+              >
+                Close
+              </button>
+              <button 
+                onClick={() => window.print()}
+                className="px-6 py-2 bg-amber-500 text-gray-900 rounded-lg hover:bg-amber-400 transition-colors font-bold flex items-center gap-2"
+              >
+                Print Invoice
+              </button>
+            </div>
           </div>
         </div>
       )}

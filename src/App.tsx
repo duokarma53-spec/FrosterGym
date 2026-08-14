@@ -18,6 +18,33 @@ import { Reports } from './pages/app/Reports';
 import { Settings } from './pages/app/Settings';
 import { Landing } from './pages/public/Landing';
 
+function PermissionGuard({ permission, children }: { permission: string; children: React.ReactNode }) {
+  const { profile, permissions, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#111111] flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-amber-500 animate-spin" />
+      </div>
+    );
+  }
+  
+  if (profile?.role === 'owner') {
+    return <>{children}</>;
+  }
+  
+  if (permission === 'settings') {
+    return <Navigate to="/app" replace />;
+  }
+  
+  const hasPermission = permissions.includes(permission.toLowerCase());
+  if (!hasPermission) {
+    return <Navigate to="/app" replace />;
+  }
+  
+  return <>{children}</>;
+}
+
 function App() {
   return (
     <BrowserRouter basename="/FrosterGym">
@@ -30,18 +57,62 @@ function App() {
             <Route element={<AppLayout />}>
               <Route index element={<Dashboard />} />
 
-              <Route path="members" element={<Members />} />
-              <Route path="members/:id" element={<MemberProfile />} />
-              <Route path="memberships" element={<MembershipPlans />} />
-              <Route path="attendance" element={<Attendance />} />
-              <Route path="payments" element={<Payments />} />
-              <Route path="diet-plans" element={<DietPlans />} />
-              <Route path="pt" element={<PT />} />
-              <Route path="staff" element={<Staff />} />
-              <Route path="expenses" element={<Expenses />} />
-              <Route path="reports" element={<Reports />} />
+              <Route path="members" element={
+                <PermissionGuard permission="members">
+                  <Members />
+                </PermissionGuard>
+              } />
+              <Route path="members/:id" element={
+                <PermissionGuard permission="members">
+                  <MemberProfile />
+                </PermissionGuard>
+              } />
+              <Route path="memberships" element={
+                <PermissionGuard permission="memberships">
+                  <MembershipPlans />
+                </PermissionGuard>
+              } />
+              <Route path="attendance" element={
+                <PermissionGuard permission="attendance">
+                  <Attendance />
+                </PermissionGuard>
+              } />
+              <Route path="payments" element={
+                <PermissionGuard permission="payments">
+                  <Payments />
+                </PermissionGuard>
+              } />
+              <Route path="diet-plans" element={
+                <PermissionGuard permission="diet-plans">
+                  <DietPlans />
+                </PermissionGuard>
+              } />
+              <Route path="pt" element={
+                <PermissionGuard permission="pt">
+                  <PT />
+                </PermissionGuard>
+              } />
+              <Route path="staff" element={
+                <PermissionGuard permission="staff">
+                  <Staff />
+                </PermissionGuard>
+              } />
+              <Route path="expenses" element={
+                <PermissionGuard permission="expenses">
+                  <Expenses />
+                </PermissionGuard>
+              } />
+              <Route path="reports" element={
+                <PermissionGuard permission="reports">
+                  <Reports />
+                </PermissionGuard>
+              } />
 
-              <Route path="settings" element={<Settings />} />
+              <Route path="settings" element={
+                <PermissionGuard permission="settings">
+                  <Settings />
+                </PermissionGuard>
+              } />
               <Route path="*" element={<Navigate to="/app" replace />} />
             </Route>
           </Route>

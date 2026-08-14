@@ -5,6 +5,7 @@ import {
   Settings, X
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
+import { useAuth } from '../../contexts/AuthContext';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/app' },
@@ -21,6 +22,20 @@ const navItems = [
 ];
 
 export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) {
+  const { profile, permissions } = useAuth();
+
+  const allowedNavItems = navItems.filter((item) => {
+    if (item.path === '/app') return true;
+    if (item.path === '/app/settings') {
+      return profile?.role === 'owner';
+    }
+    
+    // Map paths to permissions
+    let permKey = item.path.replace('/app/', '').toLowerCase();
+    
+    return profile?.role === 'owner' || permissions.includes(permKey);
+  });
+
   return (
     <>
       {isOpen && (
@@ -42,7 +57,7 @@ export function Sidebar({ isOpen, onClose }: { isOpen?: boolean; onClose?: () =>
           </button>
         </div>
         <nav className="flex-1 overflow-y-auto px-4 space-y-1">
-          {navItems.map((item) => (
+          {allowedNavItems.map((item) => (
             <NavLink
               key={item.path}
               to={item.path}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Receipt, DollarSign, X, Calendar } from 'lucide-react';
+import { Plus, Search, Receipt, DollarSign, X, Calendar, Pencil, Trash2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import type { Database } from '../../types/database.types';
@@ -35,6 +35,19 @@ export function Expenses() {
   const [expenseDate, setExpenseDate] = useState(new Date().toISOString().split('T')[0]);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [notes, setNotes] = useState('');
+
+  // Edit Expense State
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editExpenseId, setEditExpenseId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editCategory, setEditCategory] = useState(CATEGORIES[0].value);
+  const [editAmount, setEditAmount] = useState('');
+  const [editExpenseDate, setEditExpenseDate] = useState(new Date().toISOString().split('T')[0]);
+  const [editPaymentMethod, setEditPaymentMethod] = useState('cash');
+  const [editNotes, setEditNotes] = useState('');
+
+  // Delete Expense State
+  const [deleteExpenseId, setDeleteExpenseId] = useState<string | null>(null);
 
   useEffect(() => {
     if (gym) {
@@ -113,6 +126,76 @@ export function Expenses() {
     } catch (err: any) {
       console.error('Error adding expense:', err.message);
       setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleOpenEdit = (expense: Expense) => {
+    setEditExpenseId(expense.id);
+    setEditTitle(expense.title);
+    setEditCategory(expense.category);
+    setEditAmount(expense.amount.toString());
+    setEditExpenseDate(expense.expense_date);
+    setEditPaymentMethod(expense.payment_method);
+    setEditNotes(expense.notes || '');
+    setError(null);
+    setShowEditModal(true);
+  };
+
+  const handleEditExpense = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!gym || !editExpenseId) return;
+    if (parseFloat(editAmount) <= 0) {
+      setError('Amount must be greater than zero.');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setError(null);
+
+      const { error: updateError } = await supabase
+        .from('expenses')
+        .update({
+          title: editTitle,
+          category: editCategory,
+          amount: parseFloat(editAmount),
+          expense_date: new Date(editExpenseDate).toISOString().split('T')[0],
+          payment_method: editPaymentMethod,
+          notes: editNotes || null
+        })
+        .eq('id', editExpenseId);
+
+      if (updateError) throw updateError;
+
+      setShowEditModal(false);
+      fetchExpenses();
+    } catch (err: any) {
+      console.error('Error editing expense:', err.message);
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteExpense = async () => {
+    if (!gym || !deleteExpenseId) return;
+
+    try {
+      setIsSubmitting(true);
+      const { error: deleteError } = await supabase
+        .from('expenses')
+        .delete()
+        .eq('id', deleteExpenseId);
+
+      if (deleteError) throw deleteError;
+
+      setDeleteExpenseId(null);
+      fetchExpenses();
+    } catch (err: any) {
+      console.error('Error deleting expense:', err.message);
+      alert(err.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -217,6 +300,7 @@ export function Expenses() {
                   <th className="px-6 py-4">Category</th>
                   <th className="px-6 py-4">Payment Method</th>
                   <th className="px-6 py-4 text-right">Amount</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-surface-highlight">
@@ -237,9 +321,27 @@ export function Expenses() {
                         {CATEGORIES.find(c => c.value === expense.category)?.label || expense.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-400">{expense.payment_method}</td>
+                    <td className="px-6 py-4 text-gray-400 capitalize">{expense.payment_method}</td>
                     <td className="px-6 py-4 text-right">
                       <span className="font-bold text-white">₹{Number(expense.amount).toLocaleString()}</span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => handleOpenEdit(expense)}
+                          className="p-1 hover:bg-surface-highlight rounded text-amber-500 hover:text-amber-400 transition-colors"
+                          title="Edit Expense"
+                        >
+                          <Pencil className="w-4.5 h-4.5" />
+                        </button>
+                        <button 
+                          onClick={() => setDeleteExpenseId(expense.id)}
+                          className="p-1 hover:bg-surface-highlight rounded text-red-500 hover:text-red-400 transition-colors"
+                          title="Delete Expense"
+                        >
+                          <Trash2 className="w-4.5 h-4.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -361,6 +463,146 @@ export function Expenses() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Expense Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-surface border border-surface-highlight rounded-xl w-full max-w-md shadow-2xl my-8">
+            <div className="p-6 border-b border-surface-highlight flex justify-between items-center sticky top-0 bg-surface rounded-t-xl z-10">
+              <h2 className="text-lg font-bold text-white">Edit Expense</h2>
+              <button onClick={() => setShowEditModal(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleEditExpense} className="p-6 space-y-4">
+              {error && (
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded text-sm text-red-400">
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">Expense Title *</label>
+                <input 
+                  required
+                  type="text" 
+                  value={editTitle}
+                  onChange={(e) => setEditTitle(e.target.value)}
+                  className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500" 
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Category *</label>
+                  <select 
+                    required
+                    value={editCategory}
+                    onChange={(e) => setEditCategory(e.target.value)}
+                    className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
+                  >
+                    {CATEGORIES.map(c => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Amount (₹) *</label>
+                  <input 
+                    required
+                    type="number" 
+                    min="0"
+                    step="0.01"
+                    value={editAmount}
+                    onChange={(e) => setEditAmount(e.target.value)}
+                    className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500" 
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Payment Date *</label>
+                  <input 
+                    required
+                    type="date" 
+                    value={editExpenseDate}
+                    onChange={(e) => setEditExpenseDate(e.target.value)}
+                    className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white [color-scheme:dark] focus:outline-none focus:border-primary-500" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1.5">Payment Method *</label>
+                  <select 
+                    required
+                    value={editPaymentMethod}
+                    onChange={(e) => setEditPaymentMethod(e.target.value)}
+                    className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500"
+                  >
+                    <option value="cash">Cash</option>
+                    <option value="card">Card</option>
+                    <option value="upi">UPI</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">Notes (Optional)</label>
+                <textarea 
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-primary-500 min-h-[80px]" 
+                />
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setShowEditModal(false)}
+                  className="px-4 py-2 text-gray-400 hover:text-white font-medium transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="bg-primary-500 hover:bg-primary-600 text-black font-semibold rounded-lg px-6 py-2 flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deleteExpenseId && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-surface border border-surface-highlight rounded-xl w-full max-w-sm shadow-2xl p-6">
+            <h2 className="text-lg font-bold text-white mb-2">Delete Expense?</h2>
+            <p className="text-gray-400 text-sm mb-6">Are you sure you want to delete this expense record? This action cannot be undone.</p>
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setDeleteExpenseId(null)}
+                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDeleteExpense}
+                disabled={isSubmitting}
+                className="bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg px-4 py-2 transition-colors disabled:opacity-50"
+              >
+                {isSubmitting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
           </div>
         </div>
       )}

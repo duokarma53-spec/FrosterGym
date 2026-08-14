@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { 
   Loader2, Plus, User as UserIcon, Phone, Search, Camera, X, 
   Filter, IdCard, MessageCircle, MoreVertical, Ban, 
-  Snowflake, CheckCircle2, PhoneCall
+  Snowflake, CheckCircle2, PhoneCall, Pencil, Trash
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import QRCode from 'react-qr-code';
@@ -57,6 +57,20 @@ export function Members() {
   const [freezeTo, setFreezeTo] = useState('');
   const [freezeReason, setFreezeReason] = useState('');
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
+  
+  // Edit Modal State
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editMemberId, setEditMemberId] = useState<string | null>(null);
+  const [isSubmittingEdit, setIsSubmittingEdit] = useState(false);
+  const [editFormError, setEditFormError] = useState<string | null>(null);
+  const editFileInputRef = useRef<HTMLInputElement>(null);
+  const [editFormData, setEditFormData] = useState({
+    full_name: '', phone: '', gender: 'male', date_of_birth: '',
+    email: '', address: '', photo_url: '', status: 'active'
+  });
+
+  // Delete Confirmation State
+  const [deleteModalMember, setDeleteModalMember] = useState<MemberWithDetails | null>(null);
 
   // Add Form State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -282,11 +296,17 @@ export function Members() {
     reader.readAsDataURL(file);
   };
 
+  const validatePhone = (phone: string): boolean => {
+    return /^\d{10}$/.test(phone);
+  };
+
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!gym) return;
     if (!formData.selected_plan_id) return setFormError('Please select a membership plan.');
-    if (!formData.photo_url) return setFormError('Profile photo is required.');
+    if (!validatePhone(formData.phone)) {
+      return setFormError('Phone number must be exactly 10 digits.');
+    }
     
     setIsSubmitting(true);
     setFormError(null);
@@ -303,7 +323,7 @@ export function Members() {
           date_of_birth: formData.date_of_birth || null,
           email: formData.email || null,
           address: formData.address || null,
-          photo_url: formData.photo_url,
+          photo_url: formData.photo_url || null,
           status: 'active'
         }).select().single();
       if (memberError) throw memberError;
@@ -332,10 +352,148 @@ export function Members() {
         if (membershipError) throw membershipError;
       }
       setShowAddForm(false);
+      resetForm();
     } catch (err: any) {
       setFormError(err.message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleToggleActiveStatus = async (member: MemberWithDetails) => {
+    if (!gym) return;
+    try {
+      const newStatus = member.status === 'active' ? 'inactive' : 'active';
+      const { error } = await supabase
+        .from('members')
+        .update({ status: newStatus })
+        .eq('id', member.id);
+      
+      if (error) throw error;
+    } catch (err: any) {
+      alert(err.message || 'Failed to toggle status');
+    }
+  };
+
+  const handleDeleteMember = async () => {
+    if (!deleteModalMember || !gym) return;
+    setIsSubmittingAction(true);
+    try {
+      const memberId = deleteModalMember.id;
+      
+      // 1. Update enquiries: set converted_member_id = null
+      await supabase.from('enquiries').update({ converted_member_id: null }).eq('converted_member_id', memberId);
+
+      // 2. Delete body_measurements
+      await supabase.from('body_measurements').delete().eq('member_id', memberId);
+
+      // 3. Delete attendance
+      await supabase.from('attendance').delete().eq('member_id', memberId);
+
+      // 4. Delete batch_members
+      await supabase.from('batch_members').delete().eq('member_id', memberId);
+
+      // 5. Delete member_diet_plans
+      await supabase.from('member_diet_plans').delete().eq('member_id', memberId);
+
+      // 6. Delete member_workout_plans
+      await supabase.from('member_workout_plans').delete().eq('member_id', memberId);
+
+      // 7. Delete pt_memberships
+      await supabase.from('pt_memberships').delete().eq('member_id', memberId);
+
+      // 8. Delete membership_freezes
+      await supabase.from('membership_freezes').delete().eq('member_id', memberId);
+
+      // 9. Delete membership_history
+      await supabase.from('membership_history').delete().eq('member_id', memberId);
+
+      // 10. Delete invoice_items (first get matching invoices)
+      const { data: memberInvoices } = await supabase.from('invoices').select('id').eq('member_id', memberId);
+      if (memberInvoices && memberInvoices.length > 0) {
+        const invoiceIds = memberInvoices.map(i => i.id);
+        await supabase.from('invoice_items').delete().in('invoice_id', invoiceIds);
+      }
+
+      // 11. Delete invoices
+      await supabase.from('invoices').delete().eq('member_id', memberId);
+
+      // 12. Delete payments
+      await supabase.from('payments').delete().eq('member_id', memberId);
+
+      // 13. Delete memberships
+      await supabase.from('memberships').delete().eq('member_id', memberId);
+
+      // 14. Delete member
+      const { error: deleteError } = await supabase.from('members').delete().eq('id', memberId);
+      if (deleteError) throw deleteError;
+
+      setDeleteModalMember(null);
+      fetchData();
+    } catch (err: any) {
+      alert(err.message || 'Failed to delete member');
+    } finally {
+      setIsSubmittingAction(false);
+    }
+  };
+
+  const handleOpenEditModal = (member: MemberWithDetails) => {
+    setEditMemberId(member.id);
+    setEditFormData({
+      full_name: member.full_name,
+      phone: member.phone,
+      gender: member.gender || 'male',
+      date_of_birth: member.date_of_birth || '',
+      email: member.email || '',
+      address: member.address || '',
+      photo_url: member.photo_url || '',
+      status: member.status
+    });
+    setEditFormError(null);
+    setShowEditModal(true);
+  };
+
+  const handleEditPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) return setEditFormError('Photo size must be less than 2MB');
+    const reader = new FileReader();
+    reader.onloadend = () => setEditFormData(prev => ({ ...prev, photo_url: reader.result as string }));
+    reader.readAsDataURL(file);
+  };
+
+  const handleEditMemberSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editMemberId || !gym) return;
+    
+    if (!validatePhone(editFormData.phone)) {
+      setEditFormError('Phone number must be exactly 10 digits.');
+      return;
+    }
+    
+    setIsSubmittingEdit(true);
+    setEditFormError(null);
+    try {
+      const { error } = await supabase
+        .from('members')
+        .update({
+          full_name: editFormData.full_name,
+          phone: editFormData.phone,
+          gender: editFormData.gender,
+          date_of_birth: editFormData.date_of_birth || null,
+          email: editFormData.email || null,
+          address: editFormData.address || null,
+          photo_url: editFormData.photo_url || null,
+          status: editFormData.status
+        })
+        .eq('id', editMemberId);
+        
+      if (error) throw error;
+      setShowEditModal(false);
+    } catch (err: any) {
+      setEditFormError(err.message);
+    } finally {
+      setIsSubmittingEdit(false);
     }
   };
 
@@ -509,49 +667,77 @@ export function Members() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${statusInfo.color}`}>
-                          {statusInfo.status.toUpperCase()}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${statusInfo.color}`}>
+                            {statusInfo.status.toUpperCase()}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleActiveStatus(member);
+                            }}
+                            className={`px-2 py-1 text-[10px] rounded-lg transition-colors font-bold uppercase border ${member.status === 'active' ? 'bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20' : 'bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20'}`}
+                            title={member.status === 'active' ? 'Deactivate Member' : 'Activate Member'}
+                          >
+                            {member.status === 'active' ? 'Deactivate' : 'Activate'}
+                          </button>
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="relative inline-block text-left">
+                        <div className="flex items-center justify-end gap-1.5">
                           <button 
                             onClick={(e) => {
                               e.stopPropagation();
-                              setActiveActionsMenu(activeActionsMenu === member.id ? null : member.id);
+                              handleOpenEditModal(member);
                             }}
-                            className="p-1.5 hover:bg-surface-highlight rounded-md text-gray-400 hover:text-white transition-colors"
+                            className="p-1.5 hover:bg-surface-highlight rounded-md text-amber-500 hover:text-amber-400 transition-colors"
+                            title="Edit Member"
                           >
-                            <MoreVertical className="w-5 h-5" />
+                            <Pencil className="w-4 h-4" />
                           </button>
-                          
-                          {activeActionsMenu === member.id && (
-                            <div className="absolute right-0 mt-2 w-48 bg-surface border border-surface-highlight rounded-xl shadow-2xl z-50 py-1 overflow-hidden">
-                              <button onClick={() => navigate(`/members/${member.id}`)} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-highlight hover:text-white flex items-center gap-2">
-                                <UserIcon className="w-4 h-4" /> Profile
-                              </button>
-                              <button onClick={() => setIdCardMember(member)} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-highlight hover:text-white flex items-center gap-2">
-                                <IdCard className="w-4 h-4" /> View ID Card
-                              </button>
-                              <div className="h-px bg-surface-highlight my-1" />
-                              <button onClick={() => window.open(`https://wa.me/${member.phone.replace(/\D/g,'')}`)} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-highlight hover:text-green-400 flex items-center gap-2">
-                                <MessageCircle className="w-4 h-4" /> WhatsApp
-                              </button>
-                              <button onClick={() => window.open(`tel:${member.phone}`)} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-highlight hover:text-blue-400 flex items-center gap-2">
-                                <PhoneCall className="w-4 h-4" /> Call Member
-                              </button>
-                              <div className="h-px bg-surface-highlight my-1" />
-                              {!member.is_blocked && (
-                                <button onClick={() => setFreezeModalMember(member)} className="w-full text-left px-4 py-2 text-sm text-blue-400 hover:bg-blue-500/10 flex items-center gap-2">
-                                  <Snowflake className="w-4 h-4" /> Freeze Member
+                          <div className="relative inline-block text-left">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveActionsMenu(activeActionsMenu === member.id ? null : member.id);
+                              }}
+                              className="p-1.5 hover:bg-surface-highlight rounded-md text-gray-400 hover:text-white transition-colors"
+                            >
+                              <MoreVertical className="w-5 h-5" />
+                            </button>
+                            
+                            {activeActionsMenu === member.id && (
+                              <div className="absolute right-0 mt-2 w-48 bg-surface border border-surface-highlight rounded-xl shadow-2xl z-50 py-1 overflow-hidden">
+                                <button onClick={() => navigate(`/app/members/${member.id}`)} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-highlight hover:text-white flex items-center gap-2">
+                                  <UserIcon className="w-4 h-4" /> Profile
                                 </button>
-                              )}
-                              <button onClick={() => setBlockModalMember(member)} className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${member.is_blocked ? 'text-green-500 hover:bg-green-500/10' : 'text-red-500 hover:bg-red-500/10'}`}>
-                                {member.is_blocked ? <CheckCircle2 className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
-                                {member.is_blocked ? 'Unblock Member' : 'Block Member'}
-                              </button>
-                            </div>
-                          )}
+                                <button onClick={() => setIdCardMember(member)} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-highlight hover:text-white flex items-center gap-2">
+                                  <IdCard className="w-4 h-4" /> View ID Card
+                                </button>
+                                <div className="h-px bg-surface-highlight my-1" />
+                                <button onClick={() => window.open(`https://wa.me/${member.phone.replace(/\D/g,'')}`)} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-highlight hover:text-green-400 flex items-center gap-2">
+                                  <MessageCircle className="w-4 h-4" /> WhatsApp
+                                </button>
+                                <button onClick={() => window.open(`tel:${member.phone}`)} className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-surface-highlight hover:text-blue-400 flex items-center gap-2">
+                                  <PhoneCall className="w-4 h-4" /> Call Member
+                                </button>
+                                <div className="h-px bg-surface-highlight my-1" />
+                                {!member.is_blocked && (
+                                  <button onClick={() => setFreezeModalMember(member)} className="w-full text-left px-4 py-2 text-sm text-blue-400 hover:bg-blue-500/10 flex items-center gap-2">
+                                    <Snowflake className="w-4 h-4" /> Freeze Member
+                                  </button>
+                                )}
+                                <button onClick={() => setBlockModalMember(member)} className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2 ${member.is_blocked ? 'text-green-500 hover:bg-green-500/10' : 'text-red-500 hover:bg-red-500/10'}`}>
+                                  {member.is_blocked ? <CheckCircle2 className="w-4 h-4" /> : <Ban className="w-4 h-4" />}
+                                  {member.is_blocked ? 'Unblock Member' : 'Block Member'}
+                                </button>
+                                <div className="h-px bg-surface-highlight my-1" />
+                                <button onClick={() => setDeleteModalMember(member)} className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-2">
+                                  <Trash className="w-4 h-4" /> Delete Member
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </td>
                     </tr>
@@ -727,12 +913,13 @@ export function Members() {
                     </div>
                     <button type="button" onClick={() => fileInputRef.current?.click()} className="absolute bottom-0 right-0 p-2 bg-primary-500 rounded-full text-black shadow-lg"><Camera className="w-5 h-5" /></button>
                   </div>
+                  <p className="text-xs text-gray-500">Photo (Optional)</p>
                   <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handlePhotoUpload}/>
                 </div>
                 <div className="flex-1 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><label className="block text-sm text-gray-300 mb-1">Full Name *</label><input required value={formData.full_name} onChange={e=>setFormData({...formData, full_name: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white" /></div>
-                    <div><label className="block text-sm text-gray-300 mb-1">Phone *</label><input required type="tel" value={formData.phone} onChange={e=>setFormData({...formData, phone: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white" /></div>
+                    <div><label className="block text-sm text-gray-300 mb-1">Phone * (10 Digits)</label><input required type="tel" value={formData.phone} onChange={e=>setFormData({...formData, phone: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white" /></div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div><label className="block text-sm text-gray-300 mb-1">Gender</label><select value={formData.gender} onChange={e=>setFormData({...formData, gender: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white"><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option><option value="prefer_not_to_say">Prefer Not To Say</option></select></div>
@@ -747,6 +934,91 @@ export function Members() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Member Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-surface border border-surface-highlight rounded-xl w-full max-w-2xl shadow-2xl my-8">
+            <div className="p-6 border-b border-surface-highlight flex justify-between items-center sticky top-0 bg-surface rounded-t-xl z-10">
+              <h2 className="text-lg font-bold text-white">Edit Member</h2>
+              <button onClick={() => setShowEditModal(false)} className="text-gray-400 hover:text-white"><X className="w-5 h-5"/></button>
+            </div>
+            <form onSubmit={handleEditMemberSubmit} className="p-6 space-y-6">
+              {editFormError && <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-sm text-red-400">{editFormError}</div>}
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex flex-col items-center space-y-2 shrink-0">
+                  <div className="relative group">
+                    <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-surface-highlight bg-background flex items-center justify-center">
+                      {editFormData.photo_url ? <img src={editFormData.photo_url} className="w-full h-full object-cover" /> : <UserIcon className="w-12 h-12 text-gray-500" />}
+                    </div>
+                    <button type="button" onClick={() => editFileInputRef.current?.click()} className="absolute bottom-0 right-0 p-2 bg-primary-500 rounded-full text-black shadow-lg"><Camera className="w-5 h-5" /></button>
+                  </div>
+                  {editFormData.photo_url && (
+                    <button 
+                      type="button" 
+                      onClick={() => setEditFormData({...editFormData, photo_url: ''})}
+                      className="px-2 py-1 text-xs bg-red-900/30 text-red-400 border border-red-500/20 rounded hover:bg-red-900/50"
+                    >
+                      Remove Photo
+                    </button>
+                  )}
+                  <input type="file" accept="image/*" className="hidden" ref={editFileInputRef} onChange={handleEditPhotoUpload}/>
+                </div>
+                <div className="flex-1 space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label className="block text-sm text-gray-300 mb-1">Full Name *</label><input required value={editFormData.full_name} onChange={e=>setEditFormData({...editFormData, full_name: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white" /></div>
+                    <div><label className="block text-sm text-gray-300 mb-1">Phone * (10 Digits)</label><input required type="tel" value={editFormData.phone} onChange={e=>setEditFormData({...editFormData, phone: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white" /></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label className="block text-sm text-gray-300 mb-1">Gender</label><select value={editFormData.gender} onChange={e=>setEditFormData({...editFormData, gender: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white"><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option><option value="prefer_not_to_say">Prefer Not To Say</option></select></div>
+                    <div><label className="block text-sm text-gray-300 mb-1">Status</label><select value={editFormData.status} onChange={e=>setEditFormData({...editFormData, status: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white"><option value="active">Active</option><option value="inactive">Inactive</option></select></div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label className="block text-sm text-gray-300 mb-1">Email</label><input type="email" value={editFormData.email} onChange={e=>setEditFormData({...editFormData, email: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white" /></div>
+                    <div><label className="block text-sm text-gray-300 mb-1">Date of Birth</label><input type="date" value={editFormData.date_of_birth} onChange={e=>setEditFormData({...editFormData, date_of_birth: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white [color-scheme:dark]" /></div>
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-1">Address</label>
+                    <textarea value={editFormData.address} onChange={e=>setEditFormData({...editFormData, address: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white" rows={2} />
+                  </div>
+                </div>
+              </div>
+              <div className="pt-6 flex justify-end gap-3 border-t border-surface-highlight">
+                <button type="button" onClick={() => setShowEditModal(false)} className="px-4 py-2 text-gray-400">Cancel</button>
+                <button type="submit" disabled={isSubmittingEdit} className="bg-primary-500 text-black px-6 py-2 rounded-lg font-bold flex items-center gap-2">
+                  {isSubmittingEdit && <Loader2 className="w-4 h-4 animate-spin" />} Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalMember && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+          <div className="bg-surface border border-surface-highlight rounded-xl w-full max-w-md shadow-2xl p-6">
+            <h2 className="text-xl font-bold text-red-500 mb-4">Delete Member Permanently?</h2>
+            <div className="text-gray-300 text-sm mb-6 space-y-2">
+              <p>Are you sure you want to permanently delete <strong>{deleteModalMember.full_name}</strong>?</p>
+              <p className="text-red-400 font-semibold">⚠️ WARNING: This action will completely erase the member's profile and all associated history, including memberships, freezes, and payments.</p>
+              <p className="text-gray-400 italic">This cannot be undone.</p>
+            </div>
+            
+            <div className="flex justify-end gap-3">
+              <button onClick={() => setDeleteModalMember(null)} className="px-4 py-2 text-gray-400 hover:text-white font-medium">Cancel</button>
+              <button 
+                onClick={handleDeleteMember}
+                disabled={isSubmittingAction}
+                className="px-6 py-2 rounded-lg font-semibold flex items-center gap-2 bg-red-500 text-white hover:bg-red-600 disabled:opacity-50"
+              >
+                {isSubmittingAction ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                Yes, Delete Permanently
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -5,6 +5,7 @@ import {
   TrendingUp, TrendingDown, Users, 
   CreditCard, CalendarCheck, Loader2, DollarSign 
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export function Reports() {
   const { gym } = useAuth();
@@ -24,6 +25,11 @@ export function Reports() {
     dues: { totalOutstanding: 0, membersWithDues: 0 },
     attendance: { totalVisits: 0 }
   });
+
+  // Raw data for drill-down
+  const [rawMembers, setRawMembers] = useState<any[]>([]);
+  const [rawMemberships, setRawMemberships] = useState<any[]>([]);
+  const [drillDownType, setDrillDownType] = useState<'active' | 'expired' | 'expiring' | 'due' | null>(null);
 
   useEffect(() => {
     if (gym) {
@@ -61,7 +67,7 @@ export function Reports() {
       ] = await Promise.all([
         supabase.from('payments').select('amount, payment_date').eq('gym_id', gym!.id).eq('status', 'completed'),
         supabase.from('expenses').select('amount, expense_date').eq('gym_id', gym!.id),
-        supabase.from('members').select('id, created_at, status').eq('gym_id', gym!.id),
+        supabase.from('members').select('id, member_id, full_name, phone, photo_url, created_at, status').eq('gym_id', gym!.id),
         supabase.from('memberships').select('id, member_id, status, end_date, due_amount').eq('gym_id', gym!.id),
         supabase.from('attendance').select('id, check_in_time').eq('gym_id', gym!.id)
       ]);
@@ -77,6 +83,9 @@ export function Reports() {
       const members = membersRes.data || [];
       const memberships = membershipsRes.data || [];
       const attendance = attendanceRes.data || [];
+
+      setRawMembers(members);
+      setRawMemberships(memberships);
 
       // Calculate Revenue
       const lifetimeRevenue = payments.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
@@ -150,6 +159,38 @@ export function Reports() {
       setLoading(false);
     }
   }
+
+  const getDrillDownList = () => {
+    const now = new Date();
+    const sevenDaysFromNow = new Date();
+    sevenDaysFromNow.setDate(sevenDaysFromNow.getDate() + 7);
+
+    if (drillDownType === 'active') {
+      return rawMembers.filter((m: any) => m.status === 'active');
+    }
+    if (drillDownType === 'expired') {
+      const expiredMemberIds = rawMemberships
+        .filter((ms: any) => new Date(ms.end_date) < now)
+        .map((ms: any) => ms.member_id);
+      return rawMembers.filter((m: any) => expiredMemberIds.includes(m.id));
+    }
+    if (drillDownType === 'expiring') {
+      const expiringMemberIds = rawMemberships
+        .filter((ms: any) => {
+          const end = new Date(ms.end_date);
+          return end >= now && end <= sevenDaysFromNow;
+        })
+        .map((ms: any) => ms.member_id);
+      return rawMembers.filter((m: any) => expiringMemberIds.includes(m.id));
+    }
+    if (drillDownType === 'due') {
+      const dueMemberIds = rawMemberships
+        .filter((ms: any) => ms.status === 'active' && Number(ms.due_amount) > 0)
+        .map((ms: any) => ms.member_id);
+      return rawMembers.filter((m: any) => dueMemberIds.includes(m.id));
+    }
+    return [];
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(amount);
@@ -270,9 +311,12 @@ export function Reports() {
               <span className="text-sm text-gray-400">Total</span>
               <span className="text-sm font-bold text-white">{metrics.members.total}</span>
             </div>
-            <div className="flex justify-between">
+            <div 
+              onClick={() => setDrillDownType(drillDownType === 'active' ? null : 'active')}
+              className={`flex justify-between p-1 rounded-md cursor-pointer transition-colors ${drillDownType === 'active' ? 'bg-blue-500/20 border border-blue-500/30' : 'hover:bg-surface-highlight'}`}
+            >
               <span className="text-sm text-gray-400">Active</span>
-              <span className="text-sm font-bold text-white">{metrics.members.active}</span>
+              <span className="text-sm font-bold text-blue-400 underline">{metrics.members.active}</span>
             </div>
             <div className="flex justify-between pt-2 border-t border-surface-highlight">
               <span className="text-sm text-gray-400">New (Period)</span>
@@ -292,13 +336,19 @@ export function Reports() {
               <span className="text-sm text-gray-400">Active</span>
               <span className="text-sm font-bold text-white">{metrics.memberships.active}</span>
             </div>
-            <div className="flex justify-between">
+            <div 
+              onClick={() => setDrillDownType(drillDownType === 'expired' ? null : 'expired')}
+              className={`flex justify-between p-1 rounded-md cursor-pointer transition-colors ${drillDownType === 'expired' ? 'bg-red-500/20 border border-red-500/30' : 'hover:bg-surface-highlight'}`}
+            >
               <span className="text-sm text-gray-400">Expired</span>
-              <span className="text-sm font-bold text-red-400">{metrics.memberships.expired}</span>
+              <span className="text-sm font-bold text-red-400 underline">{metrics.memberships.expired}</span>
             </div>
-            <div className="flex justify-between pt-2 border-t border-surface-highlight">
+            <div 
+              onClick={() => setDrillDownType(drillDownType === 'expiring' ? null : 'expiring')}
+              className={`flex justify-between p-1 rounded-md cursor-pointer transition-colors ${drillDownType === 'expiring' ? 'bg-amber-500/20 border border-amber-500/30' : 'hover:bg-surface-highlight'}`}
+            >
               <span className="text-sm text-gray-400">Expiring soon</span>
-              <span className="text-sm font-bold text-amber-400">{metrics.memberships.expiringSoon}</span>
+              <span className="text-sm font-bold text-amber-400 underline">{metrics.memberships.expiringSoon}</span>
             </div>
           </div>
         </div>
@@ -314,9 +364,12 @@ export function Reports() {
               <span className="text-sm text-gray-400">Total Outstanding</span>
               <span className="text-sm font-bold text-amber-500">{formatCurrency(metrics.dues.totalOutstanding)}</span>
             </div>
-            <div className="flex justify-between pt-2 border-t border-surface-highlight">
+            <div 
+              onClick={() => setDrillDownType(drillDownType === 'due' ? null : 'due')}
+              className={`flex justify-between p-1 rounded-md cursor-pointer transition-colors ${drillDownType === 'due' ? 'bg-amber-500/20 border border-amber-500/30' : 'hover:bg-surface-highlight'}`}
+            >
               <span className="text-sm text-gray-400">Members with dues</span>
-              <span className="text-sm font-bold text-white">{metrics.dues.membersWithDues}</span>
+              <span className="text-sm font-bold text-amber-500 underline">{metrics.dues.membersWithDues}</span>
             </div>
           </div>
         </div>
@@ -339,6 +392,79 @@ export function Reports() {
           </div>
         </div>
       </div>
+
+      {/* Drill-down Section */}
+      {drillDownType && (
+        <div className="bg-surface border border-surface-highlight rounded-xl p-6 space-y-4">
+          <div className="flex justify-between items-center pb-4 border-b border-surface-highlight">
+            <h3 className="text-lg font-bold text-white uppercase tracking-wider">
+              {drillDownType === 'active' && 'Active Members'}
+              {drillDownType === 'expired' && 'Expired Members'}
+              {drillDownType === 'expiring' && 'Members Expiring Soon'}
+              {drillDownType === 'due' && 'Members With Dues'}
+            </h3>
+            <button 
+              onClick={() => setDrillDownType(null)} 
+              className="text-xs text-gray-400 hover:text-white bg-surface-highlight px-3 py-1.5 rounded-lg font-semibold"
+            >
+              Close List
+            </button>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-gray-900/50 text-gray-400 text-sm">
+                <tr>
+                  <th className="px-6 py-4 font-medium">Member</th>
+                  <th className="px-6 py-4 font-medium">Phone</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {getDrillDownList().length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="px-6 py-8 text-center text-gray-400">
+                      No members match this filter.
+                    </td>
+                  </tr>
+                ) : (
+                  getDrillDownList().map((m: any) => (
+                    <tr key={m.id} className="hover:bg-gray-700/50 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center space-x-3">
+                          {m.photo_url ? (
+                            <img src={m.photo_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                              <Users className="w-4 h-4 text-gray-400" />
+                            </div>
+                          )}
+                          <div className="text-white font-medium">{m.full_name}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-gray-300">{m.phone}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-0.5 rounded text-xs font-bold ${m.status === 'active' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                          {m.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Link 
+                          to={`/app/members/${m.id}`}
+                          className="text-amber-500 hover:underline text-sm font-semibold"
+                        >
+                          View Profile
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
