@@ -20,7 +20,7 @@ import { Landing } from './pages/public/Landing';
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/FrosterGym">
       <AuthProvider>
         <Routes>
           <Route path="/" element={<Landing />} />
