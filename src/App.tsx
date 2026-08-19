@@ -16,7 +16,7 @@ import { DietPlans } from './pages/app/DietPlans';
 import { Expenses } from './pages/app/Expenses';
 import { Reports } from './pages/app/Reports';
 import { Settings } from './pages/app/Settings';
-import { Landing } from './pages/public/Landing';
+import { PublicWebsite } from './pages/website/PublicWebsite';
 import { Loader2 } from 'lucide-react';
 
 function PermissionGuard({ permission, children }: { permission: string; children: React.ReactNode }) {
@@ -51,7 +51,7 @@ function App() {
     <BrowserRouter basename="/FrosterGym">
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<PublicWebsite />} />
           <Route path="/login" element={<Login />} />
           
           <Route path="/app" element={<ProtectedRoute />}>
