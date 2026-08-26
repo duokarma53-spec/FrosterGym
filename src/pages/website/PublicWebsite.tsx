@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, ArrowRight, ArrowLeft, MapPin, Phone, MessageCircle } from 'lucide-react';
+import { Menu, X, ArrowRight, ArrowLeft } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
 const PRICING_PLANS = [
@@ -26,11 +26,19 @@ const PRICING_PLANS = [
   }
 ];
 
+const GALLERY_ITEMS = [
+  { id: '01', title: 'THE SPACE.', desc: 'FROASTER GYM\nDAHOD, GUJARAT', img: 'new_gallery_1.png' },
+  { id: '02', title: 'THE WORK.', desc: 'NO EXCUSES\nJUST PROGRESS', img: 'new_gallery_2.jpg' },
+  { id: '03', title: 'THE PEOPLE.', desc: 'BUILT ON\nDISCIPLINE', img: 'new_gallery_3.png' },
+  { id: '04', title: 'THE RESULT.', desc: 'ENGINEERED FOR\nPERFORMANCE', img: 'new_gallery_4.png' }
+];
+
 export function PublicWebsite() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activePlan, setActivePlan] = useState(0);
+  const [activeGallery, setActiveGallery] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -168,13 +176,13 @@ export function PublicWebsite() {
           
                     <div className="relative reveal opacity-0 translate-y-8 transition-all duration-1000 delay-[200ms] group/img">
               <img src="/FrosterGym/gallery1.jpg" alt="Gym Equipment" className="w-full h-auto transition-all duration-700 shadow-[0_20px_50px_rgba(0,0,0,0.5)]" />
-              <div className="absolute -bottom-6 -left-6 md:-bottom-8 md:-left-8 bg-black/70 backdrop-blur-xl p-8 md:p-10 border border-white/10 max-w-[280px] shadow-2xl">
+              <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 md:-bottom-8 md:-left-8 bg-black/70 backdrop-blur-xl p-5 sm:p-6 md:p-10 border border-white/10 max-w-[200px] sm:max-w-[240px] md:max-w-[280px] shadow-2xl">
                 <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-[#d9a952] to-transparent opacity-80"></div>
-                <div className="flex items-baseline gap-1 mb-4">
-                  <span className="text-5xl md:text-6xl font-display font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-[#f2d088] via-[#d9a952] to-[#a37c35]">100</span>
-                  <span className="text-3xl font-display font-bold text-[#d9a952]">%</span>
+                <div className="flex items-baseline gap-1 mb-2 md:mb-4">
+                  <span className="text-4xl sm:text-5xl md:text-6xl font-display font-extrabold text-transparent bg-clip-text bg-gradient-to-br from-[#f2d088] via-[#d9a952] to-[#a37c35]">100</span>
+                  <span className="text-xl sm:text-2xl md:text-3xl font-display font-bold text-[#d9a952]">%</span>
                 </div>
-                <div className="text-[0.65rem] md:text-xs uppercase tracking-[0.3em] leading-relaxed text-white/80 font-medium">
+                <div className="text-[0.55rem] sm:text-[0.65rem] md:text-xs uppercase tracking-[0.2em] md:tracking-[0.3em] leading-relaxed text-white/80 font-medium">
                   Dedicated to your<br />transformation
                 </div>
               </div>
@@ -253,75 +261,93 @@ export function PublicWebsite() {
 
 
 
-      {/* 6. Gallery */}
-      <section id="gallery" className="py-32 bg-background border-t border-surface-highlight overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 mb-16 reveal opacity-0 translate-y-8 transition-all duration-1000">
-          <h2 className="text-5xl md:text-6xl font-display font-bold uppercase text-text-primary mb-4">Inside Froaster</h2>
-          <p className="text-text-muted uppercase tracking-[0.2em] text-sm">Train. Sweat. Transform.</p>
-        </div>
+      {/* 6. Cinematic Editorial Gallery */}
+      <section id="gallery" className="relative py-24 md:py-40 bg-background border-t border-surface-highlight overflow-hidden min-h-[850px] lg:min-h-[1000px] flex items-center">
         
-        <div className="relative w-full overflow-hidden reveal opacity-0 translate-y-8 transition-all duration-1000 delay-[150ms]">
-          <div className="flex gap-4 md:gap-6 animate-marquee w-max hover:animation-pause">
-            {[
-              'new_gallery_1.png', 'new_gallery_2.jpg', 'new_gallery_3.png', 
-              'new_gallery_4.png', 'new_gallery_5.png', 'new_gallery_6.png',
-              'new_gallery_1.png', 'new_gallery_2.jpg', 'new_gallery_3.png', 
-              'new_gallery_4.png', 'new_gallery_5.png', 'new_gallery_6.png'
-            ].map((img, i) => (
-              <div key={i} className="w-[280px] md:w-[400px] h-[350px] md:h-[500px] shrink-0 border border-surface-highlight overflow-hidden group bg-surface">
-                <img src={`/FrosterGym/${img}`} alt={`Gallery Image ${i+1}`} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105" loading="lazy" />
-              </div>
-            ))}
-          </div>
+        {/* Giant Background Number */}
+        <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full flex justify-center pointer-events-none select-none z-0">
+          <span className="text-[40vw] md:text-[30vw] font-display font-black leading-none text-white/[0.03] tracking-tighter transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]">
+            {GALLERY_ITEMS[activeGallery].id}
+          </span>
         </div>
-      </section>
 
-      {/* 7. Contact / Location */}
-      <section id="contact" className="py-32 bg-surface border-t border-surface-highlight">
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center">
-          <div className="reveal opacity-0 translate-y-8 transition-all duration-1000">
-            <h2 className="text-5xl md:text-7xl font-display font-bold uppercase text-text-primary mb-8">Ready to Start?</h2>
-            <p className="text-lg text-text-muted font-light mb-12">
-              Your transformation starts with the first step. Visit us or reach out today.
-            </p>
+        <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
+          
+          <div className="grid lg:grid-cols-12 gap-12 lg:gap-24 items-center h-full">
             
-            <div className="space-y-8 mb-12">
-              <div className="flex items-start gap-4">
-                <MapPin className="w-6 h-6 text-primary-500 shrink-0 mt-1" />
-                <div>
-                  <h4 className="text-text-primary font-bold uppercase tracking-widest mb-1">Location</h4>
-                  <p className="text-text-muted leading-relaxed">Dudhimati River Bridge, Desaiwad<br/>Dahod, Gujarat 389151</p>
+            {/* Left: Navigation & Typography */}
+            <div className="order-2 lg:order-1 lg:col-span-4 flex flex-col justify-between h-full min-h-[300px]">
+              
+              <div className="mb-12 md:mb-24">
+                <p className="text-[#d9a952] text-xs font-bold tracking-[0.3em] uppercase mb-4 md:mb-8">The Froaster Experience</p>
+                <div className="relative h-[120px] sm:h-[140px] md:h-[180px]">
+                  {GALLERY_ITEMS.map((item, idx) => (
+                    <div 
+                      key={idx}
+                      className={`absolute top-0 left-0 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] w-full ${idx === activeGallery ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'}`}
+                    >
+                      <h2 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-display font-black uppercase text-white leading-[0.9] tracking-tight mb-4 md:mb-6">
+                        {item.title}
+                      </h2>
+                      <p className="text-[#9c9c9a] text-[0.65rem] md:text-xs font-medium tracking-[0.2em] uppercase leading-relaxed whitespace-pre-line">
+                        {item.desc}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="flex items-start gap-4">
-                <Phone className="w-6 h-6 text-primary-500 shrink-0 mt-1" />
-                <div>
-                  <h4 className="text-text-primary font-bold uppercase tracking-widest mb-1">Contact</h4>
-                  <a href="tel:9409478823" className="text-text-muted hover:text-primary-500 transition-colors">+91 94094 78823</a>
-                </div>
+
+              <div className="flex flex-col gap-4 md:gap-6 mt-auto">
+                {GALLERY_ITEMS.map((item, idx) => (
+                  <button 
+                    key={idx}
+                    onClick={() => setActiveGallery(idx)}
+                    className="group flex items-center gap-6 text-left"
+                  >
+                    <span className={`text-xs font-bold tracking-[0.2em] transition-colors duration-500 ${idx === activeGallery ? 'text-[#d9a952]' : 'text-white/30 group-hover:text-white/60'}`}>
+                      {item.id}
+                    </span>
+                    <span className={`text-sm md:text-base font-display uppercase tracking-widest transition-all duration-500 relative ${idx === activeGallery ? 'text-white translate-x-3' : 'text-white/40 group-hover:text-white/70'}`}>
+                      {item.title.replace('.', '')}
+                      {idx === activeGallery && (
+                        <span className="absolute -left-6 top-1/2 -translate-y-1/2 w-3 h-[1px] bg-[#d9a952]"></span>
+                      )}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
-            
-            <a href="https://wa.me/919409478823" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 bg-primary-500 text-background px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-primary-400 transition-colors">
-              <MessageCircle className="w-5 h-5" /> WhatsApp Us
-            </a>
-          </div>
-          
-          <div className="h-[400px] md:h-[500px] border border-surface-highlight grayscale hover:grayscale-0 transition-all duration-1000 reveal opacity-0 translate-y-8 delay-[200ms] shadow-2xl">
-            <iframe 
-              src="https://maps.google.com/maps?q=Froaster%20Fitness,%20Govindnagar,%20Dahod,%20Gujarat&t=&z=16&ie=UTF8&iwloc=&output=embed" 
-              width="100%" 
-              height="100%" 
-              style={{ border: 0 }} 
-              loading="lazy"
-              title="Location Map"
-            />
+
+            {/* Right: Immersive Feature Image */}
+            <div className="order-1 lg:order-2 lg:col-span-8 relative aspect-[4/5] sm:aspect-[4/5] lg:aspect-[4/3] lg:h-[750px] w-full bg-[#0a0a0b] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
+              {GALLERY_ITEMS.map((item, idx) => (
+                <div 
+                  key={idx}
+                  className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] origin-bottom ${idx === activeGallery ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03] pointer-events-none'}`}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 pointer-events-none"></div>
+                  <img 
+                    src={`/FrosterGym/${item.img}`} 
+                    alt={item.title} 
+                    className="w-full h-full object-cover object-center"
+                    loading={idx === 0 ? "eager" : "lazy"}
+                  />
+                </div>
+              ))}
+              
+              {/* Subtle metadata overlay on image */}
+              <div className="absolute bottom-6 right-6 md:bottom-8 md:right-8 z-20 text-right text-white/90">
+                <p className="text-[0.55rem] md:text-[0.65rem] font-bold uppercase tracking-[0.3em]">Visual Campaign 26'</p>
+                <p className="text-[0.5rem] md:text-[0.55rem] font-medium uppercase tracking-[0.2em] mt-1 text-[#d9a952]">Froaster Archival</p>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
       {/* 8. Cinematic Premium Footer */}
-      <footer className="relative bg-[#050505] pt-32 pb-8 overflow-hidden border-t border-white/5">
+      <footer id="contact" className="relative bg-[#050505] pt-32 pb-8 overflow-hidden border-t border-white/5">
         
         {/* Subtle Background Lighting */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[500px] bg-primary-500/5 rounded-full blur-[120px] pointer-events-none"></div>
