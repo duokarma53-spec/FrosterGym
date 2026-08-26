@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, ArrowRight, MapPin, Phone, ArrowUpRight, MessageCircle } from 'lucide-react';
+import { Menu, X, ArrowRight, ArrowUpRight, MessageCircle } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
 const PRICING_PLANS = [
@@ -56,27 +56,11 @@ const GALLERY_ITEMS = [
     desc: 'Zero distractions. Complete commitment.'
   }
 ];
-const YOGA_CLASSES = [
-  {
-    title: 'Hatha Yoga',
-    desc: 'Hatha Yoga focuses on the foundational postures and breathing techniques. It is a gentle starting point to begin the journey into Yoga. It builds strength, and increases flexibility. It allows mind/body connection in all of our classes. Great for anyone who wants a well-rounded practice.'
-  },
-  {
-    title: 'Kundalini Yoga',
-    desc: 'Kundalini Yoga aims to awaken the spiritual energy at the base of the spine through a combination of breathwork, meditation, and dynamic postures. This practice focuses on expanding consciousness and achieving a deeper sense of self-awareness. It\'s a highly inward focused movement towards finding true realization.'
-  },
-  {
-    title: 'Yin Yoga',
-    desc: 'Yin Yoga is a slow-paced style that targets the connective tissues (ligaments, bones and even the joints themselves) of the body. Yin Yoga increases overall flexibility. Yin Yoga is a meditative practice that focuses on cultivating mindfulness, making it a deeply restorative and transformative practice.'
-  }
-];
 
 export function PublicWebsite() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [withPT, setWithPT] = useState(false);
-  const [activeGallery, setActiveGallery] = useState(0);
   const [activePlan, setActivePlan] = useState(1);
 
   useEffect(() => {
