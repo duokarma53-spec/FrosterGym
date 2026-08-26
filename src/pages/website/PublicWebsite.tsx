@@ -258,7 +258,15 @@ export function PublicWebsite() {
       {/* 2. Hero Section */}
       <section className="relative min-h-[100svh] flex items-center bg-background overflow-hidden pt-20">
         <div className="absolute inset-0 z-0">
-          <img src="/FrosterGym/hero-new-bg-2.jpg" alt="Premium Gym Environment" className="w-full h-full object-cover opacity-[0.35]" />
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            className="w-full h-full object-cover opacity-[0.35]"
+          >
+            <source src="/FrosterGym/hero-section.mp4" type="video/mp4" />
+          </video>
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         </div>
