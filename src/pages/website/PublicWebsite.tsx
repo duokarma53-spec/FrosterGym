@@ -27,149 +27,173 @@ const PRICING_PLANS = [
 ];
 
 const GALLERY_ITEMS = [
-  { id: '01', title: 'THE SPACE.', desc: 'FROASTER GYM\nDAHOD, GUJARAT', img: 'new_gallery_1.png' },
-  { id: '02', title: 'THE WORK.', desc: 'NO EXCUSES\nJUST PROGRESS', img: 'new_gallery_2.jpg' },
-  { id: '03', title: 'THE PEOPLE.', desc: 'BUILT ON\nDISCIPLINE', img: 'new_gallery_3.png' },
-  { id: '04', title: 'THE RESULT.', desc: 'ENGINEERED FOR\nPERFORMANCE', img: 'new_gallery_4.png' },
-  { id: '05', title: 'THE IRON.', desc: 'HEAVY WEIGHTS\nONLY', img: 'gallery2.jpg' },
-  { id: '06', title: 'THE FOCUS.', desc: 'PURE\nDEDICATION', img: 'new_gallery_6.png' },
-  { id: '07', title: 'THE ENERGY.', desc: 'ENDLESS\nDRIVE', img: 'new_gallery_5.png' },
-  { id: '08', title: 'THE GRIT.', desc: 'PUSH PAST\nLIMITS', img: 'new_gallery_7.jpg' },
-  { id: '09', title: 'THE POWER.', desc: 'UNSTOPPABLE\nFORCE', img: 'new_gallery_8.png' },
-  { id: '10', title: 'THE STAMINA.', desc: 'GO THE\nDISTANCE', img: 'new_gallery_9.png' },
-  { id: '11', title: 'THE ZONE.', desc: 'ZERO\nDISTRACTIONS', img: 'gallery1.jpg' },
-  { id: '12', title: 'THE PRIDE.', desc: 'EARN IT\nEVERYDAY', img: 'gallery3.png' }
-];
-
-const BG_POSITIONS = [
-  { x: -35, y: -15, z: -400, rY: 20, rX: 5, s: 0.8 },
-  { x: 35, y: 15, z: -450, rY: -25, rX: -5, s: 0.75 },
-  { x: -25, y: 35, z: -500, rY: 15, rX: -10, s: 0.7 },
-  { x: 30, y: -35, z: -550, rY: -15, rX: 10, s: 0.85 },
-  { x: -10, y: 40, z: -600, rY: 10, rX: -15, s: 0.65 },
-  { x: 10, y: -45, z: -650, rY: -10, rX: 15, s: 0.6 },
-  { x: -45, y: -5, z: -700, rY: 25, rX: 8, s: 0.7 },
-  { x: 45, y: -10, z: -750, rY: -20, rX: -12, s: 0.65 },
-  { x: -20, y: -40, z: -800, rY: 12, rX: 15, s: 0.6 },
-  { x: 25, y: 35, z: -850, rY: -18, rX: -8, s: 0.55 },
-  { x: -5, y: 45, z: -900, rY: 5, rX: -20, s: 0.5 },
-  { x: 5, y: -50, z: -950, rY: -5, rX: 20, s: 0.5 },
+  { id: '01', title: 'THE SPACE', desc: 'Training floor.\nBuilt for serious work.', img: 'new_gallery_1.png' },
+  { id: '02', title: 'THE EQUIPMENT', desc: 'Strength.\nPrecision.\nProgress.', img: 'new_gallery_2.jpg' },
+  { id: '03', title: 'THE PEOPLE', desc: 'A community built\non discipline.', img: 'new_gallery_3.png' },
+  { id: '04', title: 'THE IRON', desc: 'Heavy weights only.\nNo distractions.', img: 'gallery2.jpg' },
+  { id: '05', title: 'THE WORK', desc: 'Push past limits.\nEvery single day.', img: 'new_gallery_4.png' },
+  { id: '06', title: 'THE RESULT', desc: 'Engineered for\nperformance.', img: 'new_gallery_6.png' }
 ];
 
 const Gallery3D = () => {
-  const [activeIdx, setActiveIdx] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
-  
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [smoothedMouse, setSmoothedMouse] = useState({ x: 0, y: 0 });
+  const [scrollYProgress, setScrollYProgress] = useState(0);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      const { innerWidth, innerHeight } = window;
-      const x = (e.clientX / innerWidth) * 2 - 1;
-      const y = (e.clientY / innerHeight) * 2 - 1;
-      setMousePos({ x, y });
+    let ticking = false;
+    
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (!containerRef.current) return;
+          const rect = containerRef.current.getBoundingClientRect();
+          const windowHeight = window.innerHeight;
+          
+          const totalScrollable = rect.height - windowHeight;
+          const scrolled = -rect.top;
+          
+          const rawProgress = scrolled / totalScrollable;
+          const clamped = Math.min(Math.max(rawProgress, 0), 1);
+          
+          setScrollYProgress(clamped);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    handleScroll();
+    
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
-  useEffect(() => {
-    let animationFrameId: number;
-    const renderLoop = () => {
-      setSmoothedMouse(prev => ({
-        x: prev.x + (mousePos.x - prev.x) * 0.05,
-        y: prev.y + (mousePos.y - prev.y) * 0.05
-      }));
-      animationFrameId = requestAnimationFrame(renderLoop);
-    };
-    renderLoop();
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [mousePos]);
+  const step = 1 / (GALLERY_ITEMS.length - 1);
+  
+  const activeIdx = Math.min(
+    Math.max(Math.round(scrollYProgress * (GALLERY_ITEMS.length - 1)), 0),
+    GALLERY_ITEMS.length - 1
+  );
 
   return (
     <section 
       id="gallery"
       ref={containerRef}
-      className="relative w-full h-[100svh] min-h-[700px] md:min-h-[900px] bg-[#020202] overflow-hidden flex items-center justify-center border-t border-white/5"
-      style={{ perspective: '1200px' }}
+      className="relative w-full bg-[#050505] border-t border-white/5"
+      style={{ height: `${GALLERY_ITEMS.length * 120}vh` }}
     >
-      {/* Huge Background Typography */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-        <h1 className="text-[25vw] font-display font-black text-white/[0.015] select-none whitespace-nowrap">
-          FROASTER
-        </h1>
-      </div>
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row items-center max-w-[1400px] mx-auto px-6 md:px-12 py-24 md:py-0">
+        
+        {/* Subtle Background Lighting */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[600px] bg-white/[0.015] rounded-full blur-[150px] pointer-events-none"></div>
 
-      {/* Editorial Text Overlay */}
-      <div className="absolute top-12 left-6 md:top-16 md:left-12 z-40 pointer-events-none">
-        <p className="text-[#d9a952] text-[0.65rem] md:text-xs font-bold tracking-[0.3em] uppercase mb-4">
-          Froaster / The Experience
-        </p>
-        <h2 className="text-4xl md:text-6xl font-display font-black text-white uppercase leading-[0.9] tracking-tight">
-          Built<br/>To<br/>Move.
-        </h2>
-      </div>
-      
-      {/* Image Metadata Overlay */}
-      <div className="absolute bottom-12 left-6 md:bottom-16 md:left-12 z-40 pointer-events-none flex flex-col gap-1">
-        <span className="text-[#d9a952] text-[0.65rem] md:text-xs font-bold tracking-[0.2em]">{GALLERY_ITEMS[activeIdx].id} / {GALLERY_ITEMS.length}</span>
-        <h3 className="text-white text-xl md:text-3xl font-display font-bold uppercase tracking-widest">{GALLERY_ITEMS[activeIdx].title.replace('.', '')}</h3>
-        <p className="text-white/50 text-[0.65rem] md:text-xs font-medium uppercase tracking-[0.3em] mt-1">{GALLERY_ITEMS[activeIdx].desc.split('\n')[0]}</p>
-      </div>
-
-      {/* 3D Scene Container */}
-      <div 
-        className="relative w-full h-full flex items-center justify-center z-10"
-        style={{
-          transformStyle: 'preserve-3d',
-          transform: `rotateX(${smoothedMouse.y * -5}deg) rotateY(${smoothedMouse.x * 5}deg)`
-        }}
-      >
-        {GALLERY_ITEMS.map((item, idx) => {
-          const isActive = idx === activeIdx;
-          
-          let bgIdx = idx >= activeIdx ? idx - 1 : idx;
-          if (bgIdx < 0) bgIdx = 0;
-          const pos = isActive 
-            ? { x: 0, y: 0, z: 150, rY: 0, rX: 0, s: 1 }
-            : BG_POSITIONS[bgIdx % BG_POSITIONS.length];
+        {/* Text Area (Left on Desktop, Top on Mobile) */}
+        <div className="w-full md:w-5/12 h-[160px] md:h-[400px] relative flex-shrink-0 z-20 flex flex-col justify-center">
+          {GALLERY_ITEMS.map((item, idx) => {
+            const itemCenter = idx * step;
+            const normDist = (scrollYProgress - itemCenter) / step;
+            const opacity = Math.max(0, 1 - Math.abs(normDist) * 1.5);
+            const translateY = normDist * -30;
             
-          const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-          
-          const translateX = isMobile ? pos.x * 0.4 : pos.x;
-          const translateY = isMobile ? pos.y * 0.4 : pos.y;
-          
-          const transform = `translate3d(${translateX}vw, ${translateY}vh, ${pos.z}px) rotateX(${pos.rX}deg) rotateY(${pos.rY}deg) scale(${pos.s})`;
-
-          return (
-            <div
-              key={item.id}
-              onClick={() => setActiveIdx(idx)}
-              className={`absolute group cursor-pointer transition-all ease-[cubic-bezier(0.25,1,0.1,1)] origin-center`}
-              style={{
-                width: isMobile ? '65vw' : '400px',
-                aspectRatio: '3/4',
-                transform,
-                transitionDuration: isActive ? '1000ms' : '1500ms',
-                zIndex: isActive ? 30 : 10,
-                filter: isActive ? 'brightness(1.1) blur(0px)' : `brightness(0.3) blur(${Math.abs(pos.z) / 250}px)`,
-              }}
-            >
+            return (
               <div 
-                className={`absolute inset-0 bg-[#d9a952] rounded-sm transition-opacity duration-1000 blur-2xl ${isActive ? 'opacity-15' : 'opacity-0 group-hover:opacity-10'}`} 
-                style={{ transform: 'translateZ(-10px)' }}
-              />
-              
-              <img 
-                src={`/FrosterGym/${item.img}`}
-                alt={item.title}
-                className="w-full h-full object-cover rounded-sm shadow-[0_30px_60px_rgba(0,0,0,0.8)] border border-white/5 group-hover:border-[#d9a952]/30 transition-colors duration-500"
-              />
-            </div>
-          );
-        })}
+                key={item.id}
+                className="absolute top-1/2 -translate-y-1/2 left-0 w-full"
+                style={{
+                  opacity,
+                  transform: `translateY(${translateY}px)`,
+                  pointerEvents: opacity > 0.5 ? 'auto' : 'none',
+                  visibility: opacity > 0 ? 'visible' : 'hidden'
+                }}
+              >
+                <p className="text-[#d9a952] text-[0.65rem] md:text-xs font-bold tracking-[0.3em] uppercase mb-4">
+                  FROASTER / {item.id}
+                </p>
+                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black text-white uppercase leading-[0.9] tracking-tight mb-4 md:mb-6">
+                  {item.title}
+                </h2>
+                <p className="text-[#9c9c9a] text-xs md:text-sm font-medium uppercase tracking-[0.15em] leading-relaxed whitespace-pre-line max-w-[300px]">
+                  {item.desc}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+        
+        {/* 3D Image Tunnel (Right on Desktop, Bottom on Mobile) */}
+        <div className="flex-grow w-full md:w-7/12 h-full max-h-[60vh] md:max-h-[80vh] relative perspective-[1500px] z-10 mt-4 md:mt-0 flex items-center justify-center">
+          {GALLERY_ITEMS.map((item, idx) => {
+            const itemCenter = idx * step;
+            const normDist = (scrollYProgress - itemCenter) / step;
+            
+            let z = 0;
+            let opacity = 0;
+            let rotateY = 0;
+            let rotateX = 0;
+            let blur = 0;
+            let scale = 1;
+            
+            if (normDist <= 0) {
+              z = normDist * 1000;
+              opacity = 1 - Math.abs(normDist) * 0.4;
+              rotateY = normDist * 10;
+              rotateX = normDist * -5;
+              blur = Math.abs(normDist) * 4;
+              scale = 1;
+            } else {
+              z = normDist * 600;
+              opacity = 1 - normDist * 2.5;
+              rotateY = normDist * 5;
+              rotateX = normDist * 2;
+              blur = normDist * 15;
+              scale = 1 + normDist * 0.2;
+            }
+
+            if (opacity < 0.01) opacity = 0;
+            
+            const zIndex = 50 - Math.round(Math.abs(normDist) * 10);
+
+            return (
+              <div 
+                key={`img-${item.id}`}
+                className="absolute inset-0 flex items-center md:justify-end justify-center pointer-events-none origin-center will-change-transform"
+                style={{
+                  transformStyle: 'preserve-3d',
+                  transform: `translateZ(${z}px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(${scale})`,
+                  opacity,
+                  filter: blur > 0 ? `blur(${blur}px)` : 'none',
+                  zIndex,
+                  visibility: opacity > 0 ? 'visible' : 'hidden'
+                }}
+              >
+                <div className="relative w-[92vw] sm:w-[85vw] md:w-full max-w-[420px] lg:max-w-[500px] xl:max-w-[550px] aspect-[4/5] rounded-sm md:rounded-lg shadow-[0_30px_60px_rgba(0,0,0,0.8)] border border-white/5 overflow-hidden">
+                  <img 
+                    src={`/FrosterGym/${item.img}`} 
+                    alt={item.title}
+                    className="w-full h-full object-cover object-center"
+                    loading={idx <= 1 ? "eager" : "lazy"}
+                  />
+                  <div 
+                    className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-300"
+                    style={{ opacity: Math.max(0, Math.abs(normDist) * 0.6) }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+          
+          {/* Subtle Counter Indicator */}
+          <div className="absolute -bottom-8 md:bottom-0 right-0 md:right-8 z-50 text-right mix-blend-difference pointer-events-none">
+            <p className="text-[#d9a952] text-[0.65rem] md:text-xs font-bold uppercase tracking-[0.3em]">
+              {String(activeIdx + 1).padStart(2, '0')} / {String(GALLERY_ITEMS.length).padStart(2, '0')}
+            </p>
+          </div>
+        </div>
+
       </div>
     </section>
   );
