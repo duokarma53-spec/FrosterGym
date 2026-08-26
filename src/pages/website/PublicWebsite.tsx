@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, ArrowRight, ArrowUpRight, MessageCircle } from 'lucide-react';
+import { Menu, X, ArrowRight, ArrowUpRight, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
 const PRICING_PLANS = [
@@ -221,7 +221,15 @@ export function PublicWebsite() {
             <h2 className="text-5xl md:text-6xl font-display font-bold uppercase text-text-primary mb-6">Membership Plans</h2>
           </div>
           
-          <div className="relative h-[250px] sm:h-[350px] md:h-[450px] flex items-center justify-center max-w-[1200px] mx-auto w-full perspective-[2000px] overflow-visible reveal opacity-0 translate-y-8 transition-all duration-1000">
+          <div className="relative h-[400px] sm:h-[500px] md:h-[600px] flex items-center justify-center max-w-[1200px] mx-auto w-full perspective-[2000px] overflow-visible reveal opacity-0 translate-y-8 transition-all duration-1000">
+            {/* Left Arrow */}
+            <button 
+              onClick={() => setActivePlan((activePlan - 1 + PRICING_PLANS.length) % PRICING_PLANS.length)}
+              className="absolute left-2 md:left-8 z-40 p-3 rounded-full bg-background/80 backdrop-blur-md border border-white/10 text-white hover:bg-primary-500 hover:text-background transition-colors shadow-xl"
+            >
+              <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+            </button>
+
             {PRICING_PLANS.map((plan, idx) => {
               const isActive = activePlan === idx;
               const isLeft = (activePlan - 1 + PRICING_PLANS.length) % PRICING_PLANS.length === idx;
@@ -262,6 +270,14 @@ export function PublicWebsite() {
                 </div>
               );
             })}
+
+            {/* Right Arrow */}
+            <button 
+              onClick={() => setActivePlan((activePlan + 1) % PRICING_PLANS.length)}
+              className="absolute right-2 md:right-8 z-40 p-3 rounded-full bg-background/80 backdrop-blur-md border border-white/10 text-white hover:bg-primary-500 hover:text-background transition-colors shadow-xl"
+            >
+              <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+            </button>
           </div>
         </div>
       </section>
