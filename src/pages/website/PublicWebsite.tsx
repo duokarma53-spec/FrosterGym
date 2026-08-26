@@ -86,46 +86,13 @@ const Gallery3D = () => {
       className="relative w-full bg-[#050505] border-t border-white/5"
       style={{ height: `${GALLERY_ITEMS.length * 120}vh` }}
     >
-      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex flex-col md:flex-row items-center max-w-[1400px] mx-auto px-6 md:px-12 py-24 md:py-0">
+      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex items-center justify-center max-w-[1400px] mx-auto px-6 md:px-12">
         
         {/* Subtle Background Lighting */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[600px] bg-white/[0.015] rounded-full blur-[150px] pointer-events-none"></div>
-
-        {/* Text Area (Left on Desktop, Top on Mobile) */}
-        <div className="w-full md:w-5/12 h-[160px] md:h-[400px] relative flex-shrink-0 z-20 flex flex-col justify-center">
-          {GALLERY_ITEMS.map((item, idx) => {
-            const itemCenter = idx * step;
-            const normDist = (scrollYProgress - itemCenter) / step;
-            const opacity = Math.max(0, 1 - Math.abs(normDist) * 1.5);
-            const translateY = normDist * -30;
-            
-            return (
-              <div 
-                key={item.id}
-                className="absolute top-1/2 -translate-y-1/2 left-0 w-full"
-                style={{
-                  opacity,
-                  transform: `translateY(${translateY}px)`,
-                  pointerEvents: opacity > 0.5 ? 'auto' : 'none',
-                  visibility: opacity > 0 ? 'visible' : 'hidden'
-                }}
-              >
-                <p className="text-[#d9a952] text-[0.65rem] md:text-xs font-bold tracking-[0.3em] uppercase mb-4">
-                  FROASTER / {item.id}
-                </p>
-                <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-black text-white uppercase leading-[0.9] tracking-tight mb-4 md:mb-6">
-                  {item.title}
-                </h2>
-                <p className="text-[#9c9c9a] text-xs md:text-sm font-medium uppercase tracking-[0.15em] leading-relaxed whitespace-pre-line max-w-[300px]">
-                  {item.desc}
-                </p>
-              </div>
-            );
-          })}
-        </div>
         
-        {/* 3D Image Tunnel (Right on Desktop, Bottom on Mobile) */}
-        <div className="flex-grow w-full md:w-7/12 h-full max-h-[60vh] md:max-h-[80vh] relative perspective-[1500px] z-10 mt-4 md:mt-0 flex items-center justify-center">
+        {/* 3D Image Tunnel (Full Viewport) */}
+        <div className="w-full h-full max-h-[75vh] md:max-h-[85vh] relative perspective-[1500px] z-10 flex items-center justify-center">
           {GALLERY_ITEMS.map((item, idx) => {
             const itemCenter = idx * step;
             const normDist = (scrollYProgress - itemCenter) / step;
