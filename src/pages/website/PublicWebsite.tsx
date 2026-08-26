@@ -403,83 +403,92 @@ export function PublicWebsite() {
 
       <CurvedGallery />
 
-      {/* 8. Cinematic Premium Footer */}
-      <footer id="contact" className="relative bg-[#050505] pt-32 pb-8 overflow-hidden border-t border-white/5">
-        
+      {/* 8. Modern Multi-Column Footer */}
+      <footer id="contact" className="relative bg-[#050505] pt-24 pb-8 overflow-hidden border-t border-white/5">
         {/* Subtle Background Lighting */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[500px] bg-primary-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10 flex flex-col min-h-[60vh] justify-between">
           
-          {/* SECTION 1 & 2 — Massive Statement & Brand Element */}
-          <div className="mb-24 md:mb-32">
-            <h2 className="text-[3.5rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] font-display font-black uppercase leading-[0.9] tracking-tight text-white/90">
-              Show Up.<br/>
-              <span className="text-[#d9a952]">Put in the Work.</span>
-            </h2>
-          </div>
-
-          {/* SECTION 3 — Horizontal Editorial Navigation */}
-          <div className="border-y border-white/10 py-8 mb-20 overflow-x-auto hide-scrollbar">
-            <div className="flex items-center gap-12 md:gap-24 min-w-max pr-6">
-              {[
-                { id: '01', name: 'About' },
-                { id: '02', name: 'Memberships' },
-                { id: '03', name: 'Gallery' },
-                { id: '04', name: 'Contact' }
-              ].map((item) => (
-                <button 
-                  key={item.id}
-                  onClick={() => scrollToSection(item.name.toLowerCase())} 
-                  className="group flex flex-col items-start text-left"
-                >
-                  <span className="text-[#d9a952] text-xs font-bold tracking-[0.2em] mb-2 opacity-60 group-hover:opacity-100 transition-opacity">{item.id}</span>
-                  <span className="relative text-xl md:text-2xl font-display uppercase tracking-[0.15em] text-[#9c9c9a] group-hover:text-white transition-colors duration-300">
-                    {item.name}
-                    <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-[#d9a952] group-hover:w-full transition-all duration-500 ease-out"></span>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* SECTION 4 & 5 — Brand / Social & Location */}
-          <div className="grid md:grid-cols-2 gap-16 mb-24 md:mb-32">
-            <div className="max-w-sm">
-              <p className="text-lg md:text-xl font-light text-[#9c9c9a] leading-relaxed mb-8">
-                More than a gym.<br/>A place built around discipline, strength and progress.
+          {/* Top Section - 4 Columns */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-24">
+            {/* Col 1 */}
+            <div>
+              <h3 className="text-3xl font-display font-bold text-white mb-6">Come by</h3>
+              <p className="text-[#9c9c9a] font-light leading-relaxed mb-6">
+                Froaster Gym<br/>
+                Dudhimati River Bridge<br/>
+                Desaiwad, Dahod,<br/>
+                Gujarat
               </p>
-              <a href="https://www.instagram.com/froaster_fitness/" target="_blank" rel="noreferrer" className="inline-flex items-center justify-center w-12 h-12 rounded-full border border-white/10 text-white/50 hover:text-[#d9a952] hover:border-[#d9a952] transition-all duration-300 group">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-110 transition-transform duration-300"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </div>
+
+            {/* Col 2 */}
+            <div>
+              <h3 className="text-3xl font-display font-bold text-white mb-6">Say hello</h3>
+              <a href="mailto:contact@froastergym.com" className="block text-[#9c9c9a] hover:text-[#d9a952] transition-colors mb-4">Email us</a>
+              <a href="https://www.instagram.com/froaster_fitness/" target="_blank" rel="noreferrer" className="inline-block text-[#9c9c9a] hover:text-[#d9a952] transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
               </a>
             </div>
-            
-            <div className="md:text-right">
-              <h4 className="text-[#d9a952] text-xs font-bold uppercase tracking-[0.2em] mb-4">Location</h4>
-              <p className="text-[#9c9c9a] text-lg font-light leading-relaxed mb-6">
-                Dudhimati River Bridge<br/>Desaiwad, Dahod, Gujarat
-              </p>
-              <a href="https://maps.google.com/?q=Froaster+Fitness,+Govindnagar,+Dahod,+Gujarat" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-sm uppercase tracking-[0.2em] font-bold text-white hover:text-[#d9a952] transition-colors duration-300 group">
-                View on Map <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
-              </a>
+
+            {/* Col 3 */}
+            <div>
+              <h3 className="text-3xl font-display font-bold text-white mb-6">Explore</h3>
+              <ul className="space-y-3 font-light">
+                {['Home', 'About', 'Memberships', 'Gallery'].map(link => (
+                  <li key={link}>
+                    <button 
+                      onClick={() => link === 'Home' ? window.scrollTo({top: 0, behavior: 'smooth'}) : scrollToSection(link.toLowerCase())} 
+                      className="text-[#9c9c9a] hover:text-[#d9a952] transition-colors"
+                    >
+                      {link}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Col 4 */}
+            <div className="flex flex-col items-start relative">
+              <div className="flex justify-between w-full items-start mb-8">
+                <p className="text-xl lg:text-2xl italic font-display text-white/90">
+                  Premium fitness.<br/>High intensity.
+                </p>
+                <div className="text-[#d9a952]">
+                  {/* Decorative icon (similar placement to the flower in reference) */}
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L15 9L22 12L15 15L12 22L9 15L2 12L9 9L12 2Z" />
+                  </svg>
+                </div>
+              </div>
+              <button onClick={() => scrollToSection('memberships')} className="bg-[#111111] border border-white/20 text-white rounded-full px-8 py-3.5 font-medium hover:border-[#d9a952] hover:text-[#d9a952] transition-colors">
+                Explore Memberships
+              </button>
+            </div>
+          </div>
+
+          {/* Middle Section (Giant Text) */}
+          <div className="w-full overflow-hidden flex justify-center mb-12 select-none pointer-events-none group">
+            <h1 className="text-[18vw] md:text-[14vw] lg:text-[13vw] font-display font-black uppercase text-white leading-[0.75] tracking-tight group-hover:tracking-normal transition-all duration-[2000ms] ease-out whitespace-nowrap">
+              FROASTER
+            </h1>
+          </div>
+
+          {/* Bottom Bar */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-xs font-light text-[#777777] border-t border-white/10 pt-8">
+            <div className="text-center md:text-left">
+              <p>&copy; {new Date().getFullYear()} Froaster Gym Ltd. All rights reserved.</p>
+              <p className="mt-1">Site credit</p>
+            </div>
+            <div className="flex gap-6">
+              <a href="#" className="hover:text-white transition-colors">Cancellation Policy</a>
+              <a href="#" className="hover:text-white transition-colors">Terms</a>
+              <a href="#" className="hover:text-white transition-colors">Privacy</a>
             </div>
           </div>
 
         </div>
-
-        {/* SECTION 6 — Giant Brand Wordmark */}
-        <div className="w-full overflow-hidden flex justify-center mt-auto select-none pointer-events-none group">
-          <h1 className="text-[20vw] md:text-[16vw] lg:text-[15vw] font-display font-black uppercase text-[#111111] leading-[0.75] tracking-tight group-hover:tracking-normal transition-all duration-[2000ms] ease-out whitespace-nowrap px-4">
-            FROASTER
-          </h1>
-        </div>
-
-        {/* BOTTOM BAR */}
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 pt-12 flex flex-col md:flex-row justify-between items-center gap-6 md:gap-4 relative z-10">
-          <p className="text-[#555555] text-xs font-medium tracking-[0.2em] uppercase">&copy; {new Date().getFullYear()} Froaster Gym</p>
-          <p className="text-[#555555] text-xs font-medium tracking-[0.2em] uppercase">Built For Discipline.</p>
-        </div>
-
       </footer>
     </div>
   );
