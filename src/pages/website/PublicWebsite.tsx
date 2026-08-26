@@ -67,38 +67,53 @@ export function PublicWebsite() {
       {isLoading && <EditorialLoader onComplete={() => setIsLoading(false)} />}
       
       {/* 1. Navbar */}
-      <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'py-4 bg-background/95 backdrop-blur-md border-b border-surface-highlight shadow-xl shadow-black/50' : 'py-6 bg-transparent'}`}>
-        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-          <div className="cursor-pointer flex items-center z-50" onClick={() => window.scrollTo(0, 0)}>
-            <img src="/FrosterGym/logo.png" alt="Froaster Gym" className="h-12 w-12 md:h-14 md:w-14 rounded-full bg-white object-contain p-1.5 shadow-lg" />
+      <nav className={`fixed w-full z-50 transition-all duration-500 ease-out ${scrolled ? 'py-4 bg-[#0a0a0b]/85 backdrop-blur-md border-b border-white/5' : 'py-8 bg-transparent'}`}>
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex justify-between items-center">
+          
+          {/* Brand Logo & Name */}
+          <div className="cursor-pointer flex items-center gap-4 z-50 group" onClick={() => window.scrollTo(0, 0)}>
+            <img src="/FrosterGym/logo.png" alt="Froaster Gym" className="h-10 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="hidden sm:flex flex-col justify-center">
+              <span className="font-display font-bold text-xl tracking-[0.15em] leading-none text-text-primary uppercase">Froaster</span>
+              <span className="text-[0.65rem] tracking-[0.3em] text-primary-500 uppercase mt-1 opacity-80 font-medium">Athletic Club</span>
+            </div>
           </div>
           
-          <div className="hidden md:flex items-center gap-8 text-sm uppercase tracking-widest font-medium text-text-muted">
-            <button onClick={() => scrollToSection('about')} className="hover:text-primary-500 transition-colors">About</button>
-            <button onClick={() => scrollToSection('memberships')} className="hover:text-primary-500 transition-colors">Memberships</button>
-            <button onClick={() => scrollToSection('trainers')} className="hover:text-primary-500 transition-colors">Trainers</button>
-            <button onClick={() => scrollToSection('gallery')} className="hover:text-primary-500 transition-colors">Gallery</button>
-            <button onClick={() => scrollToSection('contact')} className="hover:text-primary-500 transition-colors">Contact</button>
-            
-            <Link to="/login" className="text-primary-500 border border-primary-500/30 px-6 py-2.5 hover:bg-primary-500 hover:text-background transition-all ml-4 font-bold">
-              Member Login
-            </Link>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-10 text-[0.8rem] uppercase tracking-[0.15em] font-medium text-[#9c9c9a]">
+            {['About', 'Memberships', 'Trainers', 'Gallery', 'Contact'].map((item) => (
+              <button 
+                key={item}
+                onClick={() => scrollToSection(item.toLowerCase())} 
+                className="relative group hover:text-[#d9a952] transition-colors duration-300 py-2"
+              >
+                {item}
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-[#d9a952] group-hover:w-full transition-all duration-300 ease-out opacity-0 group-hover:opacity-100"></span>
+              </button>
+            ))}
           </div>
           
-          <button className="md:hidden text-text-primary z-50" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {/* Mobile Menu Toggle */}
+          <button className="md:hidden text-text-primary z-50 p-2 -mr-2" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+            {isMenuOpen ? <X className="w-7 h-7 font-light" strokeWidth={1.5} /> : <Menu className="w-7 h-7 font-light" strokeWidth={1.5} />}
           </button>
         </div>
       </nav>
 
       {/* Mobile Menu */}
-      <div className={`fixed inset-0 bg-background/95 backdrop-blur-xl z-40 transition-all duration-500 flex flex-col items-center justify-center gap-8 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <button onClick={() => scrollToSection('about')} className="text-2xl font-display uppercase tracking-widest text-text-primary hover:text-primary-500 transition-colors">About</button>
-        <button onClick={() => scrollToSection('memberships')} className="text-2xl font-display uppercase tracking-widest text-text-primary hover:text-primary-500 transition-colors">Memberships</button>
-        <button onClick={() => scrollToSection('trainers')} className="text-2xl font-display uppercase tracking-widest text-text-primary hover:text-primary-500 transition-colors">Trainers</button>
-        <button onClick={() => scrollToSection('gallery')} className="text-2xl font-display uppercase tracking-widest text-text-primary hover:text-primary-500 transition-colors">Gallery</button>
-        <button onClick={() => scrollToSection('contact')} className="text-2xl font-display uppercase tracking-widest text-text-primary hover:text-primary-500 transition-colors">Contact</button>
-        <Link to="/login" className="text-xl font-display uppercase tracking-widest text-primary-500 mt-4">Member Login</Link>
+      <div className={`fixed inset-0 bg-[#0a0a0b] z-40 transition-all duration-500 ease-in-out flex flex-col justify-center px-12 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        <div className={`flex flex-col gap-8 transition-all duration-700 delay-100 ${isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
+          {['About', 'Memberships', 'Trainers', 'Gallery', 'Contact'].map((item) => (
+            <button 
+              key={item}
+              onClick={() => scrollToSection(item.toLowerCase())} 
+              className="text-4xl font-display uppercase tracking-[0.1em] text-text-primary hover:text-primary-500 transition-colors text-left flex items-center gap-6 group"
+            >
+              <span className="w-8 h-[1px] bg-primary-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+              {item}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 2. Hero Section */}
@@ -124,10 +139,10 @@ export function PublicWebsite() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
-              <button onClick={() => scrollToSection('memberships')} className="bg-primary-500 text-background px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-primary-400 transition-colors flex items-center justify-center gap-2">
+              <button onClick={() => scrollToSection('memberships')} className="bg-primary-500 text-background rounded-full px-8 py-4 font-bold uppercase tracking-widest text-sm hover:bg-primary-400 transition-colors flex items-center justify-center gap-2">
                 Explore Memberships <ArrowRight className="w-4 h-4" />
               </button>
-              <button onClick={() => scrollToSection('contact')} className="border border-surface-highlight hover:border-text-muted text-text-primary px-8 py-4 font-medium uppercase tracking-widest text-sm transition-colors flex items-center justify-center">
+              <button onClick={() => scrollToSection('contact')} className="border border-surface-highlight hover:border-primary-500 rounded-full text-text-primary px-8 py-4 font-medium uppercase tracking-widest text-sm transition-colors flex items-center justify-center">
                 Visit Froaster
               </button>
             </div>
