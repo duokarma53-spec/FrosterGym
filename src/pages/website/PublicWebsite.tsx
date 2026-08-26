@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, ArrowRight, MapPin, Phone, ArrowUpRight, MessageCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Menu, X, ArrowRight, ArrowLeft, MapPin, Phone, MessageCircle } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
 const PRICING_PLANS = [
@@ -31,7 +30,7 @@ export function PublicWebsite() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [withPT, setWithPT] = useState(false);
+  const [activePlan, setActivePlan] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -81,7 +80,7 @@ export function PublicWebsite() {
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-10 text-[0.8rem] uppercase tracking-[0.15em] font-medium text-[#9c9c9a]">
-            {['About', 'Memberships', 'Trainers', 'Gallery', 'Contact'].map((item) => (
+            {['About', 'Memberships', 'Gallery', 'Contact'].map((item) => (
               <button 
                 key={item}
                 onClick={() => scrollToSection(item.toLowerCase())} 
@@ -103,7 +102,7 @@ export function PublicWebsite() {
       {/* Mobile Menu */}
       <div className={`fixed inset-0 bg-[#0a0a0b] z-40 transition-all duration-500 ease-in-out flex flex-col justify-center px-12 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         <div className={`flex flex-col gap-8 transition-all duration-700 delay-100 ${isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
-          {['About', 'Memberships', 'Trainers', 'Gallery', 'Contact'].map((item) => (
+          {['About', 'Memberships', 'Gallery', 'Contact'].map((item) => (
             <button 
               key={item}
               onClick={() => scrollToSection(item.toLowerCase())} 
@@ -119,7 +118,7 @@ export function PublicWebsite() {
       {/* 2. Hero Section */}
       <section className="relative min-h-[100svh] flex items-center bg-background overflow-hidden pt-20">
         <div className="absolute inset-0 z-0">
-          <img src="/FrosterGym/hero-new-bg-2.jpg" alt="Premium Gym Environment" className="w-full h-full object-cover opacity-[0.35] grayscale" />
+          <img src="/FrosterGym/hero-new-bg-2.jpg" alt="Premium Gym Environment" className="w-full h-full object-cover opacity-[0.35]" />
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
         </div>
@@ -168,7 +167,7 @@ export function PublicWebsite() {
           </div>
           
           <div className="relative reveal opacity-0 translate-y-8 transition-all duration-1000 delay-[200ms]">
-            <img src="/FrosterGym/gallery1.jpg" alt="Gym Equipment" className="w-full h-auto grayscale hover:grayscale-0 transition-all duration-700 border border-surface-highlight shadow-2xl" />
+            <img src="/FrosterGym/gallery1.jpg" alt="Gym Equipment" className="w-full h-auto transition-all duration-700 border border-surface-highlight shadow-2xl" />
             <div className="absolute -bottom-6 -left-6 md:-bottom-8 md:-left-8 bg-background p-6 md:p-8 border border-surface-highlight max-w-xs shadow-xl">
               <div className="text-3xl md:text-4xl font-display font-bold text-primary-500 mb-2">100%</div>
               <div className="text-xs md:text-sm uppercase tracking-widest text-text-muted">Dedicated to your transformation</div>
@@ -182,81 +181,51 @@ export function PublicWebsite() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16 reveal opacity-0 translate-y-8 transition-all duration-1000">
             <h2 className="text-5xl md:text-6xl font-display font-bold uppercase text-text-primary mb-6">Membership Plans</h2>
-            
-            <div className="inline-flex bg-surface p-1 border border-surface-highlight shadow-lg">
-              <button onClick={() => setWithPT(false)} className={`px-6 md:px-8 py-3 text-xs md:text-sm font-bold uppercase tracking-widest transition-colors ${!withPT ? 'bg-primary-500 text-background' : 'text-text-muted hover:text-text-primary'}`}>Standard Access</button>
-              <button onClick={() => setWithPT(true)} className={`px-6 md:px-8 py-3 text-xs md:text-sm font-bold uppercase tracking-widest transition-colors ${withPT ? 'bg-primary-500 text-background' : 'text-text-muted hover:text-text-primary'}`}>With Training</button>
-            </div>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {PRICING_PLANS.map((plan, idx) => (
-              <div key={idx} className={`relative bg-surface border flex flex-col ${plan.name === 'Premium' ? 'border-primary-500/40 md:scale-105 z-10 shadow-[0_0_30px_rgba(201,151,62,0.05)]' : 'border-surface-highlight'} p-8 reveal opacity-0 translate-y-8 transition-all duration-1000`} style={{ transitionDelay: `${idx * 150}ms` }}>
-                {plan.name === 'Premium' && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary-500 text-background text-xs font-bold uppercase tracking-widest px-4 py-1">Recommended</div>
-                )}
-                
-                <div className="h-48 -mx-8 -mt-8 mb-8 overflow-hidden bg-black border-b border-surface-highlight">
-                  <img src={plan.img} alt={plan.name} className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 hover:scale-105 transition-all duration-700" />
-                </div>
-                
-                <h3 className="font-display text-3xl font-bold uppercase text-text-primary mb-2">{plan.name}</h3>
-                <div className="flex items-baseline gap-2 mb-8">
-                  <span className="text-4xl font-bold text-primary-500">{withPT ? plan.pricePT : plan.price}</span>
-                  <span className="text-text-muted text-sm uppercase tracking-widest">/mo</span>
-                </div>
-                
-                <ul className="space-y-4 mb-8 flex-1">
-                  {plan.features.map((feat, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-text-muted">
-                      <ArrowRight className="w-4 h-4 text-primary-500 shrink-0 mt-0.5" />
-                      {feat}
-                    </li>
-                  ))}
-                </ul>
-                
-                <a href={`https://wa.me/919409478823?text=Hi, I'm interested in the ${plan.name} plan (${withPT ? 'With Training' : 'Standard Access'}).`} target="_blank" rel="noreferrer" className={`block text-center py-4 text-sm font-bold uppercase tracking-widest transition-colors ${plan.name === 'Premium' ? 'bg-primary-500 text-background hover:bg-primary-400' : 'bg-surface-highlight text-text-primary hover:bg-white hover:text-black'}`}>
-                  Join Now
-                </a>
+          <div className="max-w-[320px] sm:max-w-md mx-auto relative reveal opacity-0 translate-y-8 transition-all duration-1000">
+            <div className="relative overflow-hidden rounded-xl shadow-2xl">
+              <div 
+                className="flex transition-transform duration-500 ease-in-out" 
+                style={{ transform: `translateX(-${activePlan * 100}%)` }}
+              >
+                {PRICING_PLANS.map((plan, idx) => (
+                  <div key={idx} className="w-full shrink-0 flex items-center justify-center">
+                    <img src={plan.img} alt={plan.name} className="w-full h-auto object-contain rounded-xl" />
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
+            
+            <button 
+              onClick={() => setActivePlan(p => Math.max(0, p - 1))}
+              disabled={activePlan === 0}
+              className="absolute top-1/2 -left-6 sm:-left-16 -translate-y-1/2 p-2 sm:p-3 bg-surface border border-surface-highlight text-primary-500 rounded-full hover:bg-surface-highlight transition-colors disabled:opacity-30 z-10"
+            >
+              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+            <button 
+              onClick={() => setActivePlan(p => Math.min(PRICING_PLANS.length - 1, p + 1))}
+              disabled={activePlan === PRICING_PLANS.length - 1}
+              className="absolute top-1/2 -right-6 sm:-right-16 -translate-y-1/2 p-2 sm:p-3 bg-surface border border-surface-highlight text-primary-500 rounded-full hover:bg-surface-highlight transition-colors disabled:opacity-30 z-10"
+            >
+              <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+            
+            <div className="flex justify-center gap-2 mt-8">
+              {PRICING_PLANS.map((_, idx) => (
+                <button 
+                  key={idx} 
+                  onClick={() => setActivePlan(idx)}
+                  className={`w-2 h-2 rounded-full transition-all ${idx === activePlan ? 'bg-primary-500 w-6' : 'bg-surface-highlight hover:bg-surface-highlight/80'}`}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 5. Trainers */}
-      <section id="trainers" className="py-32 bg-surface">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-16 reveal opacity-0 translate-y-8 transition-all duration-1000">
-            <div>
-              <h2 className="text-5xl md:text-6xl font-display font-bold uppercase text-text-primary">Expert Guidance</h2>
-            </div>
-            <p className="max-w-md text-text-muted mt-6 md:mt-0 leading-relaxed font-light">
-              Our trainers are certified professionals dedicated to fixing your mechanics and ensuring you hit your targets safely.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="group relative overflow-hidden border border-surface-highlight reveal opacity-0 translate-y-8 transition-all duration-1000">
-              <img src="/FrosterGym/gallery2.jpg" alt="Alex Sharma" className="w-full aspect-[3/4] object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-8 w-full">
-                <p className="text-primary-500 text-xs font-bold uppercase tracking-widest mb-2">Head Coach • ACE Certified</p>
-                <h3 className="text-3xl font-display font-bold uppercase text-text-primary">Alex Sharma</h3>
-              </div>
-            </div>
-            
-            <div className="group relative overflow-hidden border border-surface-highlight reveal opacity-0 translate-y-8 transition-all duration-1000 delay-[150ms]">
-              <img src="/FrosterGym/gallery3.png" alt="Rahul Patel" className="w-full aspect-[3/4] object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 p-8 w-full">
-                <p className="text-primary-500 text-xs font-bold uppercase tracking-widest mb-2">Strength Specialist • ISSA Certified</p>
-                <h3 className="text-3xl font-display font-bold uppercase text-text-primary">Rahul Patel</h3>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+
 
       {/* 6. Gallery */}
       <section id="gallery" className="py-32 bg-background border-t border-surface-highlight overflow-hidden">
@@ -265,15 +234,19 @@ export function PublicWebsite() {
           <p className="text-text-muted uppercase tracking-[0.2em] text-sm">Train. Sweat. Transform.</p>
         </div>
         
-        <div className="flex gap-4 md:gap-6 px-6 overflow-x-auto pb-8 snap-x hide-scrollbar reveal opacity-0 translate-y-8 transition-all duration-1000 delay-[150ms]">
-          {[
-            'new_gallery_1.png', 'new_gallery_2.jpg', 'new_gallery_3.png', 
-            'new_gallery_4.png', 'new_gallery_5.png', 'new_gallery_6.png'
-          ].map((img, i) => (
-            <div key={i} className="min-w-[280px] md:min-w-[400px] h-[350px] md:h-[500px] snap-center shrink-0 border border-surface-highlight overflow-hidden group bg-surface">
-              <img src={`/FrosterGym/${img}`} alt={`Gallery Image ${i+1}`} className="w-full h-full object-cover grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700 group-hover:scale-105" loading="lazy" />
-            </div>
-          ))}
+        <div className="relative w-full overflow-hidden reveal opacity-0 translate-y-8 transition-all duration-1000 delay-[150ms]">
+          <div className="flex gap-4 md:gap-6 animate-marquee w-max hover:animation-pause">
+            {[
+              'new_gallery_1.png', 'new_gallery_2.jpg', 'new_gallery_3.png', 
+              'new_gallery_4.png', 'new_gallery_5.png', 'new_gallery_6.png',
+              'new_gallery_1.png', 'new_gallery_2.jpg', 'new_gallery_3.png', 
+              'new_gallery_4.png', 'new_gallery_5.png', 'new_gallery_6.png'
+            ].map((img, i) => (
+              <div key={i} className="w-[280px] md:w-[400px] h-[350px] md:h-[500px] shrink-0 border border-surface-highlight overflow-hidden group bg-surface">
+                <img src={`/FrosterGym/${img}`} alt={`Gallery Image ${i+1}`} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105" loading="lazy" />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -346,16 +319,6 @@ export function PublicWebsite() {
             </ul>
           </div>
           
-          <div>
-            <h4 className="text-text-primary font-bold uppercase tracking-widest mb-6">Members</h4>
-            <ul className="space-y-4 text-text-muted font-light">
-              <li>
-                <Link to="/login" className="flex items-center gap-2 hover:text-primary-500 transition-colors">
-                  Member Login <ArrowUpRight className="w-4 h-4" />
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
         
         <div className="max-w-7xl mx-auto px-6 pt-8 border-t border-surface-highlight text-text-muted flex flex-col md:flex-row justify-between items-center gap-4">
