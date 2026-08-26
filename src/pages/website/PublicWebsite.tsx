@@ -32,16 +32,28 @@ const GALLERY_ITEMS = [
   { id: '03', title: 'THE PEOPLE.', desc: 'BUILT ON\nDISCIPLINE', img: 'new_gallery_3.png' },
   { id: '04', title: 'THE RESULT.', desc: 'ENGINEERED FOR\nPERFORMANCE', img: 'new_gallery_4.png' },
   { id: '05', title: 'THE IRON.', desc: 'HEAVY WEIGHTS\nONLY', img: 'gallery2.jpg' },
-  { id: '06', title: 'THE FOCUS.', desc: 'PURE\nDEDICATION', img: 'new_gallery_6.png' }
+  { id: '06', title: 'THE FOCUS.', desc: 'PURE\nDEDICATION', img: 'new_gallery_6.png' },
+  { id: '07', title: 'THE ENERGY.', desc: 'ENDLESS\nDRIVE', img: 'new_gallery_5.png' },
+  { id: '08', title: 'THE GRIT.', desc: 'PUSH PAST\nLIMITS', img: 'new_gallery_7.jpg' },
+  { id: '09', title: 'THE POWER.', desc: 'UNSTOPPABLE\nFORCE', img: 'new_gallery_8.png' },
+  { id: '10', title: 'THE STAMINA.', desc: 'GO THE\nDISTANCE', img: 'new_gallery_9.png' },
+  { id: '11', title: 'THE ZONE.', desc: 'ZERO\nDISTRACTIONS', img: 'gallery1.jpg' },
+  { id: '12', title: 'THE PRIDE.', desc: 'EARN IT\nEVERYDAY', img: 'gallery3.png' }
 ];
 
 const BG_POSITIONS = [
   { x: -35, y: -15, z: -400, rY: 20, rX: 5, s: 0.8 },
-  { x: 35, y: 15, z: -500, rY: -25, rX: -5, s: 0.75 },
-  { x: -25, y: 35, z: -600, rY: 15, rX: -10, s: 0.7 },
-  { x: 30, y: -35, z: -700, rY: -15, rX: 10, s: 0.85 },
-  { x: -10, y: 40, z: -800, rY: 10, rX: -15, s: 0.65 },
-  { x: 10, y: -45, z: -900, rY: -10, rX: 15, s: 0.6 },
+  { x: 35, y: 15, z: -450, rY: -25, rX: -5, s: 0.75 },
+  { x: -25, y: 35, z: -500, rY: 15, rX: -10, s: 0.7 },
+  { x: 30, y: -35, z: -550, rY: -15, rX: 10, s: 0.85 },
+  { x: -10, y: 40, z: -600, rY: 10, rX: -15, s: 0.65 },
+  { x: 10, y: -45, z: -650, rY: -10, rX: 15, s: 0.6 },
+  { x: -45, y: -5, z: -700, rY: 25, rX: 8, s: 0.7 },
+  { x: 45, y: -10, z: -750, rY: -20, rX: -12, s: 0.65 },
+  { x: -20, y: -40, z: -800, rY: 12, rX: 15, s: 0.6 },
+  { x: 25, y: 35, z: -850, rY: -18, rX: -8, s: 0.55 },
+  { x: -5, y: 45, z: -900, rY: 5, rX: -20, s: 0.5 },
+  { x: 5, y: -50, z: -950, rY: -5, rX: 20, s: 0.5 },
 ];
 
 const Gallery3D = () => {
@@ -102,7 +114,7 @@ const Gallery3D = () => {
       
       {/* Image Metadata Overlay */}
       <div className="absolute bottom-12 left-6 md:bottom-16 md:left-12 z-40 pointer-events-none flex flex-col gap-1">
-        <span className="text-[#d9a952] text-[0.65rem] md:text-xs font-bold tracking-[0.2em]">{GALLERY_ITEMS[activeIdx].id} / 06</span>
+        <span className="text-[#d9a952] text-[0.65rem] md:text-xs font-bold tracking-[0.2em]">{GALLERY_ITEMS[activeIdx].id} / {GALLERY_ITEMS.length}</span>
         <h3 className="text-white text-xl md:text-3xl font-display font-bold uppercase tracking-widest">{GALLERY_ITEMS[activeIdx].title.replace('.', '')}</h3>
         <p className="text-white/50 text-[0.65rem] md:text-xs font-medium uppercase tracking-[0.3em] mt-1">{GALLERY_ITEMS[activeIdx].desc.split('\n')[0]}</p>
       </div>
