@@ -54,6 +54,20 @@ const GALLERY_ITEMS = [
     img: 'new_gallery_5.png',
     label: 'THE INTENSITY',
     desc: 'Zero distractions. Complete commitment.'
+  },
+  {
+    title: 'THE GRIND.',
+    id: '05',
+    img: 'new_gallery_6.png',
+    label: 'THE DEDICATION',
+    desc: 'Pushing past limits every single day.'
+  },
+  {
+    title: 'THE STRENGTH.',
+    id: '06',
+    img: 'new_gallery_8.png',
+    label: 'THE POWER',
+    desc: 'Building resilience from the ground up.'
   }
 ];
 
@@ -62,6 +76,7 @@ export function PublicWebsite() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activePlan, setActivePlan] = useState(1);
+  const [activeGallery, setActiveGallery] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -291,50 +306,62 @@ export function PublicWebsite() {
           </div>
 
           <div className="relative w-full h-[500px] md:h-[600px] flex items-center justify-center reveal opacity-0 translate-y-12 transition-all duration-1000 perspective-[1200px]">
-            {[GALLERY_ITEMS[0], GALLERY_ITEMS[1], GALLERY_ITEMS[2]].map((item, idx) => {
-              let rotation = 0;
-              let translationY = 0;
-              let translationX = 0;
+            {/* Left Arrow */}
+            <button 
+              onClick={() => setActiveGallery((activeGallery - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length)}
+              className="absolute left-2 md:left-8 z-50 p-3 rounded-full bg-background/80 backdrop-blur-md border border-white/10 text-white hover:bg-primary-500 hover:text-background transition-colors shadow-xl"
+            >
+              <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+            </button>
+
+            {GALLERY_ITEMS.map((item, idx) => {
+              const isActive = activeGallery === idx;
+              const isLeft = (activeGallery - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length === idx;
+              const isRight = (activeGallery + 1) % GALLERY_ITEMS.length === idx;
+
+              let positionClass = '';
               let zIndex = 20;
 
-              if (idx === 0) {
-                rotation = -12;
-                translationY = 60;
-                translationX = -105;
-                zIndex = 10;
-              } else if (idx === 1) {
-                rotation = 0;
-                translationY = -20;
-                translationX = 0;
+              if (isActive) {
+                positionClass = 'translate-x-0 -translate-y-4 md:-translate-y-8 rotate-0 scale-100 opacity-100 shadow-[0_30px_60px_rgba(0,0,0,0.8)] ring-1 ring-white/20';
                 zIndex = 30;
-              } else if (idx === 2) {
-                rotation = 12;
-                translationY = 60;
-                translationX = 105;
+              } else if (isLeft) {
+                positionClass = '-translate-x-[55%] md:-translate-x-[105%] translate-y-8 md:translate-y-16 -rotate-6 md:-rotate-12 scale-[0.85] md:scale-95 opacity-60 hover:opacity-100 cursor-pointer shadow-[0_20px_40px_rgba(0,0,0,0.6)] ring-1 ring-white/10';
+                zIndex = 20;
+              } else if (isRight) {
+                positionClass = 'translate-x-[55%] md:translate-x-[105%] translate-y-8 md:translate-y-16 rotate-6 md:rotate-12 scale-[0.85] md:scale-95 opacity-60 hover:opacity-100 cursor-pointer shadow-[0_20px_40px_rgba(0,0,0,0.6)] ring-1 ring-white/10';
+                zIndex = 20;
+              } else {
+                positionClass = 'translate-x-0 translate-y-20 scale-75 opacity-0 pointer-events-none';
                 zIndex = 10;
               }
 
               return (
                 <div 
                   key={idx}
-                  className="absolute w-[75%] sm:w-[350px] md:w-[320px] lg:w-[400px] aspect-[3/4] rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.8)] transition-all duration-700 hover:-translate-y-6 hover:shadow-[0_40px_80px_rgba(0,0,0,0.9)] hover:z-40 overflow-hidden ring-1 ring-white/10"
-                  style={{
-                    transform: `translateX(${translationX}%) translateY(${translationY}px) rotate(${rotation}deg)`,
-                    zIndex: zIndex
-                  }}
+                  onClick={() => !isActive && setActiveGallery(idx)}
+                  className={`absolute w-[70%] sm:w-[350px] md:w-[320px] lg:w-[400px] aspect-[3/4] rounded-[2rem] transition-all duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] overflow-hidden bg-surface ${positionClass}`}
+                  style={{ zIndex }}
                 >
-                  <img src={`/FrosterGym/${item.img}`} alt={item.title} className="w-full h-full object-cover transition-transform duration-1000 hover:scale-110" />
+                  <img src={`/FrosterGym/${item.img}`} alt={item.title} className="w-full h-full object-cover" />
                   
-                  {/* Subtle gradient overlay to make it look premium */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-60"></div>
+                  <div className={`absolute inset-0 bg-gradient-to-t from-background/90 via-background/20 to-transparent transition-opacity duration-500 ${isActive ? 'opacity-80' : 'opacity-100'}`}></div>
                   
-                  <div className="absolute bottom-8 left-8 right-8">
-                    <p className="text-primary-500 text-[10px] font-bold uppercase tracking-[0.2em] mb-2">{item.label}</p>
-                    <h3 className="text-3xl font-display font-black uppercase text-text-primary tracking-tight leading-none">{item.title}</h3>
+                  <div className={`absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8 transition-all duration-500 ${isActive ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0 md:opacity-100'}`}>
+                    <p className="text-primary-500 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] mb-1 md:mb-2">{item.label}</p>
+                    <h3 className="text-2xl md:text-3xl font-display font-black uppercase text-text-primary tracking-tight leading-none">{item.title}</h3>
                   </div>
                 </div>
               );
             })}
+
+            {/* Right Arrow */}
+            <button 
+              onClick={() => setActiveGallery((activeGallery + 1) % GALLERY_ITEMS.length)}
+              className="absolute right-2 md:right-8 z-50 p-3 rounded-full bg-background/80 backdrop-blur-md border border-white/10 text-white hover:bg-primary-500 hover:text-background transition-colors shadow-xl"
+            >
+              <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+            </button>
           </div>
         </div>
       </section>
