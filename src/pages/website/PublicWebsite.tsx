@@ -247,7 +247,7 @@ export function PublicWebsite() {
                 <div 
                   key={idx}
                   onClick={() => setActivePlan(idx)}
-                  className={`absolute w-[90%] sm:w-[80%] md:w-[70%] max-w-[850px] transition-all duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] rounded-2xl md:rounded-[2rem] overflow-hidden bg-background ${positionClass}`}
+                  className={`absolute w-[80%] sm:w-[60%] md:w-[45%] max-w-[400px] transition-all duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] rounded-2xl md:rounded-[2rem] overflow-hidden bg-background ${positionClass}`}
                   style={{ zIndex, transformStyle: 'preserve-3d' }}
                 >
                   <img src={plan.img} alt={plan.name} className="w-full h-auto object-cover" />
