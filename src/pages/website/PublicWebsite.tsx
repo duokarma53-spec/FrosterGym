@@ -189,44 +189,64 @@ export function PublicWebsite() {
             <h2 className="text-5xl md:text-6xl font-display font-bold uppercase text-text-primary mb-6">Membership Plans</h2>
           </div>
           
-          <div className="max-w-[320px] sm:max-w-md mx-auto relative reveal opacity-0 translate-y-8 transition-all duration-1000">
-            <div className="relative overflow-hidden rounded-xl shadow-2xl">
-              <div 
-                className="flex transition-transform duration-500 ease-in-out" 
-                style={{ transform: `translateX(-${activePlan * 100}%)` }}
-              >
-                {PRICING_PLANS.map((plan, idx) => (
-                  <div key={idx} className="w-full shrink-0 flex items-center justify-center">
-                    <img src={plan.img} alt={plan.name} className="w-full h-auto object-contain rounded-xl" />
-                  </div>
-                ))}
-              </div>
-            </div>
+          <div className="w-full max-w-5xl mx-auto relative reveal opacity-0 translate-y-8 transition-all duration-1000 h-[400px] sm:h-[600px] flex items-center justify-center">
+            {PRICING_PLANS.map((plan, idx) => {
+              const isActive = idx === activePlan;
+              const isPrev = idx === (activePlan - 1 + PRICING_PLANS.length) % PRICING_PLANS.length;
+              const isNext = idx === (activePlan + 1) % PRICING_PLANS.length;
+              
+              let styles = "opacity-0 scale-75 z-0 pointer-events-none"; 
+              let blur = "blur-md";
+              let translateX = "translate-x-0";
+              
+              if (isActive) {
+                styles = "opacity-100 scale-100 z-30 shadow-[0_30px_60px_rgba(0,0,0,0.6)]";
+                blur = "blur-none";
+                translateX = "translate-x-0";
+              } else if (isPrev) {
+                styles = "opacity-40 scale-[0.85] z-10 cursor-pointer pointer-events-auto shadow-2xl";
+                blur = "blur-[4px]";
+                translateX = "-translate-x-[60%] sm:-translate-x-[75%]";
+              } else if (isNext) {
+                styles = "opacity-40 scale-[0.85] z-10 cursor-pointer pointer-events-auto shadow-2xl";
+                blur = "blur-[4px]";
+                translateX = "translate-x-[60%] sm:translate-x-[75%]";
+              }
+
+              return (
+                <div 
+                  key={idx} 
+                  className={`absolute top-1/2 -translate-y-1/2 w-[260px] sm:w-[400px] transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] ${styles} ${blur} ${translateX}`}
+                  onClick={() => !isActive && setActivePlan(idx)}
+                >
+                  <img src={plan.img} alt={plan.name} className="w-full h-auto object-contain rounded-xl" />
+                  {!isActive && <div className="absolute inset-0 bg-black/20 rounded-xl"></div>}
+                </div>
+              );
+            })}
             
             <button 
-              onClick={() => setActivePlan(p => Math.max(0, p - 1))}
-              disabled={activePlan === 0}
-              className="absolute top-1/2 -left-6 sm:-left-16 -translate-y-1/2 p-2 sm:p-3 bg-surface border border-surface-highlight text-primary-500 rounded-full hover:bg-surface-highlight transition-colors disabled:opacity-30 z-10"
+              onClick={() => setActivePlan(p => (p - 1 + PRICING_PLANS.length) % PRICING_PLANS.length)}
+              className="absolute top-1/2 left-2 sm:left-12 -translate-y-1/2 p-3 sm:p-4 bg-black/50 backdrop-blur-md border border-white/10 text-primary-500 rounded-full hover:bg-black/80 hover:scale-110 transition-all z-40"
             >
               <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
             <button 
-              onClick={() => setActivePlan(p => Math.min(PRICING_PLANS.length - 1, p + 1))}
-              disabled={activePlan === PRICING_PLANS.length - 1}
-              className="absolute top-1/2 -right-6 sm:-right-16 -translate-y-1/2 p-2 sm:p-3 bg-surface border border-surface-highlight text-primary-500 rounded-full hover:bg-surface-highlight transition-colors disabled:opacity-30 z-10"
+              onClick={() => setActivePlan(p => (p + 1) % PRICING_PLANS.length)}
+              className="absolute top-1/2 right-2 sm:right-12 -translate-y-1/2 p-3 sm:p-4 bg-black/50 backdrop-blur-md border border-white/10 text-primary-500 rounded-full hover:bg-black/80 hover:scale-110 transition-all z-40"
             >
               <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
-            
-            <div className="flex justify-center gap-2 mt-8">
-              {PRICING_PLANS.map((_, idx) => (
-                <button 
-                  key={idx} 
-                  onClick={() => setActivePlan(idx)}
-                  className={`w-2 h-2 rounded-full transition-all ${idx === activePlan ? 'bg-primary-500 w-6' : 'bg-surface-highlight hover:bg-surface-highlight/80'}`}
-                />
-              ))}
-            </div>
+          </div>
+          
+          <div className="flex justify-center gap-2 mt-4 sm:mt-8">
+            {PRICING_PLANS.map((_, idx) => (
+              <button 
+                key={idx} 
+                onClick={() => setActivePlan(idx)}
+                className={`w-2 h-2 rounded-full transition-all ${idx === activePlan ? 'bg-primary-500 w-8' : 'bg-surface-highlight hover:bg-surface-highlight/80'}`}
+              />
+            ))}
           </div>
         </div>
       </section>
@@ -309,16 +329,11 @@ export function PublicWebsite() {
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
           
           {/* SECTION 1 & 2 — Massive Statement & Brand Element */}
-          <div className="grid lg:grid-cols-12 gap-12 items-center mb-24 md:mb-32">
-            <div className="lg:col-span-9">
-              <h2 className="text-[3.5rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] font-display font-black uppercase leading-[0.9] tracking-tight text-white/90">
-                Show Up.<br/>
-                <span className="text-[#d9a952]">Put in the Work.</span>
-              </h2>
-            </div>
-            <div className="lg:col-span-3 hidden lg:flex justify-end opacity-10 select-none pointer-events-none">
-               <span className="text-[15rem] font-display font-black leading-none text-white">F</span>
-            </div>
+          <div className="mb-24 md:mb-32">
+            <h2 className="text-[3.5rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[8rem] font-display font-black uppercase leading-[0.9] tracking-tight text-white/90">
+              Show Up.<br/>
+              <span className="text-[#d9a952]">Put in the Work.</span>
+            </h2>
           </div>
 
           {/* SECTION 3 — Horizontal Editorial Navigation */}
