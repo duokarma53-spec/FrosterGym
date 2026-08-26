@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Menu, X, ArrowRight, ArrowLeft } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
@@ -35,136 +35,136 @@ const GALLERY_ITEMS = [
   { id: '06', title: 'THE RESULT', desc: 'Engineered for\nperformance.', img: 'new_gallery_6.png' }
 ];
 
-const Gallery3D = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollYProgress, setScrollYProgress] = useState(0);
+const CurvedGallery = () => {
+  const [activeIndex, setActiveIndex] = useState(2);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    let ticking = false;
-    
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (!containerRef.current) return;
-          const rect = containerRef.current.getBoundingClientRect();
-          const windowHeight = window.innerHeight;
-          
-          const totalScrollable = rect.height - windowHeight;
-          const scrolled = -rect.top;
-          
-          const rawProgress = scrolled / totalScrollable;
-          const clamped = Math.min(Math.max(rawProgress, 0), 1);
-          
-          setScrollYProgress(clamped);
-          ticking = false;
-        });
-        ticking = true;
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
-    handleScroll();
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const step = 1 / (GALLERY_ITEMS.length - 1);
-  
-  const activeIdx = Math.min(
-    Math.max(Math.round(scrollYProgress * (GALLERY_ITEMS.length - 1)), 0),
-    GALLERY_ITEMS.length - 1
-  );
+  const handleNext = () => setActiveIndex(prev => Math.min(prev + 1, GALLERY_ITEMS.length - 1));
+  const handlePrev = () => setActiveIndex(prev => Math.max(prev - 1, 0));
+
+  // Swipe support for mobile
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.targetTouches[0].clientX);
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart === null) return;
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStart - touchEnd;
+    if (diff > 50) handleNext();
+    if (diff < -50) handlePrev();
+    setTouchStart(null);
+  };
 
   return (
     <section 
       id="gallery"
-      ref={containerRef}
-      className="relative w-full bg-[#050505] border-t border-white/5"
-      style={{ height: `${GALLERY_ITEMS.length * 120}vh` }}
+      className="relative w-full min-h-[100svh] bg-[#050505] border-t border-white/5 flex flex-col items-center justify-center overflow-hidden py-24"
     >
-      <div className="sticky top-0 h-[100svh] w-full overflow-hidden flex items-center justify-center max-w-[1400px] mx-auto px-6 md:px-12">
-        
-        {/* Subtle Background Lighting */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[600px] bg-white/[0.015] rounded-full blur-[150px] pointer-events-none"></div>
-        
-        {/* 3D Image Tunnel (Full Viewport) */}
-        <div className="w-full h-full max-h-[75vh] md:max-h-[85vh] relative perspective-[1500px] z-10 flex items-center justify-center">
-          {GALLERY_ITEMS.map((item, idx) => {
-            const itemCenter = idx * step;
-            const normDist = (scrollYProgress - itemCenter) / step;
-            
-            let z = 0;
-            let opacity = 0;
-            let rotateY = 0;
-            let rotateX = 0;
-            let blur = 0;
-            let scale = 1;
-            
-            if (normDist <= 0) {
-              z = normDist * 1000;
-              opacity = 1 - Math.abs(normDist) * 0.4;
-              rotateY = normDist * 10;
-              rotateX = normDist * -5;
-              blur = Math.abs(normDist) * 4;
-              scale = 1;
-            } else {
-              z = normDist * 600;
-              opacity = 1 - normDist * 2.5;
-              rotateY = normDist * 5;
-              rotateX = normDist * 2;
-              blur = normDist * 15;
-              scale = 1 + normDist * 0.2;
-            }
+      {/* Subtle Background Lighting */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[600px] bg-[#d9a952]/[0.03] rounded-full blur-[150px] pointer-events-none"></div>
 
-            if (opacity < 0.01) opacity = 0;
-            
-            const zIndex = 50 - Math.round(Math.abs(normDist) * 10);
-
-            return (
-              <div 
-                key={`img-${item.id}`}
-                className="absolute inset-0 flex items-center md:justify-end justify-center pointer-events-none origin-center will-change-transform"
-                style={{
-                  transformStyle: 'preserve-3d',
-                  transform: `translateZ(${z}px) rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(${scale})`,
-                  opacity,
-                  filter: blur > 0 ? `blur(${blur}px)` : 'none',
-                  zIndex,
-                  visibility: opacity > 0 ? 'visible' : 'hidden'
-                }}
-              >
-                <div className="relative w-[92vw] sm:w-[85vw] md:w-full max-w-[420px] lg:max-w-[500px] xl:max-w-[550px] aspect-[4/5] rounded-sm md:rounded-lg shadow-[0_30px_60px_rgba(0,0,0,0.8)] border border-white/5 overflow-hidden">
-                  <img 
-                    src={`/FrosterGym/${item.img}`} 
-                    alt={item.title}
-                    className="w-full h-full object-cover object-center"
-                    loading={idx <= 1 ? "eager" : "lazy"}
-                  />
-                  <div 
-                    className="absolute inset-0 bg-black pointer-events-none transition-opacity duration-300"
-                    style={{ opacity: Math.max(0, Math.abs(normDist) * 0.6) }}
-                  />
-                </div>
-              </div>
-            );
-          })}
+      <div className="text-center z-20 mb-12 md:mb-20">
+        <h2 className="text-[3.5rem] md:text-[5rem] font-display font-black uppercase leading-[0.9] text-white">
+          THE <span className="text-[#d9a952]">GALLERY</span>
+        </h2>
+      </div>
+      
+      <div 
+        className="relative w-full max-w-7xl h-[450px] md:h-[550px] flex items-center justify-center z-10 perspective-[2000px]"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        {GALLERY_ITEMS.map((item, i) => {
+          const offset = i - activeIndex;
           
-          {/* Subtle Counter Indicator */}
-          <div className="absolute -bottom-8 md:bottom-0 right-0 md:right-8 z-50 text-right mix-blend-difference pointer-events-none">
-            <p className="text-[#d9a952] text-[0.65rem] md:text-xs font-bold uppercase tracking-[0.3em]">
-              {String(activeIdx + 1).padStart(2, '0')} / {String(GALLERY_ITEMS.length).padStart(2, '0')}
-            </p>
-          </div>
-        </div>
+          const rotationAngle = isMobile ? 15 : 12; 
+          const rotate = offset * rotationAngle; 
+          const isActive = offset === 0;
+          const zIndex = 50 - Math.abs(offset);
+          
+          // Fade out cards that are too far
+          const opacity = Math.abs(offset) > (isMobile ? 1 : 2) ? 0 : 1 - (Math.abs(offset) * 0.15);
+          const scale = isActive ? 1 : 0.9 - (Math.abs(offset) * 0.05);
+          const translateY = Math.abs(offset) * (isMobile ? 10 : 20);
 
+          return (
+            <div
+              key={item.id}
+              className="absolute w-[280px] md:w-[360px] h-[400px] md:h-[500px] transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] cursor-pointer"
+              onClick={() => setActiveIndex(i)}
+              style={{
+                transformOrigin: '50% 150%',
+                transform: `rotate(${rotate}deg) translateY(${translateY}px) scale(${scale})`,
+                zIndex,
+                opacity,
+                pointerEvents: Math.abs(offset) > 2 ? 'none' : 'auto'
+              }}
+            >
+              <div className="w-full h-full bg-[#111111] rounded-3xl border border-white/10 overflow-hidden relative flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.8)] group">
+                {/* Image Section */}
+                <div className="h-[65%] w-full relative overflow-hidden">
+                   <img 
+                     src={`/FrosterGym/${item.img}`} 
+                     alt={item.title} 
+                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
+                   />
+                   <div className="absolute inset-0 bg-gradient-to-t from-[#111111] via-[#111111]/40 to-transparent"></div>
+                </div>
+                
+                {/* Text Section */}
+                <div className="h-[35%] w-full px-6 md:px-8 pb-8 flex flex-col justify-end relative z-10">
+                   <div className="absolute -top-6 right-6 w-12 h-12 rounded-xl bg-[#0a0a0b] border border-white/10 flex items-center justify-center shadow-lg">
+                     <span className="text-[#d9a952] font-display font-bold">{item.id}</span>
+                   </div>
+                   <h3 className="text-xl md:text-2xl text-white font-display font-bold uppercase tracking-wide mb-2">{item.title}</h3>
+                   <p className="text-[#9c9c9a] text-sm md:text-base font-light whitespace-pre-line leading-relaxed">{item.desc}</p>
+                </div>
+                
+                {/* Inactive Overlay */}
+                {!isActive && <div className="absolute inset-0 bg-black/60 transition-opacity duration-700 group-hover:bg-black/40"></div>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Navigation Controls */}
+      <div className="flex flex-col items-center gap-6 mt-12 md:mt-20 z-20">
+        <div className="flex gap-2 mb-4">
+          {GALLERY_ITEMS.map((_, i) => (
+            <div 
+              key={i} 
+              className={`h-1.5 rounded-full transition-all duration-500 ${i === activeIndex ? 'w-8 bg-[#d9a952]' : 'w-2 bg-white/20'}`}
+            />
+          ))}
+        </div>
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={handlePrev} 
+            disabled={activeIndex === 0}
+            className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/20 flex items-center justify-center text-white disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white/5 transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.5} />
+          </button>
+          <button 
+            onClick={handleNext} 
+            disabled={activeIndex === GALLERY_ITEMS.length - 1}
+            className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/20 flex items-center justify-center text-white disabled:opacity-20 disabled:cursor-not-allowed hover:bg-white/5 transition-colors"
+          >
+            <ArrowRight className="w-5 h-5 md:w-6 md:h-6" strokeWidth={1.5} />
+          </button>
+        </div>
       </div>
     </section>
   );
 };
+
 
 export function PublicWebsite() {
   const [isLoading, setIsLoading] = useState(true);
@@ -401,7 +401,7 @@ export function PublicWebsite() {
 
 
 
-      <Gallery3D />
+      <CurvedGallery />
 
       {/* 8. Cinematic Premium Footer */}
       <footer id="contact" className="relative bg-[#050505] pt-32 pb-8 overflow-hidden border-t border-white/5">
