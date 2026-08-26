@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Menu, X, ArrowRight, ArrowLeft } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
@@ -30,15 +30,144 @@ const GALLERY_ITEMS = [
   { id: '01', title: 'THE SPACE.', desc: 'FROASTER GYM\nDAHOD, GUJARAT', img: 'new_gallery_1.png' },
   { id: '02', title: 'THE WORK.', desc: 'NO EXCUSES\nJUST PROGRESS', img: 'new_gallery_2.jpg' },
   { id: '03', title: 'THE PEOPLE.', desc: 'BUILT ON\nDISCIPLINE', img: 'new_gallery_3.png' },
-  { id: '04', title: 'THE RESULT.', desc: 'ENGINEERED FOR\nPERFORMANCE', img: 'new_gallery_4.png' }
+  { id: '04', title: 'THE RESULT.', desc: 'ENGINEERED FOR\nPERFORMANCE', img: 'new_gallery_4.png' },
+  { id: '05', title: 'THE IRON.', desc: 'HEAVY WEIGHTS\nONLY', img: 'gallery2.jpg' },
+  { id: '06', title: 'THE FOCUS.', desc: 'PURE\nDEDICATION', img: 'new_gallery_6.png' }
 ];
+
+const BG_POSITIONS = [
+  { x: -35, y: -15, z: -400, rY: 20, rX: 5, s: 0.8 },
+  { x: 35, y: 15, z: -500, rY: -25, rX: -5, s: 0.75 },
+  { x: -25, y: 35, z: -600, rY: 15, rX: -10, s: 0.7 },
+  { x: 30, y: -35, z: -700, rY: -15, rX: 10, s: 0.85 },
+  { x: -10, y: 40, z: -800, rY: 10, rX: -15, s: 0.65 },
+  { x: 10, y: -45, z: -900, rY: -10, rX: 15, s: 0.6 },
+];
+
+const Gallery3D = () => {
+  const [activeIdx, setActiveIdx] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [smoothedMouse, setSmoothedMouse] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      const { innerWidth, innerHeight } = window;
+      const x = (e.clientX / innerWidth) * 2 - 1;
+      const y = (e.clientY / innerHeight) * 2 - 1;
+      setMousePos({ x, y });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  useEffect(() => {
+    let animationFrameId: number;
+    const renderLoop = () => {
+      setSmoothedMouse(prev => ({
+        x: prev.x + (mousePos.x - prev.x) * 0.05,
+        y: prev.y + (mousePos.y - prev.y) * 0.05
+      }));
+      animationFrameId = requestAnimationFrame(renderLoop);
+    };
+    renderLoop();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [mousePos]);
+
+  return (
+    <section 
+      id="gallery"
+      ref={containerRef}
+      className="relative w-full h-[100svh] min-h-[700px] md:min-h-[900px] bg-[#020202] overflow-hidden flex items-center justify-center border-t border-white/5"
+      style={{ perspective: '1200px' }}
+    >
+      {/* Huge Background Typography */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        <h1 className="text-[25vw] font-display font-black text-white/[0.015] select-none whitespace-nowrap">
+          FROASTER
+        </h1>
+      </div>
+
+      {/* Editorial Text Overlay */}
+      <div className="absolute top-12 left-6 md:top-16 md:left-12 z-40 pointer-events-none">
+        <p className="text-[#d9a952] text-[0.65rem] md:text-xs font-bold tracking-[0.3em] uppercase mb-4">
+          Froaster / The Experience
+        </p>
+        <h2 className="text-4xl md:text-6xl font-display font-black text-white uppercase leading-[0.9] tracking-tight">
+          Built<br/>To<br/>Move.
+        </h2>
+      </div>
+      
+      {/* Image Metadata Overlay */}
+      <div className="absolute bottom-12 left-6 md:bottom-16 md:left-12 z-40 pointer-events-none flex flex-col gap-1">
+        <span className="text-[#d9a952] text-[0.65rem] md:text-xs font-bold tracking-[0.2em]">{GALLERY_ITEMS[activeIdx].id} / 06</span>
+        <h3 className="text-white text-xl md:text-3xl font-display font-bold uppercase tracking-widest">{GALLERY_ITEMS[activeIdx].title.replace('.', '')}</h3>
+        <p className="text-white/50 text-[0.65rem] md:text-xs font-medium uppercase tracking-[0.3em] mt-1">{GALLERY_ITEMS[activeIdx].desc.split('\n')[0]}</p>
+      </div>
+
+      {/* 3D Scene Container */}
+      <div 
+        className="relative w-full h-full flex items-center justify-center z-10"
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: `rotateX(${smoothedMouse.y * -5}deg) rotateY(${smoothedMouse.x * 5}deg)`
+        }}
+      >
+        {GALLERY_ITEMS.map((item, idx) => {
+          const isActive = idx === activeIdx;
+          
+          let bgIdx = idx >= activeIdx ? idx - 1 : idx;
+          if (bgIdx < 0) bgIdx = 0;
+          const pos = isActive 
+            ? { x: 0, y: 0, z: 150, rY: 0, rX: 0, s: 1 }
+            : BG_POSITIONS[bgIdx % BG_POSITIONS.length];
+            
+          const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+          
+          const translateX = isMobile ? pos.x * 0.4 : pos.x;
+          const translateY = isMobile ? pos.y * 0.4 : pos.y;
+          
+          const transform = `translate3d(${translateX}vw, ${translateY}vh, ${pos.z}px) rotateX(${pos.rX}deg) rotateY(${pos.rY}deg) scale(${pos.s})`;
+
+          return (
+            <div
+              key={item.id}
+              onClick={() => setActiveIdx(idx)}
+              className={`absolute group cursor-pointer transition-all ease-[cubic-bezier(0.25,1,0.1,1)] origin-center`}
+              style={{
+                width: isMobile ? '65vw' : '400px',
+                aspectRatio: '3/4',
+                transform,
+                transitionDuration: isActive ? '1000ms' : '1500ms',
+                zIndex: isActive ? 30 : 10,
+                filter: isActive ? 'brightness(1.1) blur(0px)' : `brightness(0.3) blur(${Math.abs(pos.z) / 250}px)`,
+              }}
+            >
+              <div 
+                className={`absolute inset-0 bg-[#d9a952] rounded-sm transition-opacity duration-1000 blur-2xl ${isActive ? 'opacity-15' : 'opacity-0 group-hover:opacity-10'}`} 
+                style={{ transform: 'translateZ(-10px)' }}
+              />
+              
+              <img 
+                src={`/FrosterGym/${item.img}`}
+                alt={item.title}
+                className="w-full h-full object-cover rounded-sm shadow-[0_30px_60px_rgba(0,0,0,0.8)] border border-white/5 group-hover:border-[#d9a952]/30 transition-colors duration-500"
+              />
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
 
 export function PublicWebsite() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activePlan, setActivePlan] = useState(0);
-  const [activeGallery, setActiveGallery] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -261,90 +390,7 @@ export function PublicWebsite() {
 
 
 
-      {/* 6. Cinematic Editorial Gallery */}
-      <section id="gallery" className="relative py-24 md:py-40 bg-background border-t border-surface-highlight overflow-hidden min-h-[850px] lg:min-h-[1000px] flex items-center">
-        
-        {/* Giant Background Number */}
-        <div className="absolute top-1/2 -translate-y-1/2 left-0 w-full flex justify-center pointer-events-none select-none z-0">
-          <span className="text-[40vw] md:text-[30vw] font-display font-black leading-none text-white/[0.03] tracking-tighter transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]">
-            {GALLERY_ITEMS[activeGallery].id}
-          </span>
-        </div>
-
-        <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
-          
-          <div className="grid lg:grid-cols-12 gap-12 lg:gap-24 items-center h-full">
-            
-            {/* Left: Navigation & Typography */}
-            <div className="order-2 lg:order-1 lg:col-span-4 flex flex-col justify-between h-full min-h-[300px]">
-              
-              <div className="mb-12 md:mb-24">
-                <p className="text-[#d9a952] text-xs font-bold tracking-[0.3em] uppercase mb-4 md:mb-8">The Froaster Experience</p>
-                <div className="relative h-[120px] sm:h-[140px] md:h-[180px]">
-                  {GALLERY_ITEMS.map((item, idx) => (
-                    <div 
-                      key={idx}
-                      className={`absolute top-0 left-0 transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] w-full ${idx === activeGallery ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-8 pointer-events-none'}`}
-                    >
-                      <h2 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-display font-black uppercase text-white leading-[0.9] tracking-tight mb-4 md:mb-6">
-                        {item.title}
-                      </h2>
-                      <p className="text-[#9c9c9a] text-[0.65rem] md:text-xs font-medium tracking-[0.2em] uppercase leading-relaxed whitespace-pre-line">
-                        {item.desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4 md:gap-6 mt-auto">
-                {GALLERY_ITEMS.map((item, idx) => (
-                  <button 
-                    key={idx}
-                    onClick={() => setActiveGallery(idx)}
-                    className="group flex items-center gap-6 text-left"
-                  >
-                    <span className={`text-xs font-bold tracking-[0.2em] transition-colors duration-500 ${idx === activeGallery ? 'text-[#d9a952]' : 'text-white/30 group-hover:text-white/60'}`}>
-                      {item.id}
-                    </span>
-                    <span className={`text-sm md:text-base font-display uppercase tracking-widest transition-all duration-500 relative ${idx === activeGallery ? 'text-white translate-x-3' : 'text-white/40 group-hover:text-white/70'}`}>
-                      {item.title.replace('.', '')}
-                      {idx === activeGallery && (
-                        <span className="absolute -left-6 top-1/2 -translate-y-1/2 w-3 h-[1px] bg-[#d9a952]"></span>
-                      )}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Right: Immersive Feature Image */}
-            <div className="order-1 lg:order-2 lg:col-span-8 relative aspect-[4/5] sm:aspect-[4/5] lg:aspect-[4/3] lg:h-[750px] w-full bg-[#0a0a0b] overflow-hidden shadow-[0_30px_60px_rgba(0,0,0,0.8)]">
-              {GALLERY_ITEMS.map((item, idx) => (
-                <div 
-                  key={idx}
-                  className={`absolute inset-0 transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] origin-bottom ${idx === activeGallery ? 'opacity-100 scale-100' : 'opacity-0 scale-[1.03] pointer-events-none'}`}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 pointer-events-none"></div>
-                  <img 
-                    src={`/FrosterGym/${item.img}`} 
-                    alt={item.title} 
-                    className="w-full h-full object-cover object-center"
-                    loading={idx === 0 ? "eager" : "lazy"}
-                  />
-                </div>
-              ))}
-              
-              {/* Subtle metadata overlay on image */}
-              <div className="absolute bottom-6 right-6 md:bottom-8 md:right-8 z-20 text-right text-white/90">
-                <p className="text-[0.55rem] md:text-[0.65rem] font-bold uppercase tracking-[0.3em]">Visual Campaign 26'</p>
-                <p className="text-[0.5rem] md:text-[0.55rem] font-medium uppercase tracking-[0.2em] mt-1 text-[#d9a952]">Froaster Archival</p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
+      <Gallery3D />
 
       {/* 8. Cinematic Premium Footer */}
       <footer id="contact" className="relative bg-[#050505] pt-32 pb-8 overflow-hidden border-t border-white/5">
