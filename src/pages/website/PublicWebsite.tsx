@@ -120,7 +120,6 @@ export function PublicWebsite() {
             <img src="/FrosterGym/logo.png" alt="Froaster Gym" className="h-10 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
             <div className="hidden sm:flex flex-col justify-center">
               <span className="font-display font-bold text-xl tracking-[0.15em] leading-none text-text-primary uppercase">Froaster</span>
-              <span className="text-[0.65rem] tracking-[0.3em] text-primary-500 uppercase mt-1 opacity-80 font-medium">Athletic Club</span>
             </div>
           </div>
           
@@ -178,9 +177,6 @@ export function PublicWebsite() {
         
         <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
           <div className="max-w-2xl reveal opacity-0 translate-y-8 transition-all duration-1000 ease-out">
-            <h2 className="text-primary-500 font-display uppercase tracking-[0.2em] text-sm md:text-base mb-6 flex items-center gap-4">
-              <span className="w-12 h-[1px] bg-primary-500"></span> Premium Athletic Club
-            </h2>
             <h1 className="text-[4.5rem] leading-[0.9] md:text-8xl font-display font-bold text-text-primary mb-8 uppercase drop-shadow-2xl">
               TRAIN HARD.<br/>
               <span className="text-text-muted">LIVE STRONG.</span>
@@ -207,14 +203,14 @@ export function PublicWebsite() {
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div className="reveal opacity-0 translate-y-8 transition-all duration-1000">
             <h2 className="font-display text-5xl md:text-6xl uppercase font-bold mb-8 text-text-primary leading-[0.9]">
-              Built for <br/> <span className="text-primary-500">Results.</span>
+              Redefining <br/> <span className="text-primary-500">Excellence.</span>
             </h2>
             <div className="space-y-6 text-text-muted font-light leading-relaxed text-lg">
               <p>
-                I opened Froaster Gym because Dahod needed a space for people who actually wanted to train. Not a social club, not a place flooded with neon lights and gimmicks, but a proper athletic environment.
+                Froaster was conceived with a singular vision: to bring an unparalleled, elite fitness experience to Dahod. We transcend the standard gym model by offering a sanctuary of refined aesthetics, exclusivity, and uncompromising standards.
               </p>
               <p>
-                We made a choice: invest in the best equipment, hire trainers who actually correct form, and build a culture of accountability. If you're serious about your progress, this is your gym.
+                Every detail is meticulously curated—from our world-class, state-of-the-art equipment to our bespoke personal training services. Step into a premium environment designed not just to transform your physique, but to elevate your entire lifestyle.
               </p>
             </div>
           </div>
@@ -430,31 +426,26 @@ export function PublicWebsite() {
               <h3 className="text-xl md:text-2xl font-display font-medium text-text-primary italic mb-2">More than a gym.</h3>
               <h3 className="text-xl md:text-2xl font-display font-medium text-text-primary italic mb-6">Built for discipline.</h3>
               <a href="https://wa.me/919409478823" target="_blank" rel="noreferrer" className="bg-primary-500 text-background px-6 py-3 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-primary-400 transition-colors mb-6 shadow-xl">
-                Join Now
               </a>
-              <img src="/FrosterGym/logo.png" alt="Froaster" className="w-12 h-12 opacity-80" />
+              <img src="/FrosterGym/logo.png" alt="Froaster" className="w-32 md:w-40 h-auto opacity-100 drop-shadow-2xl" />
             </div>
             
           </div>
         </div>
 
         {/* Giant Brand Wordmark */}
-        <div className="w-full overflow-hidden flex justify-center mb-8 px-4 select-none pointer-events-none reveal opacity-0 translate-y-12 transition-all duration-[1500ms]">
-          <h1 className="text-[18vw] md:text-[16vw] font-display font-black uppercase text-[#111111] leading-[0.75] tracking-tighter hover:tracking-tight transition-all duration-1000 ease-out whitespace-nowrap">
+        <div className="w-full overflow-hidden flex justify-center pb-4 mb-4 px-4 select-none pointer-events-none reveal opacity-0 translate-y-12 transition-all duration-[1500ms]">
+          <h1 className="text-[18vw] md:text-[16vw] font-display font-black uppercase text-[#111111] leading-none tracking-tighter hover:tracking-tight transition-all duration-1000 ease-out whitespace-nowrap">
             FROASTER
           </h1>
         </div>
 
         {/* Bottom Bar */}
         <div className="w-full border-t border-surface-highlight bg-background relative z-20">
-          <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <span className="text-[10px] sm:text-xs text-text-muted">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-6 flex justify-center items-center">
+            <span className="text-[10px] sm:text-xs text-text-muted text-center w-full">
               &copy; {new Date().getFullYear()} Froaster Gym. All rights reserved.
             </span>
-            <div className="flex items-center gap-6 text-[10px] sm:text-xs font-medium text-text-muted">
-              <a href="#" className="hover:text-primary-500 transition-colors">Terms</a>
-              <a href="#" className="hover:text-primary-500 transition-colors">Privacy</a>
-            </div>
           </div>
         </div>
       </footer>
