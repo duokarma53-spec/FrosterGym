@@ -425,8 +425,6 @@ export function PublicWebsite() {
             <div className="flex flex-col items-start md:items-end md:text-right">
               <h3 className="text-xl md:text-2xl font-display font-medium text-text-primary italic mb-2">More than a gym.</h3>
               <h3 className="text-xl md:text-2xl font-display font-medium text-text-primary italic mb-6">Built for discipline.</h3>
-              <a href="https://wa.me/919409478823" target="_blank" rel="noreferrer" className="bg-primary-500 text-background px-6 py-3 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-primary-400 transition-colors mb-6 shadow-xl">
-              </a>
               <img src="/FrosterGym/logo.png" alt="Froaster" className="w-32 md:w-40 h-auto opacity-100 drop-shadow-2xl" />
             </div>
             
