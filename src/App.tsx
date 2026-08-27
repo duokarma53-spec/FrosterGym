@@ -18,6 +18,7 @@ import { Reports } from './pages/app/Reports';
 import { Settings } from './pages/app/Settings';
 import { PublicWebsite } from './pages/website/PublicWebsite';
 import { Loader2 } from 'lucide-react';
+import { Unauthorized } from './components/layout/Unauthorized';
 
 function PermissionGuard({ permission, children }: { permission: string; children: React.ReactNode }) {
   const { profile, permissions, isLoading } = useAuth();
@@ -35,12 +36,12 @@ function PermissionGuard({ permission, children }: { permission: string; childre
   }
   
   if (permission === 'settings') {
-    return <Navigate to="/app" replace />;
+    return <Unauthorized />;
   }
   
   const hasPermission = permissions.includes(permission.toLowerCase());
   if (!hasPermission) {
-    return <Navigate to="/app" replace />;
+    return <Unauthorized />;
   }
   
   return <>{children}</>;

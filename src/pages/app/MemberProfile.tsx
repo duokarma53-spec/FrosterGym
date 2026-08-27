@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { Loader2, ArrowLeft, User as UserIcon, Calendar, Phone, Mail, MapPin, CheckCircle, Clock, Dumbbell, Apple, Plus, Ban, Snowflake, X, Check } from 'lucide-react';
+import { Loader2, ArrowLeft, User as UserIcon, Calendar, Phone, Mail, MapPin, CheckCircle, Clock, Dumbbell, Apple, Plus, Ban, Snowflake, X, Check, MessageCircle } from 'lucide-react';
 import type { Database } from '../../types/database.types';
 
 type Member = Database['public']['Tables']['members']['Row'];
@@ -75,6 +75,11 @@ export function MemberProfile() {
   const [isRecordingPayment, setIsRecordingPayment] = useState(false);
 
   const [invoiceToPrint, setInvoiceToPrint] = useState<any | null>(null);
+
+  // WhatsApp State
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+  const [waTemplate, setWaTemplate] = useState('custom');
+  const [waCustomMessage, setWaCustomMessage] = useState('');
 
   const fetchMemberData = async () => {
     if (!gym || !id) return;
@@ -505,6 +510,15 @@ export function MemberProfile() {
         <div>
           <h1 className="text-2xl font-bold text-white tracking-tight">{member.full_name}</h1>
           <p className="text-sm text-gray-400 mt-1">ID: {member.member_id}</p>
+        </div>
+        <div className="ml-auto">
+          <button 
+            onClick={() => setShowWhatsAppModal(true)}
+            className="bg-green-500 hover:bg-green-600 text-black font-bold rounded-lg px-4 py-2 flex items-center justify-center gap-2 transition-colors shadow-lg shadow-green-500/20"
+          >
+            <MessageCircle className="w-5 h-5" />
+            Message
+          </button>
         </div>
       </div>
 
@@ -1272,6 +1286,72 @@ export function MemberProfile() {
               >
                 Print Invoice
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* WhatsApp Modal */}
+      {showWhatsAppModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-surface border border-surface-highlight rounded-xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="p-4 border-b border-surface-highlight flex justify-between items-center bg-green-500/10">
+              <h2 className="text-lg font-bold text-green-400 flex items-center gap-2">
+                <MessageCircle className="w-5 h-5" />
+                WhatsApp Message
+              </h2>
+              <button onClick={() => setShowWhatsAppModal(false)} className="text-gray-400 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">Template</label>
+                <select 
+                  value={waTemplate} 
+                  onChange={(e) => setWaTemplate(e.target.value)} 
+                  className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white focus:outline-none focus:border-green-500"
+                >
+                  <option value="custom">Custom Message</option>
+                  <option value="expiry">Membership Expiry</option>
+                  <option value="due">Payment Due</option>
+                  <option value="birthday">Birthday Greeting</option>
+                  <option value="renewal">Renewal Ready</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1.5">Message Content</label>
+                <textarea 
+                  value={
+                    waTemplate === 'custom' ? waCustomMessage :
+                    waTemplate === 'expiry' ? `Hi ${member.full_name}, your membership at Froaster Gym is expiring soon. Please renew to continue your fitness journey!` :
+                    waTemplate === 'due' ? `Hi ${member.full_name}, this is a gentle reminder that you have a pending payment of ₹${currentMembership?.due_amount || 0} at Froaster Gym.` :
+                    waTemplate === 'birthday' ? `Happy Birthday ${member.full_name}! 🎉 Wishing you a fantastic day from the team at Froaster Gym.` :
+                    waTemplate === 'renewal' ? `Hi ${member.full_name}, your membership is ready for renewal at Froaster Gym. Let's keep making progress!` : ''
+                  }
+                  onChange={(e) => {
+                    setWaTemplate('custom');
+                    setWaCustomMessage(e.target.value);
+                  }}
+                  rows={5}
+                  className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2 text-white focus:outline-none focus:border-green-500 resize-none"
+                />
+              </div>
+              <div className="pt-2">
+                <button 
+                  onClick={() => {
+                    const msg = waTemplate === 'custom' ? waCustomMessage :
+                    waTemplate === 'expiry' ? `Hi ${member.full_name}, your membership at Froaster Gym is expiring soon. Please renew to continue your fitness journey!` :
+                    waTemplate === 'due' ? `Hi ${member.full_name}, this is a gentle reminder that you have a pending payment of ₹${currentMembership?.due_amount || 0} at Froaster Gym.` :
+                    waTemplate === 'birthday' ? `Happy Birthday ${member.full_name}! 🎉 Wishing you a fantastic day from the team at Froaster Gym.` :
+                    waTemplate === 'renewal' ? `Hi ${member.full_name}, your membership is ready for renewal at Froaster Gym. Let's keep making progress!` : '';
+                    window.open(`https://wa.me/91${member.phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`);
+                    setShowWhatsAppModal(false);
+                  }}
+                  className="w-full bg-green-500 hover:bg-green-600 text-black font-bold rounded-lg px-4 py-2.5 transition-colors"
+                >
+                  Send via WhatsApp
+                </button>
+              </div>
             </div>
           </div>
         </div>
