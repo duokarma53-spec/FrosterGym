@@ -55,6 +55,15 @@ export function Expenses() {
     }
   }, [gym, dateFilter]);
 
+  // Auto-refresh when expenses change in realtime
+  useEffect(() => {
+    if (!gym) return;
+    const channel = supabase.channel('expenses_realtime_' + gym.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `gym_id=eq.${gym.id}` }, fetchExpenses)
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [gym]);
+
   async function fetchExpenses() {
     try {
       setIsLoading(true);

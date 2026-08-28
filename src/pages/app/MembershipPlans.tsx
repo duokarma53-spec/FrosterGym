@@ -51,6 +51,15 @@ export function MembershipPlans() {
     fetchPlans();
   }, [gym]);
 
+  // Auto-refresh when membership plans change in realtime
+  useEffect(() => {
+    if (!gym) return;
+    const channel = supabase.channel('plans_realtime_' + gym.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'membership_plans', filter: `gym_id=eq.${gym.id}` }, fetchPlans)
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [gym]);
+
   const handleOpenForm = (plan?: MembershipPlan) => {
     if (plan) {
       setEditingPlan(plan);

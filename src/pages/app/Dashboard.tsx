@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { Users, CreditCard, AlertCircle, TrendingUp, TrendingDown, UserCheck, UserX, Cake } from 'lucide-react';
@@ -18,102 +18,113 @@ export function Dashboard() {
   
   const [birthdays, setBirthdays] = useState<any[]>([]);
 
-  useEffect(() => {
-    async function fetchDashboardMetrics() {
-      if (!gym) return;
+  async function fetchDashboardMetrics() {
+    if (!gym) return;
+    
+    try {
+      const today = new Date();
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
       
-      try {
-        const today = new Date();
-        const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate() + 7);
+      const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
+      const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59).toISOString();
+      
+      // Fetch Members
+      const { data: members, error: mError } = await supabase
+        .from('members')
+        .select('id, status, date_of_birth, full_name, photo_url')
+        .eq('gym_id', gym.id);
         
-        const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
-        const currentMonthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59).toISOString();
+      if (mError) throw mError;
+
+      // Fetch Memberships
+      const { data: memberships, error: eError } = await supabase
+        .from('memberships')
+        .select('id, member_id, status, end_date, due_amount')
+        .eq('gym_id', gym.id);
+
+      if (eError) throw eError;
+
+      // Fetch Payments for current month
+      const { data: paymentsData, error: paymentsError } = await supabase
+        .from('payments')
+        .select('amount, payment_date')
+        .eq('gym_id', gym.id)
+        .eq('status', 'completed')
+        .gte('payment_date', currentMonthStart)
+        .lte('payment_date', currentMonthEnd);
+
+      if (paymentsError) throw paymentsError;
+
+      // Fetch Expenses for current month
+      const { data: expensesData, error: expensesError } = await supabase
+        .from('expenses')
+        .select('amount, expense_date')
+        .eq('gym_id', gym.id)
+        .gte('expense_date', currentMonthStart)
+        .lte('expense_date', currentMonthEnd);
         
-        // Fetch Members
-        const { data: members, error: mError } = await supabase
-          .from('members')
-          .select('id, status, date_of_birth, full_name, photo_url')
-          .eq('gym_id', gym.id);
-          
-        if (mError) throw mError;
+      if (expensesError) throw expensesError;
 
-        // Fetch Memberships
-        const { data: memberships, error: eError } = await supabase
-          .from('memberships')
-          .select('id, member_id, status, end_date, due_amount')
-          .eq('gym_id', gym.id);
+      // Calculations
+      const totalMembers = members.length;
+      
+      const now = new Date();
+      now.setHours(0,0,0,0);
+      
+      const activeMemberships = memberships.filter((m: any) => m.status === 'active' && new Date(m.end_date) >= now);
+      const expiredMemberships = memberships.filter((m: any) => new Date(m.end_date) < now);
+      
+      const expiryCount = memberships.filter((m: any) => {
+        const end = new Date(m.end_date);
+        return end >= now && end <= nextWeek;
+      }).length;
 
-        if (eError) throw eError;
+      const totalDues = activeMemberships.reduce((sum: number, item: any) => sum + Number(item.due_amount), 0);
 
-        // Fetch Payments for current month
-        const { data: paymentsData, error: paymentsError } = await supabase
-          .from('payments')
-          .select('amount, payment_date')
-          .eq('gym_id', gym.id)
-          .eq('status', 'completed')
-          .gte('payment_date', currentMonthStart)
-          .lte('payment_date', currentMonthEnd);
+      const currentMonthRevenue = paymentsData.reduce((sum: number, item: any) => sum + Number(item.amount), 0);
+      const currentMonthExpenses = expensesData.reduce((sum: number, item: any) => sum + Number(item.amount), 0);
 
-        if (paymentsError) throw paymentsError;
+      setMetrics({
+        totalMembers,
+        activeMembers: activeMemberships.length,
+        expiredMembers: expiredMemberships.length,
+        expiringMemberships: expiryCount,
+        paymentsDue: totalDues,
+        currentRevenue: currentMonthRevenue,
+        currentExpenses: currentMonthExpenses
+      });
+      
+      // Birthdays today
+      const todayMonth = today.getMonth() + 1;
+      const todayDate = today.getDate();
+      
+      const bdays = members.filter((m: any) => {
+        if (!m.date_of_birth) return false;
+        const dob = new Date(m.date_of_birth);
+        return (dob.getMonth() + 1) === todayMonth && dob.getDate() === todayDate;
+      });
+      setBirthdays(bdays);
 
-        // Fetch Expenses for current month
-        const { data: expensesData, error: expensesError } = await supabase
-          .from('expenses')
-          .select('amount, expense_date')
-          .eq('gym_id', gym.id)
-          .gte('expense_date', currentMonthStart)
-          .lte('expense_date', currentMonthEnd);
-          
-        if (expensesError) throw expensesError;
-
-        // Calculations
-        const totalMembers = members.length;
-        
-        // For accurate active/expired counts we should check memberships
-        const now = new Date();
-        now.setHours(0,0,0,0);
-        
-        const activeMemberships = memberships.filter((m: any) => m.status === 'active' && new Date(m.end_date) >= now);
-        const expiredMemberships = memberships.filter((m: any) => new Date(m.end_date) < now);
-        
-        const expiryCount = memberships.filter((m: any) => {
-          const end = new Date(m.end_date);
-          return end >= now && end <= nextWeek;
-        }).length;
-
-        const totalDues = activeMemberships.reduce((sum: number, item: any) => sum + Number(item.due_amount), 0);
-
-        const currentMonthRevenue = paymentsData.reduce((sum: number, item: any) => sum + Number(item.amount), 0);
-        const currentMonthExpenses = expensesData.reduce((sum: number, item: any) => sum + Number(item.amount), 0);
-
-        setMetrics({
-          totalMembers,
-          activeMembers: activeMemberships.length,
-          expiredMembers: expiredMemberships.length,
-          expiringMemberships: expiryCount,
-          paymentsDue: totalDues,
-          currentRevenue: currentMonthRevenue,
-          currentExpenses: currentMonthExpenses
-        });
-        
-        // Birthdays today
-        const todayMonth = today.getMonth() + 1;
-        const todayDate = today.getDate();
-        
-        const bdays = members.filter((m: any) => {
-          if (!m.date_of_birth) return false;
-          const dob = new Date(m.date_of_birth);
-          return (dob.getMonth() + 1) === todayMonth && dob.getDate() === todayDate;
-        });
-        setBirthdays(bdays);
-
-      } catch (err) {
-        console.error('Failed to fetch metrics:', err);
-      }
+    } catch (err) {
+      console.error('Failed to fetch metrics:', err);
     }
+  }
 
+  useEffect(() => {
     fetchDashboardMetrics();
+  }, [gym]);
+
+  // Auto-refresh when underlying data changes
+  useEffect(() => {
+    if (!gym) return;
+    const channel = supabase.channel('dashboard_realtime_' + gym.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'members', filter: `gym_id=eq.${gym.id}` }, fetchDashboardMetrics)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'memberships', filter: `gym_id=eq.${gym.id}` }, fetchDashboardMetrics)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments', filter: `gym_id=eq.${gym.id}` }, fetchDashboardMetrics)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `gym_id=eq.${gym.id}` }, fetchDashboardMetrics)
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, [gym]);
 
   return (

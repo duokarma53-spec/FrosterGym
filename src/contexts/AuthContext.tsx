@@ -72,11 +72,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             'expenses', 'reports', 'settings'
           ];
         } else {
-          // Fetch from staff_permissions table
+          // Fetch from staff_permissions table using auth user_id
           const { data: permRows } = await supabase
             .from('staff_permissions')
             .select('module_name, can_view')
-            .eq('user_id', profileData.id);
+            .eq('user_id', profileData.user_id);
 
           if (permRows) {
             userPermissions = permRows

@@ -47,6 +47,19 @@ export function Staff() {
     }
   }, [gym]);
 
+  useEffect(() => {
+    if (!gym) return;
+    const channel = supabase.channel('staff_realtime_' + gym.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'staff', filter: `gym_id=eq.${gym.id}` }, () => {
+        loadStaff();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'staff_permissions', filter: `gym_id=eq.${gym.id}` }, () => {
+        loadStaff();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [gym]);
+
   async function loadStaff() {
     setIsLoading(true);
     try {
@@ -100,6 +113,10 @@ export function Staff() {
 
       const newUserId = signUpData.user?.id;
       if (!newUserId) throw new Error('User creation returned empty ID.');
+
+      if (!signUpData.session) {
+        throw new Error('Please disable "Confirm email" in your Supabase Auth settings. Staff creation requires it to be off to automatically assign their gym permissions.');
+      }
 
       // 2 & 3. Link user profile to gym and wait for it to be visible
       // Due to potential replication lag between Auth (GoTrue) and PostgREST,
@@ -409,7 +426,7 @@ export function Staff() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1">Email *</label>
-                  <input required type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500" />
+                  <input required type="text" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="e.g. staff1@gym.local" className="w-full bg-background border border-surface-highlight rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500" />
                 </div>
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-300 mb-1">Password * (Min 6 characters)</label>

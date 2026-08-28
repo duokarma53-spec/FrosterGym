@@ -42,6 +42,20 @@ export function Payments() {
     }
   }, [gym]);
 
+  // Auto-refresh when payments or memberships change
+  useEffect(() => {
+    if (!gym) return;
+    const channel = supabase.channel('payments_realtime_' + gym.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'payments', filter: `gym_id=eq.${gym.id}` }, fetchPayments)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'memberships', filter: `gym_id=eq.${gym.id}` }, () => {
+        if (selectedMember) fetchMemberMemberships(selectedMember);
+        fetchPayments();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'members', filter: `gym_id=eq.${gym.id}` }, fetchMembers)
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [gym, selectedMember]);
+
   useEffect(() => {
     if (selectedMember) {
       fetchMemberMemberships(selectedMember);
@@ -253,7 +267,7 @@ export function Payments() {
     setSelectedMember('');
     setSelectedMembership('');
     setAmount('');
-    setPaymentMethod('Cash');
+    setPaymentMethod('cash');
     setPaymentDate(new Date().toISOString().split('T')[0]);
     setNotes('');
     setError(null);
