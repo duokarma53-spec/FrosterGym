@@ -143,7 +143,7 @@ export function PublicWebsite() {
           <div className="cursor-pointer flex items-center z-50 group" onClick={() => window.scrollTo(0, 0)}>
             {/* The filter logic successfully handles the background */}
             <img 
-              src="/FrosterGym/froaster-logo.png" 
+              src="/FrosterGym/new-froaster-logo.png" 
               alt="Froaster Fitness" 
               className="h-9 md:h-11 lg:h-12 w-auto object-contain transition-all duration-500 group-hover:opacity-80" 
               style={{ filter: 'brightness(1.2) contrast(1.5) invert(1)', mixBlendMode: 'screen' }} 
@@ -507,15 +507,40 @@ export function PublicWebsite() {
             <div className="flex flex-col items-start md:items-end md:text-right">
               <h3 className="text-xl md:text-2xl font-display font-medium text-text-primary italic mb-2">More than a gym.</h3>
               <h3 className="text-xl md:text-2xl font-display font-medium text-text-primary italic mb-6">Built for discipline.</h3>
-              <img src="/FrosterGym/logo.png" alt="Froaster" className="w-32 md:w-40 h-auto opacity-100 drop-shadow-2xl" />
+              <img 
+                src="/FrosterGym/froaster-logo.png" 
+                alt="Froaster" 
+                className="w-32 md:w-48 h-auto" 
+                style={{ filter: 'brightness(1.2) contrast(1.5) invert(1)', mixBlendMode: 'screen' }} 
+              />
             </div>
             
           </div>
         </div>
 
-        {/* Giant Brand Wordmark */}
-        <div className="w-full overflow-hidden flex justify-center pb-4 mb-4 px-4 select-none pointer-events-none reveal opacity-0 translate-y-12 transition-all duration-[1500ms]">
-          <h1 className="text-[18vw] md:text-[16vw] font-display font-black uppercase text-[#111111] leading-none tracking-tighter hover:tracking-tight transition-all duration-1000 ease-out whitespace-nowrap">
+        {/* Giant Brand Wordmark (3D Metallic Effect) */}
+        <div className="w-full overflow-hidden flex justify-center pb-12 pt-10 px-4 select-none pointer-events-none reveal opacity-0 translate-y-12 transition-all duration-[1500ms]" style={{ perspective: '1000px' }}>
+          <h1 
+            className="text-[16vw] font-display font-black uppercase leading-[0.8] tracking-tighter whitespace-nowrap text-[#333333]"
+            style={{
+              textShadow: `
+                0 1px 0 #2a2a2a,
+                0 2px 0 #252525,
+                0 3px 0 #202020,
+                0 4px 0 #1a1a1a,
+                0 5px 0 #151515,
+                0 6px 0 #111111,
+                0 7px 0 #0d0d0d,
+                0 8px 0 #0a0a0a,
+                0 9px 0 #050505,
+                0 10px 0 #000000,
+                0 20px 30px rgba(0,0,0,0.95),
+                0 40px 60px rgba(0,0,0,0.8)
+              `,
+              transform: 'rotateX(10deg)',
+              WebkitTextStroke: '1px rgba(255,255,255,0.15)'
+            }}
+          >
             FROASTER
           </h1>
         </div>
