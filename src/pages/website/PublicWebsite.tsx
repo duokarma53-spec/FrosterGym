@@ -510,7 +510,7 @@ export function PublicWebsite() {
               <img 
                 src="/FrosterGym/new-froaster-logo.png" 
                 alt="Froaster" 
-                className="w-24 md:w-32 h-auto" 
+                className="w-40 md:w-56 lg:w-64 h-auto" 
                 style={{ filter: 'brightness(1.2) contrast(1.5) invert(1)', mixBlendMode: 'screen' }} 
               />
             </div>
