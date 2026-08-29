@@ -145,7 +145,7 @@ export function PublicWebsite() {
             <img 
               src="/FrosterGym/new-froaster-logo.png" 
               alt="Froaster Fitness" 
-              className="h-9 md:h-11 lg:h-12 w-auto object-contain transition-all duration-500 group-hover:opacity-80" 
+              className="h-16 md:h-20 lg:h-24 w-auto object-contain transition-all duration-500 group-hover:opacity-80 -my-2 md:-my-4" 
               style={{ filter: 'brightness(1.2) contrast(1.5) invert(1)', mixBlendMode: 'screen' }} 
               onError={(e) => { e.currentTarget.src = '/FrosterGym/logo.png' }}
             />
@@ -508,9 +508,9 @@ export function PublicWebsite() {
               <h3 className="text-xl md:text-2xl font-display font-medium text-text-primary italic mb-2">More than a gym.</h3>
               <h3 className="text-xl md:text-2xl font-display font-medium text-text-primary italic mb-6">Built for discipline.</h3>
               <img 
-                src="/FrosterGym/froaster-logo.png" 
+                src="/FrosterGym/new-froaster-logo.png" 
                 alt="Froaster" 
-                className="w-32 md:w-48 h-auto" 
+                className="w-24 md:w-32 h-auto" 
                 style={{ filter: 'brightness(1.2) contrast(1.5) invert(1)', mixBlendMode: 'screen' }} 
               />
             </div>
