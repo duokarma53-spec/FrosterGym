@@ -117,12 +117,12 @@ export function PublicWebsite() {
           
           {/* Brand Logo */}
           <div className="cursor-pointer flex items-center z-50 group" onClick={() => window.scrollTo(0, 0)}>
-            {/* Using the original logo and CSS blending to seamlessly integrate it into the dark background */}
+            {/* Using contrast/brightness before invert forces off-white to pure white, so invert makes it pure black, which screen perfectly removes */}
             <img 
               src="/FrosterGym/froaster-logo.png" 
               alt="Froaster Fitness" 
-              className="h-10 md:h-12 lg:h-14 w-auto object-contain transition-all duration-500 group-hover:opacity-80" 
-              style={{ filter: 'invert(1) brightness(0.95)', mixBlendMode: 'screen' }} 
+              className="h-16 md:h-20 lg:h-24 w-auto object-contain transition-all duration-500 group-hover:opacity-80 -ml-2" 
+              style={{ filter: 'brightness(1.2) contrast(1.5) invert(1)', mixBlendMode: 'screen' }} 
               onError={(e) => { e.currentTarget.src = '/FrosterGym/logo.png' }}
             />
           </div>
