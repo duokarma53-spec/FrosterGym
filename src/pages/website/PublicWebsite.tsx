@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, ArrowRight, ArrowUpRight, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Menu, X, ArrowRight, ArrowUpRight, MessageCircle, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
 const PRICING_PLANS = [
@@ -71,6 +71,17 @@ const GALLERY_ITEMS = [
   }
 ];
 
+const GOOGLE_REVIEWS = [
+  { name: 'Hatim Jambu', date: 'Local Guide', text: 'The Gym is very well maintained. Gym staff is very supportive. Training session are impressive', rating: 5 },
+  { name: 'Azim Knsara', date: '10 months ago', text: 'One of the best gyms around! The vibe here is always positive and full of energy. Trainers actually care and guide you properly.', rating: 5 },
+  { name: 'Sabir Bandibar', date: '3 months ago', text: 'Very Supportive staff and excellent workout environment.❤️🔥', rating: 5 },
+  { name: 'Faraz khan Pathan', date: 'a year ago', text: 'Nice work and peace place enjoy the workout and the gym area was also bright all things sounds good amazing gym , nice view', rating: 5 },
+  { name: 'Arbaz Khatri', date: '3 months ago', text: 'Fantastic gym and best workout experience.', rating: 5 },
+  { name: 'Yushra Shaikh', date: 'a year ago', text: 'What a great experience there I genuinely enjoyed the view while doing my workout... one of the best and safest gym for ladies💯❤️', rating: 5 },
+  { name: 'Azhar Luhar', date: '11 months ago', text: 'Best Gym in town perfect atmosphere Great trainer Imran Sir And Kamran sir & Motivation vibe 100% Result', rating: 5 },
+  { name: 'Aakib Pathan', date: '3 months ago', text: 'The best gym in dahod 👍🏻❤️', rating: 5 },
+];
+
 export function PublicWebsite() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -109,62 +120,80 @@ export function PublicWebsite() {
 
   return (
     <div className="min-h-screen bg-background text-text-primary font-sans selection:bg-primary-500 selection:text-background">
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 40s linear infinite;
+        }
+      `}</style>
       {isLoading && <EditorialLoader onComplete={() => setIsLoading(false)} />}
       
-      {/* 1. Navbar */}
-      <nav className={`fixed w-full z-50 transition-all duration-700 ease-out ${scrolled ? 'py-4 bg-[#050505]/90 backdrop-blur-xl border-b border-[#D4AF37]/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)]' : 'py-6 bg-transparent'}`}>
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 flex justify-between items-center">
+      {/* 1. Navbar (Floating Pill) */}
+      <div className="fixed top-0 left-0 w-full z-50 flex justify-center pt-4 md:pt-6 px-4 md:px-8 pointer-events-none">
+        <nav className={`pointer-events-auto transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] w-full max-w-[1200px] rounded-full border flex items-center justify-between px-6 md:px-10 ${
+          scrolled 
+            ? 'py-3 md:py-4 bg-[#0a0a0b]/85 backdrop-blur-xl border-[#D4AF37]/30 shadow-[0_15px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.05)]' 
+            : 'py-4 md:py-5 bg-[#050505]/40 backdrop-blur-md border-[#D4AF37]/15 shadow-lg'
+        }`}>
           
           {/* Brand Logo */}
           <div className="cursor-pointer flex items-center z-50 group" onClick={() => window.scrollTo(0, 0)}>
-            {/* Using contrast/brightness before invert forces off-white to pure white, so invert makes it pure black, which screen perfectly removes */}
+            {/* The filter logic successfully handles the background */}
             <img 
               src="/FrosterGym/froaster-logo.png" 
               alt="Froaster Fitness" 
-              className="h-16 md:h-20 lg:h-24 w-auto object-contain transition-all duration-500 group-hover:opacity-80 -ml-2" 
+              className="h-9 md:h-11 lg:h-12 w-auto object-contain transition-all duration-500 group-hover:opacity-80" 
               style={{ filter: 'brightness(1.2) contrast(1.5) invert(1)', mixBlendMode: 'screen' }} 
               onError={(e) => { e.currentTarget.src = '/FrosterGym/logo.png' }}
             />
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-8 lg:gap-14">
-            <div className="w-[1px] h-6 bg-white/10 mx-2 hidden lg:block"></div>
-            {['About', 'Memberships', 'Gallery', 'Contact'].map((item) => (
+          <div className="hidden md:flex items-center gap-6 lg:gap-10">
+            {/* Tiny animated gold line divider */}
+            <div className="w-[1px] h-6 bg-gradient-to-b from-transparent via-[#D4AF37]/50 to-transparent mx-2 hidden lg:block opacity-70"></div>
+            
+            {['About', 'Memberships', 'Trainers', 'Gallery', 'Contact'].map((item) => (
               <button 
                 key={item}
                 onClick={() => scrollToSection(item.toLowerCase())} 
-                className="relative group py-2 text-[0.7rem] lg:text-[0.75rem] uppercase tracking-[0.25em] font-light text-[#B8B8B8] hover:text-[#F5F5F5] transition-colors duration-300"
+                className="relative group py-2 text-[0.65rem] lg:text-[0.7rem] uppercase tracking-[0.25em] font-medium text-[#B8B8B8] hover:text-[#D4AF37] transition-colors duration-300"
               >
                 {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#D4AF37] group-hover:w-full transition-all duration-500 ease-out opacity-0 group-hover:opacity-100"></span>
+                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-[#D4AF37] group-hover:w-full transition-all duration-500 ease-out opacity-0 group-hover:opacity-100 shadow-[0_0_8px_rgba(212,175,55,0.6)]"></span>
               </button>
             ))}
           </div>
           
           {/* Mobile Menu Toggle */}
           <button 
-            className="md:hidden relative z-50 p-2.5 rounded-sm border border-[#D4AF37]/30 bg-[#0A0A0A]/80 backdrop-blur-md focus:outline-none overflow-hidden group transition-all duration-300 hover:border-[#D4AF37]/60" 
+            className="md:hidden relative z-50 p-2.5 rounded-full border border-[#D4AF37]/30 bg-[#0A0A0A]/40 backdrop-blur-md focus:outline-none overflow-hidden group transition-all duration-300 hover:border-[#D4AF37]/80" 
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            {isMenuOpen ? <X className="w-5 h-5 text-[#F5F5F5] font-light relative z-10" strokeWidth={1} /> : <Menu className="w-5 h-5 text-[#F5F5F5] font-light relative z-10" strokeWidth={1} />}
+            <div className="absolute inset-0 bg-[#D4AF37]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {isMenuOpen ? <X className="w-5 h-5 text-[#D4AF37] relative z-10" strokeWidth={1.5} /> : <Menu className="w-5 h-5 text-[#D4AF37] relative z-10" strokeWidth={1.5} />}
           </button>
-        </div>
-      </nav>
+        </nav>
+      </div>
 
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 bg-[#050505]/98 backdrop-blur-2xl z-40 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] flex flex-col justify-center items-center px-8 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`fixed inset-0 bg-[#050505]/98 backdrop-blur-3xl z-40 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] flex flex-col justify-center items-center px-8 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         
         {/* Subtle decorative background element */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vw] h-[150vw] bg-[radial-gradient(circle,rgba(212,175,55,0.03)_0%,transparent_60%)] pointer-events-none"></div>
 
         <div className={`flex flex-col items-center gap-10 transition-all duration-700 relative z-10 ${isMenuOpen ? 'translate-y-0 opacity-100 delay-100' : 'translate-y-16 opacity-0'}`}>
-          {['About', 'Memberships', 'Gallery', 'Contact'].map((item) => (
+          {['About', 'Memberships', 'Trainers', 'Gallery', 'Contact'].map((item) => (
             <button 
               key={item}
-              onClick={() => scrollToSection(item.toLowerCase())} 
-              className="text-2xl sm:text-3xl font-display uppercase tracking-[0.2em] text-[#F5F5F5] hover:text-[#D4AF37] transition-colors relative group"
+              onClick={() => {
+                setIsMenuOpen(false);
+                scrollToSection(item.toLowerCase());
+              }} 
+              className="text-2xl sm:text-3xl font-display uppercase tracking-[0.25em] text-[#F5F5F5] hover:text-[#D4AF37] transition-colors relative group"
             >
               {item}
             </button>
@@ -374,6 +403,47 @@ export function PublicWebsite() {
         </div>
       </section>
 
+      {/* 7. Reviews Marquee */}
+      <section className="py-24 bg-background border-t border-surface-highlight overflow-hidden relative">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(212,175,55,0.05)_0%,transparent_70%)] pointer-events-none"></div>
+        <div className="max-w-[1400px] mx-auto px-6 text-center mb-16 relative z-10">
+          <h2 className="text-4xl md:text-5xl font-display font-bold uppercase text-text-primary mb-4 reveal opacity-0 translate-y-8 transition-all duration-1000">Word of Mouth</h2>
+          <p className="text-text-muted max-w-xl mx-auto font-light reveal opacity-0 translate-y-8 transition-all duration-1000 delay-100">Real results. Real members. Real discipline.</p>
+        </div>
+
+        <div className="relative w-full flex overflow-hidden group">
+          <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none"></div>
+          
+          <div className="flex w-max animate-marquee whitespace-nowrap py-4 hover:[animation-play-state:paused]">
+            {/* Double the array for seamless infinite scroll */}
+            {[...GOOGLE_REVIEWS, ...GOOGLE_REVIEWS].map((review, idx) => (
+              <div 
+                key={idx} 
+                className="w-[300px] md:w-[400px] bg-surface/50 backdrop-blur-sm border border-surface-highlight p-6 md:p-8 rounded-2xl mx-4 flex flex-col shrink-0 whitespace-normal shadow-lg transition-transform hover:-translate-y-2 hover:border-[#D4AF37]/30"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#111] border border-[#D4AF37]/20 flex items-center justify-center text-text-primary font-display font-bold text-lg">
+                      {review.name.charAt(0)}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-text-primary">{review.name}</h4>
+                      <p className="text-[10px] text-text-muted">{review.date}</p>
+                    </div>
+                  </div>
+                  <div className="flex">
+                    {Array.from({ length: review.rating }).map((_, i) => (
+                      <Star key={i} className="w-3.5 h-3.5 text-[#D4AF37] fill-[#D4AF37]" />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-text-muted text-sm italic font-light leading-relaxed">"{review.text}"</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* 8. Premium Footer */}
       <footer id="contact" className="relative bg-[#050505] pt-24 pb-8 overflow-hidden border-t border-surface-highlight flex flex-col">
