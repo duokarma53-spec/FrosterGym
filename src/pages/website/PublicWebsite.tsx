@@ -112,48 +112,60 @@ export function PublicWebsite() {
       {isLoading && <EditorialLoader onComplete={() => setIsLoading(false)} />}
       
       {/* 1. Navbar */}
-      <nav className={`fixed w-full z-50 transition-all duration-500 ease-out ${scrolled ? 'py-4 bg-[#0a0a0b]/85 backdrop-blur-md border-b border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.5)]' : 'py-8 bg-transparent'}`}>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 flex justify-between items-center">
+      <nav className={`fixed w-full z-50 transition-all duration-700 ease-out ${scrolled ? 'py-4 bg-[#050505]/90 backdrop-blur-xl border-b border-[#D4AF37]/10 shadow-[0_10px_40px_rgba(0,0,0,0.8)]' : 'py-6 bg-transparent'}`}>
+        <div className="max-w-[1440px] mx-auto px-6 md:px-12 flex justify-between items-center">
           
-          {/* Brand Logo & Name */}
-          <div className="cursor-pointer flex items-center gap-4 z-50 group" onClick={() => window.scrollTo(0, 0)}>
-            <img src="/FrosterGym/logo.png" alt="Froaster Gym" className="h-10 w-auto object-contain opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
-            <div className="hidden sm:flex flex-col justify-center">
-              <span className="font-display font-bold text-xl tracking-[0.15em] leading-none text-text-primary uppercase">Froaster</span>
-            </div>
+          {/* Brand Logo */}
+          <div className="cursor-pointer flex items-center z-50 group" onClick={() => window.scrollTo(0, 0)}>
+            {/* Using the original logo and CSS blending to seamlessly integrate it into the dark background */}
+            <img 
+              src="/FrosterGym/froaster-logo.png" 
+              alt="Froaster Fitness" 
+              className="h-10 md:h-12 lg:h-14 w-auto object-contain transition-all duration-500 group-hover:opacity-80" 
+              style={{ filter: 'invert(1) brightness(0.95)', mixBlendMode: 'screen' }} 
+              onError={(e) => { e.currentTarget.src = '/FrosterGym/logo.png' }}
+            />
           </div>
           
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-10 text-[0.8rem] uppercase tracking-[0.15em] font-medium text-text-muted">
+          <div className="hidden md:flex items-center gap-8 lg:gap-14">
+            <div className="w-[1px] h-6 bg-white/10 mx-2 hidden lg:block"></div>
             {['About', 'Memberships', 'Gallery', 'Contact'].map((item) => (
               <button 
                 key={item}
                 onClick={() => scrollToSection(item.toLowerCase())} 
-                className="relative group hover:text-primary-500 transition-colors duration-300 py-2"
+                className="relative group py-2 text-[0.7rem] lg:text-[0.75rem] uppercase tracking-[0.25em] font-light text-[#B8B8B8] hover:text-[#F5F5F5] transition-colors duration-300"
               >
                 {item}
-                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-primary-500 group-hover:w-full transition-all duration-300 ease-out opacity-0 group-hover:opacity-100"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[#D4AF37] group-hover:w-full transition-all duration-500 ease-out opacity-0 group-hover:opacity-100"></span>
               </button>
             ))}
           </div>
           
           {/* Mobile Menu Toggle */}
-          <button className="md:hidden text-text-primary z-50 p-2 -mr-2 focus:outline-none" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X className="w-7 h-7 font-light" strokeWidth={1.5} /> : <Menu className="w-7 h-7 font-light" strokeWidth={1.5} />}
+          <button 
+            className="md:hidden relative z-50 p-2.5 rounded-sm border border-[#D4AF37]/30 bg-[#0A0A0A]/80 backdrop-blur-md focus:outline-none overflow-hidden group transition-all duration-300 hover:border-[#D4AF37]/60" 
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            {isMenuOpen ? <X className="w-5 h-5 text-[#F5F5F5] font-light relative z-10" strokeWidth={1} /> : <Menu className="w-5 h-5 text-[#F5F5F5] font-light relative z-10" strokeWidth={1} />}
           </button>
         </div>
       </nav>
 
       {/* Mobile Menu Overlay */}
-      <div className={`fixed inset-0 bg-[#0a0a0b]/98 backdrop-blur-xl z-40 transition-all duration-500 flex flex-col justify-center px-12 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
-        <div className={`flex flex-col gap-8 transition-all duration-700 delay-100 ${isMenuOpen ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
+      <div className={`fixed inset-0 bg-[#050505]/98 backdrop-blur-2xl z-40 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] flex flex-col justify-center items-center px-8 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
+        
+        {/* Subtle decorative background element */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vw] h-[150vw] bg-[radial-gradient(circle,rgba(212,175,55,0.03)_0%,transparent_60%)] pointer-events-none"></div>
+
+        <div className={`flex flex-col items-center gap-10 transition-all duration-700 relative z-10 ${isMenuOpen ? 'translate-y-0 opacity-100 delay-100' : 'translate-y-16 opacity-0'}`}>
           {['About', 'Memberships', 'Gallery', 'Contact'].map((item) => (
             <button 
               key={item}
               onClick={() => scrollToSection(item.toLowerCase())} 
-              className="text-4xl font-display uppercase tracking-[0.1em] text-text-primary hover:text-primary-500 transition-colors text-left flex items-center gap-6 group"
+              className="text-2xl sm:text-3xl font-display uppercase tracking-[0.2em] text-[#F5F5F5] hover:text-[#D4AF37] transition-colors relative group"
             >
-              <span className="w-8 h-[1px] bg-primary-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
               {item}
             </button>
           ))}
