@@ -248,7 +248,7 @@ export function PublicWebsite() {
           
           <div className="text-center mb-16 md:mb-24 reveal opacity-0 translate-y-8 transition-all duration-1000">
             <h2 className="text-5xl md:text-6xl font-display font-bold uppercase text-text-primary mb-6">Membership Cards</h2>
-            <p className="text-text-muted text-lg font-light tracking-wide uppercase">Exclusive access to Froaster Athletic Club.</p>
+            <p className="text-text-muted text-lg font-light tracking-wide uppercase">Exclusive access to FROASTER FITNESS.</p>
           </div>
 
           <div className="flex flex-col lg:flex-row items-stretch justify-center gap-8 w-full reveal opacity-0 translate-y-8 transition-all duration-1000 delay-200">
@@ -292,7 +292,7 @@ export function PublicWebsite() {
 
               {/* Footer */}
               <div className="relative mt-8 pt-6 border-t border-white/5 flex justify-between items-center">
-                <span className="text-[8px] text-white/30 tracking-[0.2em] uppercase">Froaster Athletic Club</span>
+                <span className="text-[8px] text-white/30 tracking-[0.2em] uppercase">FROASTER FITNESS</span>
                 <div className="w-1.5 h-1.5 bg-white/20 rotate-45 group-hover:bg-primary-500/50 transition-colors duration-700"></div>
               </div>
             </div>
@@ -328,7 +328,7 @@ export function PublicWebsite() {
 
               {/* Footer */}
               <div className="relative mt-8 pt-6 border-t border-white/5 flex justify-between items-center mt-auto">
-                <span className="text-[8px] text-white/30 tracking-[0.2em] uppercase">Froaster Athletic Club</span>
+                <span className="text-[8px] text-white/30 tracking-[0.2em] uppercase">FROASTER FITNESS</span>
                 <div className="w-1.5 h-1.5 bg-white/20 rotate-45 group-hover:bg-primary-500/50 transition-colors duration-700"></div>
               </div>
             </div>
@@ -367,7 +367,7 @@ export function PublicWebsite() {
 
               {/* Footer */}
               <div className="relative mt-8 pt-6 border-t border-primary-500/10 flex justify-between items-center mt-auto">
-                <span className="text-[8px] text-primary-500/50 tracking-[0.2em] uppercase">Froaster Athletic Club</span>
+                <span className="text-[8px] text-primary-500/50 tracking-[0.2em] uppercase">FROASTER FITNESS</span>
                 <div className="w-1.5 h-1.5 bg-primary-500/60 rotate-45 group-hover:bg-primary-500 transition-colors duration-700 shadow-[0_0_10px_rgba(201,151,62,0.5)]"></div>
               </div>
             </div>
