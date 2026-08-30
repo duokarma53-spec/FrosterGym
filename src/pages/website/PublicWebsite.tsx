@@ -243,92 +243,132 @@ export function PublicWebsite() {
       </section>
 
       {/* 4. Memberships */}
-      <section id="memberships" className="py-32 md:py-48 bg-background overflow-hidden relative">
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
+      <section id="memberships" className="py-24 md:py-40 bg-background overflow-hidden relative border-t border-surface-highlight">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
           
-          <div className="mb-24 md:mb-40 reveal opacity-0 translate-y-8 transition-all duration-1000">
-            <h2 className="text-xl font-bold uppercase tracking-widest text-white mb-2">Memberships</h2>
-            <p className="text-5xl md:text-7xl font-display font-bold uppercase text-text-primary mb-6">Train At Your Level.</p>
-            <p className="text-text-muted text-lg font-light tracking-wide uppercase">Three ways to train. One standard of excellence.</p>
+          <div className="text-center mb-16 md:mb-24 reveal opacity-0 translate-y-8 transition-all duration-1000">
+            <h2 className="text-5xl md:text-6xl font-display font-bold uppercase text-text-primary mb-6">Membership Cards</h2>
+            <p className="text-text-muted text-lg font-light tracking-wide uppercase">Exclusive access to Froaster Athletic Club.</p>
           </div>
 
-          <div className="flex flex-col reveal opacity-0 translate-y-8 transition-all duration-1000 delay-200">
+          <div className="flex flex-col lg:flex-row items-stretch justify-center gap-8 w-full reveal opacity-0 translate-y-8 transition-all duration-1000 delay-200">
             
-            {/* 01 BASIC */}
-            <div className="group relative border-t border-white/10 py-16 md:py-24 flex flex-col md:flex-row items-start md:items-center gap-12 md:gap-24 hover:bg-white/[0.01] transition-colors duration-700">
-              <div className="absolute -left-4 -top-8 md:-top-16 text-[10rem] md:text-[20rem] font-display font-bold text-white/[0.02] group-hover:text-white/[0.04] transition-colors duration-700 select-none pointer-events-none leading-none">01</div>
+            {/* 01 BASIC CARD */}
+            <div className="group relative w-full lg:w-1/3 rounded-2xl bg-gradient-to-br from-[#1c1c1c] to-[#0a0a0a] border border-white/5 p-8 flex flex-col shadow-2xl transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8)] hover:brightness-110">
+              <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] opacity-50 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+              <div className="absolute top-0 left-0 w-full h-full rounded-2xl border border-primary-500/0 group-hover:border-primary-500/30 transition-colors duration-700 pointer-events-none"></div>
               
-              <div className="w-full md:w-5/12 relative z-10 md:border-r border-white/10 md:pr-12">
-                <h3 className="text-6xl md:text-8xl font-display font-bold uppercase text-white tracking-tighter mb-4">Basic</h3>
-                <p className="text-text-muted uppercase tracking-[0.2em] text-sm md:text-base">"Train Independently."</p>
-                
-                <div className="mt-12 pt-8 border-t border-white/5 max-w-sm">
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-3">Not Included</p>
-                  <p className="text-sm text-text-muted font-light">No trainer or workout guidance</p>
-                </div>
-                
-                <div className="mt-8 pt-8 border-t border-white/5 max-w-sm">
-                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-3">Membership Note</p>
-                  <p className="text-sm text-text-muted font-light">Bring your own shoes, towel & water bottle.</p>
-                </div>
+              {/* Header */}
+              <div className="relative flex justify-between items-center mb-12">
+                <span className="text-[9px] text-white/50 tracking-[0.3em] font-light">FROASTER FITNESS</span>
+                <span className="text-[9px] text-white/30 tracking-widest font-mono">01 / BASIC</span>
               </div>
-              
-              <div className="w-full md:w-7/12 relative z-10">
-                <ul className="flex flex-col gap-y-6">
-                  {['Modern equipment', 'Cardio Zone', 'Workout floor', 'Drinking water', 'Open gym access'].map((feature, i) => (
-                    <li key={i} className="text-sm md:text-base font-light text-text-secondary uppercase tracking-[0.15em] flex items-center group/item">
-                      <span className="w-6 h-[1px] bg-white/20 mr-6 group-hover/item:w-10 group-hover/item:bg-white/60 transition-all duration-500"></span>
-                      {feature}
+
+              {/* Title */}
+              <div className="relative mb-8 pb-8 border-b border-white/5">
+                <h3 className="text-4xl font-display font-bold uppercase text-white mb-2 tracking-wide drop-shadow-md">Basic</h3>
+                <p className="text-[10px] text-primary-500 tracking-[0.2em] uppercase font-light">Foundation Access</p>
+              </div>
+
+              {/* Features */}
+              <div className="relative flex-1 flex flex-col">
+                <p className="text-[9px] text-white/40 tracking-[0.2em] uppercase mb-4">Includes</p>
+                <ul className="space-y-3 mb-8">
+                  {['Modern Equipment', 'Cardio Zone', 'Workout Floor', 'Drinking Water', 'Open Gym Access'].map((feature, i) => (
+                    <li key={i} className="text-xs text-white/70 flex items-start font-light">
+                      <span className="text-primary-500 mr-3 mt-[1px] text-[10px]">✓</span> {feature}
                     </li>
                   ))}
                 </ul>
+                
+                <div className="mt-auto pt-6 border-t border-white/5">
+                  <p className="text-[9px] text-white/30 tracking-[0.2em] uppercase mb-2">Not Included</p>
+                  <p className="text-xs text-white/50 font-light mb-4">Trainer / Workout Guidance</p>
+                  
+                  <p className="text-[9px] text-white/30 tracking-[0.2em] uppercase mb-2">Note</p>
+                  <p className="text-xs text-white/50 font-light leading-relaxed">Bring your own:<br/>Shoes · Towel · Water Bottle</p>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="relative mt-8 pt-6 border-t border-white/5 flex justify-between items-center">
+                <span className="text-[8px] text-white/30 tracking-[0.2em] uppercase">Froaster Athletic Club</span>
+                <div className="w-1.5 h-1.5 bg-white/20 rotate-45 group-hover:bg-primary-500/50 transition-colors duration-700"></div>
               </div>
             </div>
 
-            {/* 02 STANDARD */}
-            <div className="group relative border-t border-white/10 py-16 md:py-24 flex flex-col md:flex-row items-start md:items-center gap-12 md:gap-24 hover:bg-white/[0.01] transition-colors duration-700">
-              <div className="absolute top-0 left-0 w-0 h-[1px] bg-primary-500/50 group-hover:w-full transition-all duration-1000 ease-out"></div>
+            {/* 02 STANDARD CARD */}
+            <div className="group relative w-full lg:w-1/3 rounded-2xl bg-gradient-to-br from-[#1c1c1c] to-[#0a0a0a] border border-white/5 p-8 flex flex-col shadow-2xl transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.8)] hover:brightness-110" style={{ transitionDelay: '50ms' }}>
+              <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] opacity-50 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+              <div className="absolute top-0 left-0 w-full h-full rounded-2xl border border-primary-500/0 group-hover:border-primary-500/30 transition-colors duration-700 pointer-events-none"></div>
               
-              <div className="absolute -left-4 -top-8 md:-top-16 text-[10rem] md:text-[20rem] font-display font-bold text-white/[0.02] group-hover:text-primary-500/[0.03] transition-colors duration-700 select-none pointer-events-none leading-none">02</div>
-              
-              <div className="w-full md:w-5/12 relative z-10 md:border-r border-white/10 md:pr-12">
-                <h3 className="text-6xl md:text-8xl font-display font-bold uppercase text-white tracking-tighter mb-4">Standard</h3>
-                <p className="text-primary-500/80 uppercase tracking-[0.2em] text-sm md:text-base">"Train With Guidance."</p>
+              {/* Header */}
+              <div className="relative flex justify-between items-center mb-12">
+                <span className="text-[9px] text-white/50 tracking-[0.3em] font-light">FROASTER FITNESS</span>
+                <span className="text-[9px] text-white/30 tracking-widest font-mono">02 / STANDARD</span>
               </div>
-              
-              <div className="w-full md:w-7/12 relative z-10">
-                <ul className="flex flex-col gap-y-6">
-                  {['Modern equipment', 'Cardio Zone', 'Workout floor', 'Drinking water', 'Open gym access', 'Basic guidance', 'Certified trainers', 'Workout plans'].map((feature, i) => (
-                    <li key={i} className="text-sm md:text-base font-light text-text-secondary uppercase tracking-[0.15em] flex items-center group/item">
-                      <span className="w-6 h-[1px] bg-white/20 mr-6 group-hover/item:w-10 group-hover/item:bg-primary-500/50 transition-all duration-500"></span>
-                      {feature}
+
+              {/* Title */}
+              <div className="relative mb-8 pb-8 border-b border-white/5">
+                <h3 className="text-4xl font-display font-bold uppercase text-white mb-2 tracking-wide drop-shadow-md">Standard</h3>
+                <p className="text-[10px] text-primary-500 tracking-[0.2em] uppercase font-light">Performance Access</p>
+              </div>
+
+              {/* Features */}
+              <div className="relative flex-1 flex flex-col">
+                <p className="text-[9px] text-white/40 tracking-[0.2em] uppercase mb-4">Includes</p>
+                <ul className="space-y-3 mb-8">
+                  {['Modern Equipment', 'Cardio Zone', 'Workout Floor', 'Drinking Water', 'Open Gym Access', 'Basic Guidance', 'Certified Trainers', 'Workout Plans'].map((feature, i) => (
+                    <li key={i} className="text-xs text-white/70 flex items-start font-light">
+                      <span className="text-primary-500 mr-3 mt-[1px] text-[10px]">✓</span> {feature}
                     </li>
                   ))}
                 </ul>
+              </div>
+
+              {/* Footer */}
+              <div className="relative mt-8 pt-6 border-t border-white/5 flex justify-between items-center mt-auto">
+                <span className="text-[8px] text-white/30 tracking-[0.2em] uppercase">Froaster Athletic Club</span>
+                <div className="w-1.5 h-1.5 bg-white/20 rotate-45 group-hover:bg-primary-500/50 transition-colors duration-700"></div>
               </div>
             </div>
 
-            {/* 03 PREMIUM */}
-            <div className="group relative border border-primary-500/20 rounded-sm py-20 md:py-32 px-6 md:px-16 flex flex-col md:flex-row items-start md:items-center gap-12 md:gap-24 overflow-hidden bg-[#050505] mt-12 md:mt-24 shadow-[0_0_50px_rgba(201,151,62,0.02)] hover:shadow-[0_0_80px_rgba(201,151,62,0.06)] transition-all duration-1000">
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,151,62,0.07)_0%,rgba(0,0,0,0)_60%)] opacity-50 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"></div>
+            {/* 03 PREMIUM CARD */}
+            <div className="group relative w-full lg:w-1/3 rounded-2xl bg-gradient-to-br from-[#111111] to-[#000000] border border-primary-500/20 p-8 lg:p-10 lg:-mt-4 lg:-mb-4 flex flex-col shadow-[0_10px_40px_rgba(0,0,0,0.8)] transition-all duration-700 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(201,151,62,0.1)] hover:brightness-110" style={{ transitionDelay: '100ms' }}>
+              <div className="absolute inset-0 rounded-2xl shadow-[inset_0_1px_0_rgba(201,151,62,0.2)] opacity-80 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+              <div className="absolute top-0 left-0 w-full h-full rounded-2xl border border-primary-500/30 group-hover:border-primary-500/60 transition-colors duration-700 pointer-events-none"></div>
               
-              <div className="absolute -right-10 -bottom-10 text-[14rem] md:text-[28rem] font-display font-bold text-primary-500/[0.03] group-hover:text-primary-500/[0.06] transition-colors duration-1000 select-none pointer-events-none leading-none">03</div>
-              
-              <div className="w-full md:w-5/12 relative z-10 md:pr-12 md:border-r border-primary-500/20">
-                <p className="text-[10px] text-primary-500 uppercase tracking-[0.3em] mb-6">The Complete Experience</p>
-                <h3 className="text-6xl md:text-8xl font-display font-bold uppercase text-white tracking-tighter mb-4 drop-shadow-2xl">Premium</h3>
-                <p className="text-text-muted uppercase tracking-[0.2em] text-sm md:text-base">"Train Without Limits."</p>
+              {/* Header */}
+              <div className="relative flex justify-between items-center mb-12">
+                <span className="text-[9px] text-primary-500/80 tracking-[0.3em] font-light">FROASTER FITNESS</span>
+                <span className="text-[9px] text-primary-500/50 tracking-widest font-mono">03 / PREMIUM</span>
               </div>
-              
-              <div className="w-full md:w-7/12 relative z-10">
-                <ul className="flex flex-col gap-y-6">
-                  {['Premium equipment', 'Cardio Zone', 'Spacious locker room', 'Clean hygiene & showers', 'Drinking water', 'Personalized training', 'Workout plan', 'Diet plan', 'Body progress tracking'].map((feature, i) => (
-                    <li key={i} className="text-sm md:text-base font-light text-white uppercase tracking-[0.15em] flex items-center group/item">
-                      <span className="w-6 h-[1px] bg-primary-500/50 mr-6 group-hover/item:w-10 group-hover/item:bg-primary-500 transition-all duration-500"></span>
-                      {feature}
+
+              {/* Title */}
+              <div className="relative mb-8 pb-8 border-b border-primary-500/10 flex justify-between items-start">
+                <div>
+                  <h3 className="text-5xl font-display font-bold uppercase text-white mb-2 tracking-wide drop-shadow-md">Premium</h3>
+                  <p className="text-[10px] text-primary-500 tracking-[0.2em] uppercase font-light">Signature Access</p>
+                </div>
+                <div className="border border-primary-500/30 px-2 py-1 rounded text-[7px] tracking-[0.3em] text-primary-500 uppercase">Signature</div>
+              </div>
+
+              {/* Features */}
+              <div className="relative flex-1 flex flex-col">
+                <p className="text-[9px] text-white/50 tracking-[0.2em] uppercase mb-4">Includes</p>
+                <ul className="space-y-3.5 mb-8">
+                  {['Premium Equipment', 'Cardio Zone', 'Spacious Locker Room', 'Clean Hygiene & Showers', 'Drinking Water', 'Personalized Training', 'Workout Plan', 'Diet Plan', 'Body Progress Tracking'].map((feature, i) => (
+                    <li key={i} className="text-xs text-white/80 flex items-start font-light">
+                      <span className="text-primary-500 mr-3 mt-[1px] text-[10px]">✓</span> {feature}
                     </li>
                   ))}
                 </ul>
+              </div>
+
+              {/* Footer */}
+              <div className="relative mt-8 pt-6 border-t border-primary-500/10 flex justify-between items-center mt-auto">
+                <span className="text-[8px] text-primary-500/50 tracking-[0.2em] uppercase">Froaster Athletic Club</span>
+                <div className="w-1.5 h-1.5 bg-primary-500/60 rotate-45 group-hover:bg-primary-500 transition-colors duration-700 shadow-[0_0_10px_rgba(201,151,62,0.5)]"></div>
               </div>
             </div>
 
