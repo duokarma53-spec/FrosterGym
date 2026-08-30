@@ -2,29 +2,6 @@ import { useEffect, useState } from 'react';
 import { Menu, X, ArrowRight, ArrowUpRight, MessageCircle, ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import EditorialLoader from '../../components/website/EditorialLoader';
 
-const PRICING_PLANS = [
-  {
-    name: 'Basic',
-    price: '₹1,500',
-    pricePT: '₹3,500',
-    features: ['Access to all modern equipment', 'Locker room access', '1 group class per month'],
-    img: '/FrosterGym/basic-plan.jpeg'
-  },
-  {
-    name: 'Standard',
-    price: '₹2,500',
-    pricePT: '₹4,500',
-    features: ['Access to all modern equipment', 'Locker room access', '4 group classes per month', 'Free diet consultation'],
-    img: '/FrosterGym/stnd-plan.jpeg'
-  },
-  {
-    name: 'Premium',
-    price: '₹3,500',
-    pricePT: '₹6,000',
-    features: ['Access to all modern equipment', 'Locker room access', 'Unlimited group classes', 'Customised diet plan'],
-    img: '/FrosterGym/pro-plan.jpeg'
-  }
-];
 
 const GALLERY_ITEMS = [
   {
@@ -86,7 +63,6 @@ export function PublicWebsite() {
   const [isLoading, setIsLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activePlan, setActivePlan] = useState(1);
   const [activeGallery, setActiveGallery] = useState(0);
 
   useEffect(() => {
@@ -267,69 +243,74 @@ export function PublicWebsite() {
       </section>
 
       {/* 4. Memberships */}
-      <section id="memberships" className="py-32 bg-background border-t border-surface-highlight overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12 md:mb-20 reveal opacity-0 translate-y-8 transition-all duration-1000">
-            <h2 className="text-5xl md:text-6xl font-display font-bold uppercase text-text-primary mb-6">Membership Plans</h2>
+      <section id="memberships" className="py-24 md:py-40 bg-background border-t border-surface-highlight overflow-hidden relative">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-16 md:mb-24 reveal opacity-0 translate-y-8 transition-all duration-1000">
+            <p className="text-primary-500 font-bold uppercase tracking-[0.3em] text-xs md:text-sm mb-4">Choose Your Level</p>
+            <h2 className="text-5xl md:text-7xl font-display font-bold uppercase text-text-primary mb-6">Train For More.</h2>
+            <p className="text-text-muted text-lg font-light max-w-2xl mx-auto">Three levels designed around how you want to train.</p>
           </div>
           
-          <div className="relative h-[400px] sm:h-[500px] md:h-[600px] flex items-center justify-center max-w-[1200px] mx-auto w-full perspective-[2000px] overflow-visible reveal opacity-0 translate-y-8 transition-all duration-1000">
-            {/* Left Arrow */}
-            <button 
-              onClick={() => setActivePlan((activePlan - 1 + PRICING_PLANS.length) % PRICING_PLANS.length)}
-              className="absolute left-2 md:left-8 z-40 p-3 rounded-full bg-background/80 backdrop-blur-md border border-white/10 text-white hover:bg-primary-500 hover:text-background transition-colors shadow-xl"
-            >
-              <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
-            </button>
+          <div className="flex flex-col lg:flex-row items-stretch justify-center gap-6 md:gap-8 w-full reveal opacity-0 translate-y-8 transition-all duration-1000 delay-200">
+            
+            {/* BASIC PLAN */}
+            <div className="group relative flex-1 bg-surface-base border border-white/5 rounded-2xl p-8 md:p-12 flex flex-col transition-all duration-500 hover:-translate-y-2 hover:border-white/20 hover:bg-surface-highlight">
+              <div className="text-text-muted font-display font-light text-5xl mb-6 transition-transform duration-500 group-hover:-translate-x-2">01</div>
+              <h3 className="text-2xl font-display font-bold uppercase text-white tracking-wide mb-2">Basic Access</h3>
+              <p className="text-text-muted text-sm font-light mb-10 pb-8 border-b border-white/10">Everything you need to train independently.</p>
+              
+              <ul className="flex-1 space-y-4 mb-10">
+                {['Modern equipment', 'Cardio Zone', 'Workout floor', 'Drinking water', 'Open gym access', 'No trainer or workout guidance provided'].map((feature, i) => (
+                  <li key={i} className="flex items-start text-sm text-text-secondary font-light">
+                    <span className="text-primary-500 mr-3 mt-0.5">✓</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              
+              <div className="mt-auto pt-6 border-t border-white/5">
+                <p className="text-[10px] tracking-widest text-text-muted uppercase mb-2">Note</p>
+                <p className="text-xs text-text-secondary">Bring your own: Shoes · Towel · Water Bottle</p>
+              </div>
+              <div className="absolute bottom-0 left-0 h-[2px] bg-primary-500 w-0 group-hover:w-full transition-all duration-700 ease-out"></div>
+            </div>
 
-            {PRICING_PLANS.map((plan, idx) => {
-              const isActive = activePlan === idx;
-              const isLeft = (activePlan - 1 + PRICING_PLANS.length) % PRICING_PLANS.length === idx;
-              const isRight = (activePlan + 1) % PRICING_PLANS.length === idx;
+            {/* STANDARD PLAN */}
+            <div className="group relative flex-1 bg-surface-base border border-white/5 rounded-2xl p-8 md:p-12 flex flex-col transition-all duration-500 hover:-translate-y-2 hover:border-white/20 hover:bg-surface-highlight">
+              <div className="text-text-muted font-display font-light text-5xl mb-6 transition-transform duration-500 group-hover:-translate-x-2">02</div>
+              <h3 className="text-2xl font-display font-bold uppercase text-white tracking-wide mb-2">Standard Access</h3>
+              <p className="text-text-muted text-sm font-light mb-10 pb-8 border-b border-white/10">Structured training with professional guidance.</p>
+              
+              <ul className="flex-1 space-y-4 mb-10">
+                {['Modern equipment', 'Cardio Zone', 'Workout floor', 'Drinking water', 'Open gym access', 'Basic guidance', 'Certified trainers', 'Workout plans'].map((feature, i) => (
+                  <li key={i} className="flex items-start text-sm text-text-secondary font-light">
+                    <span className="text-primary-500 mr-3 mt-0.5">✓</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <div className="absolute bottom-0 left-0 h-[2px] bg-primary-500 w-0 group-hover:w-full transition-all duration-700 ease-out"></div>
+            </div>
 
-              let positionClass = '';
-              let zIndex = 0;
+            {/* PREMIUM PLAN */}
+            <div className="group relative lg:flex-[1.15] bg-gradient-to-b from-surface-base to-background border border-primary-500/20 rounded-2xl p-8 md:p-14 flex flex-col transition-all duration-500 hover:-translate-y-2 hover:border-primary-500/50 hover:shadow-[0_20px_40px_rgba(201,151,62,0.05)]">
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-primary-500/50 to-transparent"></div>
+              
+              <div className="text-primary-500 font-display font-light text-6xl mb-6 transition-transform duration-500 group-hover:-translate-x-2">03</div>
+              <h3 className="text-3xl font-display font-bold uppercase text-white tracking-wide mb-2">Premium Access</h3>
+              <p className="text-text-muted text-sm font-light mb-10 pb-8 border-b border-white/10">A complete training experience built around you.</p>
+              
+              <ul className="flex-1 space-y-5 mb-10">
+                {['Premium equipment', 'Cardio Zone', 'Spacious locker room', 'Clean hygiene & showers', 'Drinking water', 'Personalized training', 'Workout plan', 'Diet plan', 'Body progress tracking'].map((feature, i) => (
+                  <li key={i} className="flex items-start text-sm text-text-secondary font-light">
+                    <span className="text-primary-500 mr-3 mt-0.5 font-bold">✓</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <div className="absolute bottom-0 left-0 h-[2px] bg-primary-500 w-0 group-hover:w-full transition-all duration-700 ease-out"></div>
+            </div>
 
-              if (isActive) {
-                positionClass = 'translate-x-0 translate-z-0 scale-100 opacity-100 brightness-100 shadow-[0_30px_60px_rgba(0,0,0,0.6)] shadow-primary-500/10 ring-1 ring-primary-500/30';
-                zIndex = 30;
-              } else if (isLeft) {
-                positionClass = '-translate-x-[20%] md:-translate-x-[30%] -translate-z-[200px] scale-[0.85] opacity-40 brightness-[0.3] hover:opacity-60 hover:brightness-50 cursor-pointer shadow-2xl ring-1 ring-white/5';
-                zIndex = 20;
-              } else if (isRight) {
-                positionClass = 'translate-x-[20%] md:translate-x-[30%] -translate-z-[200px] scale-[0.85] opacity-40 brightness-[0.3] hover:opacity-60 hover:brightness-50 cursor-pointer shadow-2xl ring-1 ring-white/5';
-                zIndex = 20;
-              } else {
-                positionClass = 'opacity-0 scale-50 -z-10 pointer-events-none';
-              }
-
-              return (
-                <div 
-                  key={idx}
-                  onClick={() => setActivePlan(idx)}
-                  className={`absolute w-[80%] sm:w-[60%] md:w-[45%] max-w-[400px] transition-all duration-1000 ease-[cubic-bezier(0.2,0.8,0.2,1)] rounded-2xl md:rounded-[2rem] overflow-hidden bg-background ${positionClass}`}
-                  style={{ zIndex, transformStyle: 'preserve-3d' }}
-                >
-                  <img src={plan.img} alt={plan.name} className="w-full h-auto object-cover" />
-                  
-                  {isActive && (
-                    <div className="absolute inset-0 flex items-end justify-center pb-6 md:pb-10 bg-gradient-to-t from-background/90 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500">
-                       <a href={`https://wa.me/919409478823?text=Hi, I'm interested in the ${plan.name} plan.`} target="_blank" rel="noreferrer" className="bg-primary-500 text-background px-10 py-4 rounded-full font-bold uppercase tracking-widest text-xs md:text-sm hover:bg-primary-400 hover:scale-105 transition-all duration-300 shadow-[0_10px_30px_rgba(201,151,62,0.3)]">
-                        Join Now
-                      </a>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-
-            {/* Right Arrow */}
-            <button 
-              onClick={() => setActivePlan((activePlan + 1) % PRICING_PLANS.length)}
-              className="absolute right-2 md:right-8 z-40 p-3 rounded-full bg-background/80 backdrop-blur-md border border-white/10 text-white hover:bg-primary-500 hover:text-background transition-colors shadow-xl"
-            >
-              <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
-            </button>
           </div>
         </div>
       </section>
