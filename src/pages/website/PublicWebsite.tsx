@@ -243,72 +243,93 @@ export function PublicWebsite() {
       </section>
 
       {/* 4. Memberships */}
-      <section id="memberships" className="py-24 md:py-40 bg-background border-t border-surface-highlight overflow-hidden relative">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-16 md:mb-24 reveal opacity-0 translate-y-8 transition-all duration-1000">
-            <p className="text-primary-500 font-bold uppercase tracking-[0.3em] text-xs md:text-sm mb-4">Choose Your Level</p>
-            <h2 className="text-5xl md:text-7xl font-display font-bold uppercase text-text-primary mb-6">Train For More.</h2>
-            <p className="text-text-muted text-lg font-light max-w-2xl mx-auto">Three levels designed around how you want to train.</p>
-          </div>
+      <section id="memberships" className="py-32 md:py-48 bg-background overflow-hidden relative">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 relative z-10">
           
-          <div className="flex flex-col lg:flex-row items-stretch justify-center gap-6 md:gap-8 w-full reveal opacity-0 translate-y-8 transition-all duration-1000 delay-200">
+          <div className="mb-24 md:mb-40 reveal opacity-0 translate-y-8 transition-all duration-1000">
+            <h2 className="text-xl font-bold uppercase tracking-widest text-white mb-2">Memberships</h2>
+            <p className="text-5xl md:text-7xl font-display font-bold uppercase text-text-primary mb-6">Train At Your Level.</p>
+            <p className="text-text-muted text-lg font-light tracking-wide uppercase">Three ways to train. One standard of excellence.</p>
+          </div>
+
+          <div className="flex flex-col reveal opacity-0 translate-y-8 transition-all duration-1000 delay-200">
             
-            {/* BASIC PLAN */}
-            <div className="group relative flex-1 bg-surface-base border border-white/5 rounded-2xl p-8 md:p-12 flex flex-col transition-all duration-500 hover:-translate-y-2 hover:border-white/20 hover:bg-surface-highlight">
-              <div className="text-text-muted font-display font-light text-5xl mb-6 transition-transform duration-500 group-hover:-translate-x-2">01</div>
-              <h3 className="text-2xl font-display font-bold uppercase text-white tracking-wide mb-2">Basic Access</h3>
-              <p className="text-text-muted text-sm font-light mb-10 pb-8 border-b border-white/10">Everything you need to train independently.</p>
+            {/* 01 BASIC */}
+            <div className="group relative border-t border-white/10 py-16 md:py-24 flex flex-col md:flex-row items-start md:items-center gap-12 md:gap-24 hover:bg-white/[0.01] transition-colors duration-700">
+              <div className="absolute -left-4 -top-8 md:-top-16 text-[10rem] md:text-[20rem] font-display font-bold text-white/[0.02] group-hover:text-white/[0.04] transition-colors duration-700 select-none pointer-events-none leading-none">01</div>
               
-              <ul className="flex-1 space-y-4 mb-10">
-                {['Modern equipment', 'Cardio Zone', 'Workout floor', 'Drinking water', 'Open gym access', 'No trainer or workout guidance provided'].map((feature, i) => (
-                  <li key={i} className="flex items-start text-sm text-text-secondary font-light">
-                    <span className="text-primary-500 mr-3 mt-0.5">✓</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              
-              <div className="mt-auto pt-6 border-t border-white/5">
-                <p className="text-[10px] tracking-widest text-text-muted uppercase mb-2">Note</p>
-                <p className="text-xs text-text-secondary">Bring your own: Shoes · Towel · Water Bottle</p>
+              <div className="w-full md:w-5/12 relative z-10 md:border-r border-white/10 md:pr-12">
+                <h3 className="text-6xl md:text-8xl font-display font-bold uppercase text-white tracking-tighter mb-4">Basic</h3>
+                <p className="text-text-muted uppercase tracking-[0.2em] text-sm md:text-base">"Train Independently."</p>
+                
+                <div className="mt-12 pt-8 border-t border-white/5 max-w-sm">
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-3">Not Included</p>
+                  <p className="text-sm text-text-muted font-light">No trainer or workout guidance</p>
+                </div>
+                
+                <div className="mt-8 pt-8 border-t border-white/5 max-w-sm">
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-3">Membership Note</p>
+                  <p className="text-sm text-text-muted font-light">Bring your own shoes, towel & water bottle.</p>
+                </div>
               </div>
-              <div className="absolute bottom-0 left-0 h-[2px] bg-primary-500 w-0 group-hover:w-full transition-all duration-700 ease-out"></div>
+              
+              <div className="w-full md:w-7/12 relative z-10">
+                <ul className="flex flex-col gap-y-6">
+                  {['Modern equipment', 'Cardio Zone', 'Workout floor', 'Drinking water', 'Open gym access'].map((feature, i) => (
+                    <li key={i} className="text-sm md:text-base font-light text-text-secondary uppercase tracking-[0.15em] flex items-center group/item">
+                      <span className="w-6 h-[1px] bg-white/20 mr-6 group-hover/item:w-10 group-hover/item:bg-white/60 transition-all duration-500"></span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
-            {/* STANDARD PLAN */}
-            <div className="group relative flex-1 bg-surface-base border border-white/5 rounded-2xl p-8 md:p-12 flex flex-col transition-all duration-500 hover:-translate-y-2 hover:border-white/20 hover:bg-surface-highlight">
-              <div className="text-text-muted font-display font-light text-5xl mb-6 transition-transform duration-500 group-hover:-translate-x-2">02</div>
-              <h3 className="text-2xl font-display font-bold uppercase text-white tracking-wide mb-2">Standard Access</h3>
-              <p className="text-text-muted text-sm font-light mb-10 pb-8 border-b border-white/10">Structured training with professional guidance.</p>
+            {/* 02 STANDARD */}
+            <div className="group relative border-t border-white/10 py-16 md:py-24 flex flex-col md:flex-row items-start md:items-center gap-12 md:gap-24 hover:bg-white/[0.01] transition-colors duration-700">
+              <div className="absolute top-0 left-0 w-0 h-[1px] bg-primary-500/50 group-hover:w-full transition-all duration-1000 ease-out"></div>
               
-              <ul className="flex-1 space-y-4 mb-10">
-                {['Modern equipment', 'Cardio Zone', 'Workout floor', 'Drinking water', 'Open gym access', 'Basic guidance', 'Certified trainers', 'Workout plans'].map((feature, i) => (
-                  <li key={i} className="flex items-start text-sm text-text-secondary font-light">
-                    <span className="text-primary-500 mr-3 mt-0.5">✓</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <div className="absolute bottom-0 left-0 h-[2px] bg-primary-500 w-0 group-hover:w-full transition-all duration-700 ease-out"></div>
+              <div className="absolute -left-4 -top-8 md:-top-16 text-[10rem] md:text-[20rem] font-display font-bold text-white/[0.02] group-hover:text-primary-500/[0.03] transition-colors duration-700 select-none pointer-events-none leading-none">02</div>
+              
+              <div className="w-full md:w-5/12 relative z-10 md:border-r border-white/10 md:pr-12">
+                <h3 className="text-6xl md:text-8xl font-display font-bold uppercase text-white tracking-tighter mb-4">Standard</h3>
+                <p className="text-primary-500/80 uppercase tracking-[0.2em] text-sm md:text-base">"Train With Guidance."</p>
+              </div>
+              
+              <div className="w-full md:w-7/12 relative z-10">
+                <ul className="flex flex-col gap-y-6">
+                  {['Modern equipment', 'Cardio Zone', 'Workout floor', 'Drinking water', 'Open gym access', 'Basic guidance', 'Certified trainers', 'Workout plans'].map((feature, i) => (
+                    <li key={i} className="text-sm md:text-base font-light text-text-secondary uppercase tracking-[0.15em] flex items-center group/item">
+                      <span className="w-6 h-[1px] bg-white/20 mr-6 group-hover/item:w-10 group-hover/item:bg-primary-500/50 transition-all duration-500"></span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
-            {/* PREMIUM PLAN */}
-            <div className="group relative lg:flex-[1.15] bg-gradient-to-b from-surface-base to-background border border-primary-500/20 rounded-2xl p-8 md:p-14 flex flex-col transition-all duration-500 hover:-translate-y-2 hover:border-primary-500/50 hover:shadow-[0_20px_40px_rgba(201,151,62,0.05)]">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-primary-500/50 to-transparent"></div>
+            {/* 03 PREMIUM */}
+            <div className="group relative border border-primary-500/20 rounded-sm py-20 md:py-32 px-6 md:px-16 flex flex-col md:flex-row items-start md:items-center gap-12 md:gap-24 overflow-hidden bg-[#050505] mt-12 md:mt-24 shadow-[0_0_50px_rgba(201,151,62,0.02)] hover:shadow-[0_0_80px_rgba(201,151,62,0.06)] transition-all duration-1000">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(201,151,62,0.07)_0%,rgba(0,0,0,0)_60%)] opacity-50 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"></div>
               
-              <div className="text-primary-500 font-display font-light text-6xl mb-6 transition-transform duration-500 group-hover:-translate-x-2">03</div>
-              <h3 className="text-3xl font-display font-bold uppercase text-white tracking-wide mb-2">Premium Access</h3>
-              <p className="text-text-muted text-sm font-light mb-10 pb-8 border-b border-white/10">A complete training experience built around you.</p>
+              <div className="absolute -right-10 -bottom-10 text-[14rem] md:text-[28rem] font-display font-bold text-primary-500/[0.03] group-hover:text-primary-500/[0.06] transition-colors duration-1000 select-none pointer-events-none leading-none">03</div>
               
-              <ul className="flex-1 space-y-5 mb-10">
-                {['Premium equipment', 'Cardio Zone', 'Spacious locker room', 'Clean hygiene & showers', 'Drinking water', 'Personalized training', 'Workout plan', 'Diet plan', 'Body progress tracking'].map((feature, i) => (
-                  <li key={i} className="flex items-start text-sm text-text-secondary font-light">
-                    <span className="text-primary-500 mr-3 mt-0.5 font-bold">✓</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <div className="absolute bottom-0 left-0 h-[2px] bg-primary-500 w-0 group-hover:w-full transition-all duration-700 ease-out"></div>
+              <div className="w-full md:w-5/12 relative z-10 md:pr-12 md:border-r border-primary-500/20">
+                <p className="text-[10px] text-primary-500 uppercase tracking-[0.3em] mb-6">The Complete Experience</p>
+                <h3 className="text-6xl md:text-8xl font-display font-bold uppercase text-white tracking-tighter mb-4 drop-shadow-2xl">Premium</h3>
+                <p className="text-text-muted uppercase tracking-[0.2em] text-sm md:text-base">"Train Without Limits."</p>
+              </div>
+              
+              <div className="w-full md:w-7/12 relative z-10">
+                <ul className="flex flex-col gap-y-6">
+                  {['Premium equipment', 'Cardio Zone', 'Spacious locker room', 'Clean hygiene & showers', 'Drinking water', 'Personalized training', 'Workout plan', 'Diet plan', 'Body progress tracking'].map((feature, i) => (
+                    <li key={i} className="text-sm md:text-base font-light text-white uppercase tracking-[0.15em] flex items-center group/item">
+                      <span className="w-6 h-[1px] bg-primary-500/50 mr-6 group-hover/item:w-10 group-hover/item:bg-primary-500 transition-all duration-500"></span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
 
           </div>
