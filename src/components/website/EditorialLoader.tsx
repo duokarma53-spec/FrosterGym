@@ -450,7 +450,6 @@ export default function EditorialLoader({ onComplete }: { onComplete: () => void
     const tl = gsap.timeline({ onComplete: finishLoading });
 
     // SCENE 1: Dumbbell materializes from darkness (0 → 1s)
-    tl.to(st, { dumbbellTarget: 1, duration: 0 }, 0); // dummy
     tl.to(st, {
       dbOpacity: 1,
       duration: 1.0,
