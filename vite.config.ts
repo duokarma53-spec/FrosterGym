@@ -8,7 +8,7 @@ function copySpaFallback() {
   return {
     name: 'copy-spa-fallback',
     closeBundle() {
-      const distDir = path.resolve(__dirname, 'dist')
+      const distDir = path.resolve(import.meta.dirname, 'dist')
       const indexHtml = path.resolve(distDir, 'index.html')
       const fallbackHtml = path.resolve(distDir, '404.html')
       if (fs.existsSync(indexHtml)) {
