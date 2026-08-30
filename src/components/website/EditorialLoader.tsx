@@ -425,7 +425,7 @@ export default function EditorialLoader({ onComplete }: { onComplete: () => void
     gsap.set(sweepRef.current, { x: '-160%' });
 
     // Ambient studio dust — slow ethereal float
-    ambientEls.forEach((el, i) => {
+    ambientEls.forEach((el) => {
       const startX = (Math.random() - 0.5) * w * 0.7;
       const startY = (Math.random() - 0.5) * h * 0.6;
       gsap.set(el, { x: startX, y: startY, opacity: 0 });
