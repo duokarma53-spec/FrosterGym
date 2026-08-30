@@ -219,8 +219,8 @@ export function PublicWebsite() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
           <div className="max-w-2xl reveal opacity-0 translate-y-8 transition-all duration-1000 ease-out">
             <h1 className="text-[4.5rem] leading-[0.9] md:text-8xl font-display font-bold text-text-primary mb-8 uppercase drop-shadow-2xl">
-              TRAIN HARD.<br/>
-              <span className="text-text-muted">LIVE STRONG.</span>
+              Where Fat<br/>
+              <span className="text-text-muted">Meets its Fate.</span>
             </h1>
             <p className="text-lg md:text-xl text-text-muted mb-12 font-light leading-relaxed max-w-lg">
               Froaster is a serious gym for people serious about training. 
