@@ -1,41 +1,36 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 export default function EditorialLoader({ onComplete }: { onComplete: () => void }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isDone, setIsDone] = useState(false);
-  const doneRef = useRef(false);
 
-  const finishLoading = useCallback(() => {
-    if (doneRef.current) return;
-    doneRef.current = true;
-    
-    // 2. Fade the loading overlay smoothly
+  const handleVideoComplete = useCallback(() => {
     setIsFadingOut(true);
-    
-    // 3 & 4. Reveal website and completely unmount after fade
-    setTimeout(() => {
+  }, []);
+
+  const handleTransitionEnd = useCallback(() => {
+    if (isFadingOut && !isDone) {
       document.body.style.overflow = '';
       setIsDone(true);
       onComplete();
-    }, 1000); // 1-second smooth transition
-  }, [onComplete]);
+    }
+  }, [isFadingOut, isDone, onComplete]);
 
   useEffect(() => {
     // Lock scrolling behind loader
     document.body.style.overflow = 'hidden';
-
-    // Fallback safety — if video fails or hangs, open site automatically
-    const fallback = setTimeout(finishLoading, 12000);
-
-    return () => clearTimeout(fallback);
-  }, [finishLoading]);
+    
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   if (isDone) return null;
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] bg-[#000] flex items-center justify-center overflow-hidden transition-opacity duration-1000 ease-in-out ${
+      onTransitionEnd={handleTransitionEnd}
+      className={`fixed inset-0 z-[9999] bg-[#000] flex items-center justify-center overflow-hidden transition-opacity duration-[800ms] ease-in-out ${
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
@@ -80,7 +75,6 @@ export default function EditorialLoader({ onComplete }: { onComplete: () => void
       `}</style>
 
       <video
-        ref={videoRef}
         className="cinematic-loader-video"
         src="/FrosterGym/load.mp4"
         autoPlay
@@ -88,11 +82,8 @@ export default function EditorialLoader({ onComplete }: { onComplete: () => void
         playsInline
         preload="auto"
         disablePictureInPicture
-        onEnded={() => {
-          // 1. Keep the final FROASTER frame visible briefly before starting the fade
-          setTimeout(finishLoading, 400);
-        }}
-        onError={finishLoading}
+        onEnded={handleVideoComplete}
+        onError={handleVideoComplete}
       />
     </div>
   );
