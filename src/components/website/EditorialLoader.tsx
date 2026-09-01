@@ -38,12 +38,12 @@ export default function EditorialLoader({ onComplete }: { onComplete: () => void
   return (
     <div
       onTransitionEnd={handleTransitionEnd}
-      className={`absolute inset-0 z-20 bg-black flex items-center justify-center overflow-hidden transition-opacity duration-[1000ms] ease-in-out ${
+      className={`fixed inset-0 z-[100] bg-black flex items-center justify-center overflow-hidden transition-opacity duration-[1000ms] ease-in-out ${
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
       <video
-        className="w-full h-full object-cover object-center pointer-events-none"
+        className="w-full h-full object-contain object-center pointer-events-none"
         style={{ willChange: 'opacity' }}
         src="/FrosterGym/load.mp4"
         autoPlay
