@@ -104,15 +104,23 @@ export function PublicWebsite() {
         .animate-marquee {
           animation: marquee 40s linear infinite;
         }
+        @keyframes navbarReveal {
+          from { opacity: 0; transform: translateY(-15px); filter: blur(4px); }
+          to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+        .animate-navbar-reveal {
+          animation: navbarReveal 800ms cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        }
       `}</style>
       
       {/* 1. Navbar (Floating Pill) */}
-      <div className="fixed top-0 left-0 w-full z-50 flex justify-center pt-4 md:pt-6 px-4 md:px-8 pointer-events-none">
-        <nav className={`pointer-events-auto transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] w-full max-w-[1200px] rounded-full border flex items-center justify-between px-6 md:px-10 ${
-          scrolled 
-            ? 'py-3 md:py-4 bg-[#0a0a0b]/85 backdrop-blur-xl border-[#D4AF37]/30 shadow-[0_15px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.05)]' 
-            : 'py-4 md:py-5 bg-[#050505]/40 backdrop-blur-md border-[#D4AF37]/15 shadow-lg'
-        }`}>
+      {!isLoading && (
+        <div className="fixed top-0 left-0 w-full z-50 flex justify-center pt-4 md:pt-6 px-4 md:px-8 pointer-events-none animate-navbar-reveal">
+          <nav className={`pointer-events-auto transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] w-full max-w-[1200px] rounded-full border flex items-center justify-between px-6 md:px-10 ${
+            scrolled 
+              ? 'py-3 md:py-4 bg-[#0a0a0b]/85 backdrop-blur-xl border-[#D4AF37]/30 shadow-[0_15px_40px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.05)]' 
+              : 'py-4 md:py-5 bg-[#050505]/40 backdrop-blur-md border-[#D4AF37]/15 shadow-lg'
+          }`}>
           
           {/* Brand Logo */}
           <div className="cursor-pointer flex items-center z-50 group" onClick={() => window.scrollTo(0, 0)}>
@@ -153,6 +161,7 @@ export function PublicWebsite() {
           </button>
         </nav>
       </div>
+      )}
 
       {/* Mobile Menu Overlay */}
       <div className={`fixed inset-0 bg-[#050505]/98 backdrop-blur-3xl z-40 transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] flex flex-col justify-center items-center px-8 ${isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
