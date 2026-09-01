@@ -105,7 +105,6 @@ export function PublicWebsite() {
           animation: marquee 40s linear infinite;
         }
       `}</style>
-      {isLoading && <EditorialLoader onComplete={() => setIsLoading(false)} />}
       
       {/* 1. Navbar (Floating Pill) */}
       <div className="fixed top-0 left-0 w-full z-50 flex justify-center pt-4 md:pt-6 px-4 md:px-8 pointer-events-none">
@@ -190,6 +189,8 @@ export function PublicWebsite() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
+          
+          {isLoading && <EditorialLoader onComplete={() => setIsLoading(false)} />}
         </div>
         
         <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">

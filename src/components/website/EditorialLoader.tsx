@@ -17,65 +17,34 @@ export default function EditorialLoader({ onComplete }: { onComplete: () => void
   }, [isFadingOut, isDone, onComplete]);
 
   useEffect(() => {
+    // Respect reduced motion
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      setIsDone(true);
+      onComplete();
+      return;
+    }
+
     // Lock scrolling behind loader
     document.body.style.overflow = 'hidden';
     
     return () => {
       document.body.style.overflow = '';
     };
-  }, []);
+  }, [onComplete]);
 
   if (isDone) return null;
 
   return (
     <div
       onTransitionEnd={handleTransitionEnd}
-      className={`fixed inset-0 z-[9999] bg-[#000] flex items-center justify-center overflow-hidden transition-opacity duration-[800ms] ease-in-out ${
+      className={`absolute inset-0 z-20 bg-black flex items-center justify-center overflow-hidden transition-opacity duration-[1000ms] ease-in-out ${
         isFadingOut ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
-      <style>{`
-        .cinematic-loader-video {
-          width: 100vw;
-          height: 100dvh;
-          object-fit: cover;
-          object-position: center;
-          pointer-events: none; /* Prevents interaction/controls */
-          will-change: opacity;
-        }
-
-        /* 
-          MOBILE SAFE-AREA STRATEGY (Portrait screens)
-          Instead of cropping the sides (which cuts off FROASTER) 
-          or leaving harsh black bars, we:
-          1. Use 'contain' to preserve the full composition width
-          2. Scale slightly (1.15) for a more premium, filled feel
-          3. Use a gradient mask to feather the top/bottom edges seamlessly into the #000 background
-        */
-        @media (max-aspect-ratio: 4/5) {
-          .cinematic-loader-video {
-            object-fit: contain;
-            transform: scale(1.15);
-            -webkit-mask-image: linear-gradient(
-              to bottom, 
-              transparent 0%, 
-              black 15%, 
-              black 85%, 
-              transparent 100%
-            );
-            mask-image: linear-gradient(
-              to bottom, 
-              transparent 0%, 
-              black 15%, 
-              black 85%, 
-              transparent 100%
-            );
-          }
-        }
-      `}</style>
-
       <video
-        className="cinematic-loader-video"
+        className="w-full h-full object-cover object-center pointer-events-none"
+        style={{ willChange: 'opacity' }}
         src="/FrosterGym/load.mp4"
         autoPlay
         muted
@@ -85,6 +54,9 @@ export default function EditorialLoader({ onComplete }: { onComplete: () => void
         onEnded={handleVideoComplete}
         onError={handleVideoComplete}
       />
+      
+      {/* Dark cinematic overlay / vignette */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.6)_100%)] pointer-events-none" />
     </div>
   );
 }
